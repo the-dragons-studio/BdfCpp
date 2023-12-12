@@ -13,6 +13,9 @@ namespace Bdf
 		std::string error_short;
 		std::string message;
 		int type;
+		int line;
+		int at;
+		std::string context;
 	
 	public:
 	
@@ -27,6 +30,9 @@ namespace Bdf
 		std::string getErrorShort();
 		std::string getError();
 		int getType();
+		int getLine();
+		int getAt();
+		std::string getContext()
 	
 		virtual const char* what() const throw();
 	};
