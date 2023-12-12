@@ -68,16 +68,20 @@ BdfError::BdfError(const int code, BdfStringReader reader, int length)
 	}
 
 	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
+
+	this->line = line + 1;
+	this->at = at + 1;
 	
-	error_short = ERRORS[code] + " " + std::to_string(line + 1) + ":" + std::to_string(at + 1);
+	error_short = ERRORS[code] + " " + std::to_string(this->line) + ":" + std::to_string(this->at);
 	
-	message  = error_short + "\n";
-	message += cv.to_bytes(std::wstring(start_of_line, line_size)) + "\n";
-	message += spacer;
+	context = cv.to_bytes(std::wstring(start_of_line, line_size)) + "\n";
+	context += spacer;
 
 	for(int i=0;i<length;i++) {
-		message += "^";
+		context += "^";
 	}
+
+	message += "\n" + context;
 }
 
 BdfError::BdfError(const int code, BdfStringReader reader) : BdfError(code, reader, 1) {
@@ -93,6 +97,21 @@ std::string BdfError::getError() {
 
 int BdfError::getType() {
 	return type;
+}
+
+// Get the line number at which the error occured.
+int BdfError::getLine() {
+	return this->line;
+}
+
+// Get the character number at which the error occured.
+int BdfError::getAt() {
+	return this->at;
+}
+
+// Get the context at which the error occured.
+std::string BdfError::getContext() {
+	return this->context;
 }
 
 const char* BdfError::what() const throw() {
