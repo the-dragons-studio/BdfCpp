@@ -32,7 +32,7 @@ namespace Bdf
 		int getType();
 		int getLine();
 		int getAt();
-		std::string getContext()
+		std::string getContext();
 	
 		virtual const char* what() const throw();
 	};
