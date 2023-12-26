@@ -1,5 +1,6 @@
 *.o
 *.so*
+*.dll
 .swo
 .*.swp
 *.bdf
@@ -8,3 +9,6 @@ tools/bdfconvert
 tools/bdfedit
 examples/helloworld
 examples/fibonacci
+CMakeCache.txt
+CMakeFiles/*
+include/timestamp.h
