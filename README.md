@@ -333,3 +333,10 @@ delete nl;
 bdf->setNamedList(bdf->newNamedList());
 
 ```
+
+### Installation
+This fork uses CMake to build. Follow these instructions to generate all needed files to start using BdfCpp.
+# Unpack BdfCpp to a chosen folder.
+# Navigate to the BdfCpp source folder in a command line window.
+# Run ``cmake .`` using your preferred command line arguments (e.g. ``cmake . -G MinGW Makefiles``)
+# Use the generated project files to build the project.
