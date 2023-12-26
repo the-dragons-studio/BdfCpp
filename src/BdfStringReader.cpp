@@ -1,6 +1,6 @@
 
-#include "BdfStringReader.hpp"
-#include "BdfError.hpp"
+#include "../include/BdfStringReader.hpp"
+#include "../include/BdfError.hpp"
 
 #include <string>
 #include <codecvt>

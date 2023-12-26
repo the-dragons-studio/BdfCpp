@@ -1,6 +1,6 @@
 
-#include "Bdf.hpp"
-#include "BdfHelpers.hpp"
+#include "../include/Bdf.hpp"
+#include "../include/BdfHelpers.hpp"
 #include <iostream>
 #include <string>
 #include <sstream>

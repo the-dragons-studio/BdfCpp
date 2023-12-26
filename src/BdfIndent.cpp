@@ -1,5 +1,5 @@
 
-#include "BdfIndent.hpp"
+#include "../include/BdfIndent.hpp"
 
 using namespace Bdf;
 
