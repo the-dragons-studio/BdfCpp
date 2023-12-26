@@ -3,6 +3,7 @@
 #define BDFHELPERS_HPP_
 
 #include <string>
+#include <cstdint>
 
 namespace BdfHelpers
 {
