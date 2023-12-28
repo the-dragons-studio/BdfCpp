@@ -17,6 +17,10 @@ Binary Data Format (BDF) is a statically typed data representation
 format. It was made to be free, fast, compact, and seamlessly
 convertable between its human readable and binary representations.
 
+This repository is a fork from the original <a href="https://github.com/jsrobson10/BdfCpp">BdfCpp created
+by jsrobson</a>. Compared to the original, this fork is aiming to offer better documentation (via Doxygen integration), 
+an easier build process and optional support for in-library compression via BdfReaderXz and BdfReaderGz.
+
 ### Languages
 
 - C++
@@ -335,7 +339,7 @@ bdf->setNamedList(bdf->newNamedList());
 ```
 
 ### Installation
-This fork uses CMake to build. Follow these instructions to generate all needed files to start using BdfCpp.
+This fork uses CMake to build. The base library requires only a C++17 compiler, whereas enabling the compression reader functions also requires the LZMA and GZip libraries. Follow these instructions to generate all needed files to start using BdfCpp.
 * Unpack BdfCpp to a chosen folder.
 * Navigate to the BdfCpp source folder in a command line window.
 * Run ``cmake .`` using your preferred command line arguments (e.g. ``cmake . -G MinGW Makefiles``)
