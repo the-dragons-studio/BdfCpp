@@ -18,9 +18,25 @@ add_custom_target(
 # Try to build Doxygen.
 option(BUILD_DOC "Build documentation" ON)
 
+add_executable(fibonacci examples/fibonacci.cpp)
+add_dependencies(fibonacci bdf)
+target_link_libraries(helloworld -lbdf)
+
 add_executable(helloworld examples/helloworld.cpp)
 add_dependencies(helloworld bdf)
 target_link_libraries(helloworld -lbdf)
+
+add_executable(tests examples/tests.cpp)
+add_dependencies(tests bdf)
+target_link_libraries(tests -lbdf)
+
+add_executable(bdfconvert tools/bdfconvert.cpp)
+add_dependencies(bdfconvert tools/bdfconvert)
+target_link_libraries(bdfconvert -lbdf)
+
+add_executable(bdfedit tools/bdfedit.cpp)
+add_dependencies(bdfedit bdf)
+target_link_libraries(bdfedit -lbdf -lboost)
 
 add_library(bdf src/BdfError.cpp src/BdfHelpers.cpp src/BdfIndent.cpp src/BdfList.cpp src/BdfLookupTable.cpp src/BdfNamedList.cpp src/BdfObject.cpp src/BdfReader.cpp src/BdfReaderHuman.cpp src/BdfStringReader.cpp src/version.cpp)
 add_dependencies(bdf timestamp)
