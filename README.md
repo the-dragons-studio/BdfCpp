@@ -21,7 +21,7 @@ This repository is a fork from the original <a href="https://github.com/jsrobson
 by jsrobson</a>. Compared to the original, this fork is aiming to offer better documentation (via Doxygen integration), 
 an easier build process and optional support for in-library compression via BdfReaderXz and BdfReaderGz. 
 
-This fork also formally uses <a href="https://semver.org/">Semantic Versioning</a>; although this version (2.0) is incompatible with the original fork, a branch (1.4) is also available that retains full compatibility.
+This fork also formally uses <a href="https://semver.org/">Semantic Versioning</a>; although this version (2.0) is incompatible with the original repository, a branch (1.4) is also available that retains full compatibility.
 
 ### Languages
 
