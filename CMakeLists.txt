@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.27)
-project(BdfCpp VERSION 1.4.0-alpha)
+project(BdfCpp VERSION 1.4.0)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
@@ -31,7 +31,7 @@ add_dependencies(tests bdf)
 target_link_libraries(tests -lbdf)
 
 add_executable(bdfconvert tools/bdfconvert.cpp)
-add_dependencies(bdfconvert tools/bdfconvert)
+add_dependencies(bdfconvert bdf)
 target_link_libraries(bdfconvert -lbdf)
 
 add_executable(bdfedit tools/bdfedit.cpp)
