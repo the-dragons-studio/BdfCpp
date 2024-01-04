@@ -22,7 +22,7 @@ namespace Bdf {
 	const std::string getLibraryBuildDate();
 	
 	/**
-	 * Get the version of the library currently in use with bdf.
+	 * Get the version of the library currently in use with BdfCpp.
 	 * If using a static library, returns the version of libbdf.a. If using a shared library, returns the version of libbdf.dll or libbdf.so.
 	 * @return a string containing the library version.
 	 */
