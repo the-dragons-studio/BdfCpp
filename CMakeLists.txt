@@ -20,7 +20,7 @@ option(BUILD_DOC "Build documentation" ON)
 
 add_executable(fibonacci examples/fibonacci.cpp)
 add_dependencies(fibonacci bdf)
-target_link_libraries(helloworld -lbdf)
+target_link_libraries(fibonacci -lbdf)
 
 add_executable(helloworld examples/helloworld.cpp)
 add_dependencies(helloworld bdf)
