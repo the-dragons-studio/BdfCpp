@@ -71,28 +71,7 @@ namespace Bdf
 		 * @param size an integer which will store the size.
 		 */
 		void serialize(char** data, int* size);
-			
-		/**
-		* Get a pointer to a BdfReader best suited to unserialising the data given at filename.
-		* That BdfReader will be returned having already unserialised the data at the file.
-		*
-		* This function should only be used by programs that follow the below guideline for file
-		* extensions in BDF format:
-		* - .bdf <-> BdfReader
-		* - .hbdf <-> BdfReaderHuman
-		* - .bdfgz <-> BdfReaderGzip
-		* - .bdfxz <-> BdfReaderXz
-		*
-		* @warning This function has undefined behaviour if the file does not contain the type
-		* of data expected given its filename (such as human readable data inside a .bdf file).
-		*
-		* @param filename the filename which contains BDF data that needs to be unserialised.
-		* @return a pointer to a BdfReader that was used to unserialise the file.
-		* @throw std::out_of_range if the requested extension could not be matched to a BdfReader,
-		* and any exceptions that might be thrown during BdfReader construction such as BdfError.
-		*/
-		static BdfReader getBestBdfReaderForFile(std::filesystem::path filename);
-		
+
 		/**
 		 * Gets the object currently associated with this BdfReader.
 		 * If default-constructed, this object will contain a BdfReader of undefined type. Otherwise,
