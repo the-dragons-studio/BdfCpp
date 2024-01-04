@@ -75,15 +75,49 @@ namespace Bdf
 		BdfError(const int code, BdfStringReader reader);
 		
 		/**
-		 * Gets a pre-formatted error message consting of: type of error line:at.
+		 * Gets a pre-formatted error message.
+		 * @return a string consisting of: type of error line:at.
 		 */
 		std::string getErrorShort() const noexcept;
+		
+		/**
+		 * Gets a pre-formatted error message consting of the same contents as getErrorShort(),
+		 * but also including context information.
+		 * @return a string consisting of: type of error line:at. \n context.
+		 */
 		std::string getError() const noexcept;
+		
+		/**
+		 * Gets the type of error. The returned value will correspond to a constant within BdfError.
+		 * indicating what error occured (e.g. ERROR_OUT_OF_RANGE).
+		 * An English-language string can be obtained by: BdfError::ERRORS[this->getType()].
+		 * @return an integer corresponding to the type of error.
+		 */
 		int getType() const noexcept;
+		
+		/**
+		 * Gets the line at which the error occured.
+		 * @return an integer representing the line number in the file where the error occured, or -1 if unknown.
+		 */
 		int getLine() const noexcept;
+		
+		/**
+		 * Gets the character on the line at getLine() at which the error occured.
+		 * @return an integer representing the character number on the line where the error occured, or -1 if unknown.
+		 */
 		int getAt() const noexcept;
+		
+		/**
+		 * Gets the context which shows where and how the error occured.
+		 * @note Callers of this method should be capable of handling multiline strings.
+		 * @return a string representing the exact data which caused the error, or blank if unknown.
+		 */
 		std::string getContext() const noexcept;
 	
+		/**
+		 * Same as getError().c_str().
+		 * @return a const char* string representing the error.
+		 */
 		virtual const char* what() const noexcept;
 	};
 }
