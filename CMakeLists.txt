@@ -18,25 +18,33 @@ add_custom_target(
 # Try to build Doxygen.
 option(BUILD_DOC "Build documentation" ON)
 
+# "examples/fibonacci" executable
 add_executable(fibonacci examples/fibonacci.cpp)
 add_dependencies(fibonacci bdf)
-target_link_libraries(fibonacci -lbdf)
+target_link_libraries(fibonacci bdf)
 
+# "examples/helloworld" executable
 add_executable(helloworld examples/helloworld.cpp)
 add_dependencies(helloworld bdf)
-target_link_libraries(helloworld -lbdf)
+target_link_libraries(helloworld bdf)
 
+# "examples/tests" executable
 add_executable(tests examples/tests.cpp)
 add_dependencies(tests bdf)
-target_link_libraries(tests -lbdf)
+target_link_libraries(tests bdf)
 
+# "examples/bdfconvert" executable
 add_executable(bdfconvert tools/bdfconvert.cpp)
 add_dependencies(bdfconvert bdf)
-target_link_libraries(bdfconvert -lbdf)
+target_link_libraries(bdfconvert bdf)
 
-add_executable(bdfedit tools/bdfedit.cpp)
-add_dependencies(bdfedit bdf)
-target_link_libraries(bdfedit -lbdf -lboost_iostreams)
+# "tools/bdfedit" executable
+# @note Only supported on Linux. 2.0.0 will replace the current implementation with a cross-platform rewrite.
+if(linux)
+	add_executable(bdfedit tools/bdfedit.cpp)
+	add_dependencies(bdfedit bdf)
+	target_link_libraries(bdfedit bdf -lboost_iostreams)
+endif()
 
 add_library(bdf src/BdfError.cpp src/BdfHelpers.cpp src/BdfIndent.cpp src/BdfList.cpp src/BdfLookupTable.cpp src/BdfNamedList.cpp src/BdfObject.cpp src/BdfReader.cpp src/BdfReaderHuman.cpp src/BdfStringReader.cpp src/version.cpp)
 add_dependencies(bdf timestamp)
