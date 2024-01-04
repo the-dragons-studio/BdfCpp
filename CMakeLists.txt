@@ -36,7 +36,7 @@ target_link_libraries(bdfconvert -lbdf)
 
 add_executable(bdfedit tools/bdfedit.cpp)
 add_dependencies(bdfedit bdf)
-target_link_libraries(bdfedit -lbdf -lboost)
+target_link_libraries(bdfedit -lbdf -lboost_iostreams)
 
 add_library(bdf src/BdfError.cpp src/BdfHelpers.cpp src/BdfIndent.cpp src/BdfList.cpp src/BdfLookupTable.cpp src/BdfNamedList.cpp src/BdfObject.cpp src/BdfReader.cpp src/BdfReaderHuman.cpp src/BdfStringReader.cpp src/version.cpp)
 add_dependencies(bdf timestamp)
