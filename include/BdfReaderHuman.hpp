@@ -18,7 +18,7 @@ namespace Bdf
 		/**
 		 * Initialises a BdfReaderHuman object by parsing data as human-readable BDF data.
 		 * @param data narrow-encoded text representing human-readable BDF data.
-		 * @warning Do not use this constructor for BDF binary data! Instead, use BdfReader::BdfReader(std::string).
+		 * @warning Do not use this constructor for BDF binary data! Instead, use BdfReader::BdfReader(const char* data, int size).
 		 * @throw BdfError if data could not be parsed.
                  * @warning Implicit conversion of BdfReaderHuman objects using this constructor is deprecated.
       		 *          This constructor will be marked explicit from 2.0.0 onwards.
