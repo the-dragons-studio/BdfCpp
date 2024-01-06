@@ -7,10 +7,6 @@
 #include <iostream>
 #include <vector>
 
-#if __cplusplus >= 202002L
-	#include <compare>
-#endif
-
 namespace Bdf
 {
 	class BdfList
