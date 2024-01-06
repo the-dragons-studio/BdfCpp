@@ -6,13 +6,22 @@
 
 namespace Bdf
 {
+	/**
+	 * Class used to configure indenting and line breaking of serialising human-readable BDF files.
+	 */
 	class BdfIndent
 	{
 	public:
 	
 		std::string indent;
 		std::string breaker;
-	
+		
+		/**
+		 * Creates an indenter.
+		 * The given strings must not contain any characters other than spaces, tabs and line breaking characters.
+		 * @param indent the string that will be used to indent (for example, in a BdfNamedList).
+		 * @param breaker the string that will be used to line break at the end of the line.
+		 */
 		BdfIndent(std::string indent, std::string breaker);
 	};
 }
