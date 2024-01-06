@@ -101,8 +101,9 @@ namespace Bdf
 		std::string getKeyName(int key);
 	
 		/**
-		 * Attempts to cast the object to a std::string.
-		 * @return an std::optional that contains a copy of the string if casting succeeded.
+		 * Attempts to cast the object to a std::string. If the object is not already a string, it is converted to one, and all data in the
+   		 * original will be lost.
+		 * @return a string that represents the one in the object if already a string, blank if a new one had to be created.
 		 * @warning Calling getString() in order to force this object to become a string is deprecated. From 2.0.0, this method will return
                  *          std::nullopt if the object is not already a string.
 		 */
@@ -186,6 +187,7 @@ namespace Bdf
    		 * @return a pointer to a BdfList; the current one associated with this object if already a named list, or a brand new one if converted.
 		 * @note In this version, this method does the same thing as getList(); however, it is recommended that callers switch to calling
 		 *       this method over getList(), as its behaviour will change in 2.0.0.
+   		 * @since 1.4.0
 		 */
 		BdfList* getOrNewList();
 		
@@ -195,6 +197,7 @@ namespace Bdf
    		 * @return a pointer to a BdfNamedList; the current one associated with this object if already a named list, or a brand new one if converted.
 		 * @note In this version, this method does the same thing as getNamedList(); however, it is recommended that callers switch to calling
 		 *       this method over getNamedList(), as its behaviour will change in 2.0.0.
+   		 * @since 1.4.0
 		 */
 		BdfNamedList* getOrNewNamedList();
 	};
