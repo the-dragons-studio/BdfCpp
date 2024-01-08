@@ -121,7 +121,7 @@ namespace Bdf
 		 * Get the item located at the end of the list.
    		 * @return the item at the end of the list.
    		 * @deprecated Will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
-                 *             In 2.0.0, use BdfObject* getStart() instead.
+                 *             In 2.0.0, use BdfObject* getEnd() instead.
 		 * @since 1.4.0
 		 */
 		Item* getEnd();
@@ -132,7 +132,7 @@ namespace Bdf
 		 * @param o the BdfObject to add to the list.
                  * @return the BdfList, now with o added to the list.
                  * @deprecated Will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
-                 *             Use insertLast(int index, BdfObject* object) instead.
+                 *             Use insertNext(int index, BdfObject* object) instead.
 		 * @since 1.4.0
 		 */
 		BdfList* insertNext(Item* item, BdfObject* object);
