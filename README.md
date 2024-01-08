@@ -341,7 +341,7 @@ BdfReader movedReader;
      * anyway.
      *
      * Be careful with move assignment, as this frees the contents of movedReader as well, so
-     * writing to its getObject() would also cause undefined behaviour!
+     * dereferencing its getObject() pointer after this would also cause undefined behaviour!
      */
     movedReader = std::move(expiringReader);
 } // expiringReader is freed at this point, but movedReader is NOT freed
