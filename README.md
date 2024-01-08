@@ -336,9 +336,12 @@ BdfReader movedReader;
 
     /*
      * Transfer ownership of bdf from expiringReader to movedReader using move assignment.
-     * This causes expiringReader to contain the same contents as movedReader which was
-     * default-constructed (so will be empty), but that's okay since we won't be using
-     * expiringReader again anyway.
+     * This causes expiringReader to contain the same contents as a default-constructed
+     * reader (so will be empty), but that's okay since we won't be using expiringReader again
+     * anyway.
+     *
+     * Be careful with move assignment, as this frees the contents of movedReader as well, so
+     * writing to its getObject() would also cause undefined behaviour!
      */
     movedReader = std::move(expiringReader);
 } // expiringReader is freed at this point, but movedReader is NOT freed
