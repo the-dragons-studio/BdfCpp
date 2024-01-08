@@ -105,7 +105,7 @@ namespace Bdf
 		/**
   		 * @internal
      		 */
-		void serializeHumanReadable(std::ostream &stream, BdfIndent indent, int upto) const;
+		void serializeHumanReadable(std::ostream &stream, BdfIndent indent, int upto);
 
 		/**
   		 * @internal
@@ -133,33 +133,6 @@ namespace Bdf
      		 * @internal
 		 */
 		std::string getKeyName(int key) const;
-	
-		/**
-		 * Attempts to cast the object to a std::string. If the object is not already a string, it is converted to one, and all data in the
-   		 * original will be lost.
-		 * @return a string that represents the one in the object if already a string, blank if a new one had to be created.
-		 * @warning Calling getString() in order to force this object to become a string is deprecated. From 2.0.0, this method will return
-                 *          std::nullopt if the object is not already a string.
-		 */
-		std::string getString() const noexcept;
-		
-		/**
-		 * Attempts to cast the object to a BdfList. If the object is not already a list, it is converted to one, and all data in the
-   		 * original will be lost.
-		 * @return a pointer to a BdfList; the current one associated with this object if already a list, or a brand new one if converted.
-		 * @warning Calling getList() in order to force this object to become a list is deprecated. From 2.0.0, this method will return
-                 *          nullptr if the object is not already a list.
-		 */
-		BdfList* getList() const noexcept;
-		
-		/**
-		 * Attempts to cast the object to a BdfNamedList. If the object is not already a named list, it is converted to one, and all data in the
-   		 * original will be lost.
-		 * @return a pointer to a BdfNamedList; the current one associated with this object if already a named list, or a brand new one if converted.
-		 * @warning Calling getNamedList() in order to force this object to become a named list is deprecated. From 2.0.0, this method will return
-                 *          nullptr if the object is not already a list.
-		 */
-		BdfNamedList* getNamedList() const noexcept;
 		
 		/**
 		 * Creates a new object based on this object's BdfLookupTable.
@@ -327,9 +300,32 @@ namespace Bdf
 		 */
 		void getFloatArray(float **v, int* s) const;
 	
-		// Objects
+		// Objects	
+		/**
+		 * Attempts to cast the object to a std::string. If the object is not already a string, it is converted to one, and all data in the
+   		 * original will be lost.
+		 * @return a string that represents the one in the object if already a string, blank if a new one had to be created.
+		 * @warning Calling getString() in order to force this object to become a string is deprecated. From 2.0.0, this method will return
+                 *          std::nullopt if the object is not already a string.
+		 */
 		std::string getString();
+		
+		/**
+		 * Attempts to cast the object to a BdfList. If the object is not already a list, it is converted to one, and all data in the
+   		 * original will be lost.
+		 * @return a pointer to a BdfList; the current one associated with this object if already a list, or a brand new one if converted.
+		 * @warning Calling getList() in order to force this object to become a list is deprecated. From 2.0.0, this method will return
+                 *          nullptr if the object is not already a list.
+		 */
 		BdfList* getList();
+		
+		/**
+		 * Attempts to cast the object to a BdfNamedList. If the object is not already a named list, it is converted to one, and all data in the
+   		 * original will be lost.
+		 * @return a pointer to a BdfNamedList; the current one associated with this object if already a named list, or a brand new one if converted.
+		 * @warning Calling getNamedList() in order to force this object to become a named list is deprecated. From 2.0.0, this method will return
+                 *          nullptr if the object is not already a list.
+		 */
 		BdfNamedList* getNamedList();
 	
 		// Set
