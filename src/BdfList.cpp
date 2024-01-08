@@ -102,7 +102,7 @@ BdfList::~BdfList()
 	clear();
 }
 
-int BdfList::size()
+int BdfList::size() const noexcept
 {
 	int size = 0;
 	Item* upto = this->start;
@@ -116,7 +116,7 @@ int BdfList::size()
 	return size;
 }
 
-BdfList::Item* BdfList::getAtIndex(int index)
+BdfList::Item* BdfList::getAtIndex(int index) const
 {
 	Item* upto = this->start;
 
@@ -139,7 +139,7 @@ BdfList::Item* BdfList::getAtIndex(int index)
 	return upto;
 }
 
-BdfObject* BdfList::get(int index)
+BdfObject* BdfList::get(int index) const
 {
 	return getAtIndex(index)->object;
 }
@@ -154,12 +154,12 @@ BdfList* BdfList::set(int index, BdfObject* o)
 	return this;
 }
 
-BdfList::Item* BdfList::getStart()
+BdfList::Item* BdfList::getStart() const noexcept
 {
 	return this->start;
 }
 
-BdfList::Item* BdfList::getEnd()
+BdfList::Item* BdfList::getEnd() const noexcept
 {
 	return this->end;
 }
@@ -221,7 +221,7 @@ BdfList* BdfList::insertLast(int key, BdfObject* object) {
 	return this->insertLast(this->getAtIndex(key), object);
 }
 
-BdfList* BdfList::remove(Item* item)
+BdfList* BdfList::remove(Item* item) noexcept
 {
 	if(item->next == NULL && item->last == NULL)
 	{
@@ -257,7 +257,7 @@ BdfList* BdfList::remove(Item* item)
 	return this;
 }
 
-BdfList* BdfList::remove(BdfObject* item)
+BdfList* BdfList::remove(BdfObject* item) noexcept
 {
 	Item* cur = this->start;
 
@@ -294,7 +294,7 @@ BdfList* BdfList::remove(int index)
 	return remove(getAtIndex(index));
 }
 
-BdfList* BdfList::clear()
+BdfList* BdfList::clear() noexcept
 {
 	Item* upto = this->start;
 	Item* next;

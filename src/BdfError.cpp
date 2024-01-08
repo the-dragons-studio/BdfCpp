@@ -87,33 +87,33 @@ BdfError::BdfError(const int code, BdfStringReader reader, int length)
 BdfError::BdfError(const int code, BdfStringReader reader) : BdfError(code, reader, 1) {
 }
 
-std::string BdfError::getErrorShort() {
+std::string BdfError::getErrorShort() const noexcept {
 	return error_short;
 }
 
-std::string BdfError::getError() {
+std::string BdfError::getError() const noexcept {
 	return message;
 }
 
-int BdfError::getType() {
+int BdfError::getType() const noexcept {
 	return type;
 }
 
 // Get the line number at which the error occured.
-int BdfError::getLine() {
+int BdfError::getLine() const noexcept {
 	return this->line;
 }
 
 // Get the character number at which the error occured.
-int BdfError::getAt() {
+int BdfError::getAt() const noexcept {
 	return this->at;
 }
 
 // Get the context at which the error occured.
-std::string BdfError::getContext() {
+std::string BdfError::getContext() const noexcept {
 	return this->context;
 }
 
-const char* BdfError::what() const throw() {
+const char* BdfError::what() const noexcept {
 	return message.c_str();
 }

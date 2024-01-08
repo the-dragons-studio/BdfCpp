@@ -791,11 +791,11 @@ void BdfObject::freeAll()
 	type = BdfTypes::UNDEFINED;
 }
 
-char BdfObject::getType() {
+char BdfObject::getType() const noexcept {
 	return type;
 }
 
-int BdfObject::serializeSeeker(int* locations)
+int BdfObject::serializeSeeker(int* locations) const
 {
 	int size = getDefaultSize(type);
 	
@@ -835,8 +835,8 @@ int BdfObject::serializeSeeker(int* locations)
 		
 	return size;
 }
-
-int BdfObject::serialize(char *pData, int* locations, unsigned char parent_flags)
+ 
+int BdfObject::serialize(char *pData, int* locations, unsigned char parent_flags) const
 {
 	int size = last_seek;
 	bool storeSize = shouldStoreSize(type);
@@ -909,7 +909,7 @@ int BdfObject::serialize(char *pData, int* locations, unsigned char parent_flags
 	return size;
 }
 
-void BdfObject::getLocationUses(int* locations)
+void BdfObject::getLocationUses(int* locations) const
 {
 	switch(type)
 	{
@@ -965,7 +965,7 @@ void decimalToStream(std::ostream &out, float v)
 	}
 }
 
-void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it)
+void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it) const
 {
 	switch (type)
 	{
@@ -1186,23 +1186,23 @@ void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int 
 
 
 
-int BdfObject::getKeyLocation(std::string key) {
+int BdfObject::getKeyLocation(std::string key) const {
 	return lookupTable->getLocation(key);
 }
 
-std::string BdfObject::getKeyName(int key) {
+std::string BdfObject::getKeyName(int key) const {
 	return lookupTable->getName(key);
 }
 
-BdfObject* BdfObject::newObject() {
+BdfObject* BdfObject::newObject() const {
 	return new BdfObject(lookupTable);
 }
 
-BdfNamedList* BdfObject::newNamedList() {
+BdfNamedList* BdfObject::newNamedList() const {
 	return new BdfNamedList(lookupTable);
 }
 
-BdfList* BdfObject::newList() {
+BdfList* BdfObject::newList() const {
 	return new BdfList(lookupTable);
 }
 
@@ -1221,7 +1221,7 @@ BdfObject* BdfObject::setAutoInt(int64_t number)
 	return this;
 }
 
-int64_t BdfObject::getAutoInt()
+int64_t BdfObject::getAutoInt() const
 {
 	switch(type)
 	{
@@ -1242,7 +1242,7 @@ int64_t BdfObject::getAutoInt()
 
 // Primitives
 
-int32_t BdfObject::getInteger()
+int32_t BdfObject::getInteger() const noexcept
 {
 	if(type != BdfTypes::INTEGER) {
 		return 0;
@@ -1251,7 +1251,7 @@ int32_t BdfObject::getInteger()
 	return get_netsi(data);
 }
 
-bool BdfObject::getBoolean()
+bool BdfObject::getBoolean() const noexcept
 {
 	if(type == BdfTypes::BOOLEAN) {
 		return data[0] == 0x01;
@@ -1260,7 +1260,7 @@ bool BdfObject::getBoolean()
 	}
 }
 
-int64_t BdfObject::getLong()
+int64_t BdfObject::getLong() const noexcept
 {
 	if(type != BdfTypes::LONG) {
 		return 0;
@@ -1269,7 +1269,7 @@ int64_t BdfObject::getLong()
 	return get_netsl(data);
 }
 
-int16_t BdfObject::getShort()
+int16_t BdfObject::getShort() const noexcept
 {
 	if(type != BdfTypes::SHORT) {
 		return 0;
@@ -1278,7 +1278,7 @@ int16_t BdfObject::getShort()
 	return get_netss(data);
 }
 
-char BdfObject::getByte()
+char BdfObject::getByte() const noexcept
 {
 	if(type != BdfTypes::BYTE) {
 		return 0;
@@ -1287,7 +1287,7 @@ char BdfObject::getByte()
 	return data[0];
 }
 
-double BdfObject::getDouble()
+double BdfObject::getDouble() const noexcept
 {
 	if(type != BdfTypes::DOUBLE) {
 		return 0;
@@ -1296,7 +1296,7 @@ double BdfObject::getDouble()
 	return get_netd(data);
 }
 
-float BdfObject::getFloat()
+float BdfObject::getFloat() const noexcept
 {
 	if(type != BdfTypes::FLOAT) {
 		return 0;
@@ -1307,7 +1307,7 @@ float BdfObject::getFloat()
 
 // Arrays
 
-void BdfObject::getIntegerArray(int32_t** v, int* pSize)
+void BdfObject::getIntegerArray(int32_t** v, int* pSize) const
 {
 	if(type != BdfTypes::ARRAY_INTEGER) {
 		*v = new int32_t[0];
@@ -1325,7 +1325,7 @@ void BdfObject::getIntegerArray(int32_t** v, int* pSize)
 	}
 }
 
-void BdfObject::getBooleanArray(bool** v, int* pSize)
+void BdfObject::getBooleanArray(bool** v, int* pSize) const
 {
 	if(type != BdfTypes::ARRAY_BOOLEAN) {
 		*v = new bool[0];
@@ -1341,7 +1341,7 @@ void BdfObject::getBooleanArray(bool** v, int* pSize)
 	}
 }
 
-void BdfObject::getShortArray(int16_t** v, int* pSize)
+void BdfObject::getShortArray(int16_t** v, int* pSize) const
 {
 	if(type != BdfTypes::ARRAY_SHORT) {
 		*v = new int16_t[0];
@@ -1359,7 +1359,7 @@ void BdfObject::getShortArray(int16_t** v, int* pSize)
 	}
 }
 
-void BdfObject::getLongArray(int64_t** v, int* pSize)
+void BdfObject::getLongArray(int64_t** v, int* pSize) const
 {
 	if(type != BdfTypes::ARRAY_LONG) {
 		*v = new int64_t[0];
@@ -1377,7 +1377,7 @@ void BdfObject::getLongArray(int64_t** v, int* pSize)
 	}
 }
 
-void BdfObject::getByteArray(char** v, int* pSize)
+void BdfObject::getByteArray(char** v, int* pSize) const
 {
 	if(type != BdfTypes::ARRAY_BYTE) {
 		*v = new char[0];
@@ -1389,7 +1389,7 @@ void BdfObject::getByteArray(char** v, int* pSize)
 	memcpy(*v, data, s);
 }
 
-void BdfObject::getDoubleArray(double** v, int* pSize)
+void BdfObject::getDoubleArray(double** v, int* pSize) const
 {
 	if(type != BdfTypes::ARRAY_DOUBLE) {
 		*v = new double[0];
@@ -1407,7 +1407,7 @@ void BdfObject::getDoubleArray(double** v, int* pSize)
 	}
 }
 
-void BdfObject::getFloatArray(float** v, int* pSize)
+void BdfObject::getFloatArray(float** v, int* pSize) const
 {
 	if(type != BdfTypes::ARRAY_FLOAT) {
 		*v = new float[0];

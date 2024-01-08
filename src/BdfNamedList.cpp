@@ -154,7 +154,7 @@ BdfNamedList::~BdfNamedList()
 	clear();
 }
 
-BdfNamedList* BdfNamedList::clear()
+BdfNamedList* BdfNamedList::clear() noexcept
 {
 	Item* cur = this->start;
 	Item* next;
@@ -172,7 +172,7 @@ BdfNamedList* BdfNamedList::clear()
 	return this;
 }
 
-std::vector<int> BdfNamedList::keys()
+std::vector<int> BdfNamedList::keys() const noexcept
 {
 	std::vector<int> keys;
 	Item* cur = this->start;
@@ -196,11 +196,11 @@ std::vector<int> BdfNamedList::keys()
 	return keys;
 }
 
-bool BdfNamedList::exists(std::string key) {
+bool BdfNamedList::exists(std::string key) const noexcept {
 	return exists(lookupTable->getLocation(key));
 }
 
-bool BdfNamedList::exists(int key)
+bool BdfNamedList::exists(int key) const noexcept
 {
 	Item* cur = this->start;
 
@@ -217,11 +217,11 @@ bool BdfNamedList::exists(int key)
 	return false;
 }
 
-BdfNamedList* BdfNamedList::set(std::string key, BdfObject* v) {
+BdfNamedList* BdfNamedList::set(std::string key, BdfObject* v) noexcept {
 	return set(lookupTable->getLocation(key), v);
 }
 
-BdfNamedList* BdfNamedList::set(int key, BdfObject* v)
+BdfNamedList* BdfNamedList::set(int key, BdfObject* v) noexcept
 {
 	Item* cur = this->start;
 
@@ -246,25 +246,15 @@ BdfNamedList* BdfNamedList::set(int key, BdfObject* v)
 	return this;
 }
 
-BdfList* BdfNamedList::remove(std::string key) {
-	delete this->pop(key);
-	return this;
-}
-
-BdfList* BdfNamedList::remove(int key) {
-	delete this->pop(key);
-	return this;
-}
-
-BdfObject* BdfNamedList::remove(int key) {
+BdfObject* BdfNamedList::remove(int key) noexcept {
         return this->pop(key);
 }
 
-BdfObject* BdfNamedList::pop(std::string key) {
+BdfObject* BdfNamedList::pop(std::string key) noexcept {
 	return this->pop(lookupTable->getLocation(key));
 }
 
-BdfObject* BdfNamedList::pop(int key)
+BdfObject* BdfNamedList::pop(int key) noexcept
 {
 	Item** cur = &this->start;
 
@@ -313,7 +303,7 @@ BdfObject* BdfNamedList::get(int key)
 	return v;
 }
 
-int BdfNamedList::serializeSeeker(int* locations)
+int BdfNamedList::serializeSeeker(int* locations) const
 {
 	int size = 0;
 	Item* cur = this->start;
@@ -337,7 +327,7 @@ int BdfNamedList::serializeSeeker(int* locations)
 	return size;
 }
 
-int BdfNamedList::serialize(char* data, int* locations)
+int BdfNamedList::serialize(char* data, int* locations) const
 {
 	int pos = 0;
 	Item* cur = this->start;
@@ -382,7 +372,7 @@ int BdfNamedList::serialize(char* data, int* locations)
 	return pos;
 }
 
-void BdfNamedList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it)
+void BdfNamedList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it) const
 {
 	if(this->start == NULL)
 	{
@@ -432,7 +422,7 @@ void BdfNamedList::serializeHumanReadable(std::ostream &out, BdfIndent indent, i
 	out << "}";
 }
 
-void BdfNamedList::getLocationUses(int* locations)
+void BdfNamedList::getLocationUses(int* locations) const noexcept
 {
 	Item* cur = this->start;
 

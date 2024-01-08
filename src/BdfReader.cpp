@@ -20,7 +20,7 @@ BdfReader::BdfReader() {
 	initEmpty();
 }
 
-BdfReader::BdfReader(const char* data, int size)
+BdfReader::BdfReader(const char* data, size_t size)
 {
 	if(size == 0) {
 		initEmpty();
