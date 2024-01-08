@@ -11,6 +11,9 @@ namespace Bdf
          * This class may not be used for binary data; use BdfReader instead.
 	 * All other operations of BdfReader are supported, including getting an BdfObject for viewing
          * and modifying data parsed, as well as serialising the data either as binary or human-readable data.
+	 * @since 1.0
+  	 * @newable
+    	 * @stable to extend
 	 */
 	class BdfReaderHuman : public BdfReader
 	{
