@@ -478,6 +478,22 @@ namespace Bdf
 
 		// Hybrid getters and setters
 		/**
+		 * Sets this BdfObject to a blank BdfList, and returns that BdfList.
+		 * All data in the original object will be lost.
+		 * @return a pointer to the new BdfList that was written to this BdfObject.
+   		 * @since 1.4.0
+		 */
+		BdfList* newSetAndGetList();
+		
+		/**
+		 * Sets this BdfObject to a blank BdfNamedList, and returns that BdfNamedList.
+		 * All data in the original object will be lost.
+		 * @return a pointer to the new BdfNamedList that was written to this BdfObject.
+   		 * @since 1.4.0
+		 */
+		BdfNamedList* newSetAndGetNamedList();
+
+		/**
 		 * If this is a BdfList, returns it. Otherwise, the object is automatically converted to a list.
 		 * All data in the original will be lost.
    		 * @return a pointer to a BdfList; the current one associated with this object if already a named list, or a brand new one if converted.
