@@ -6,16 +6,34 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
+
+#if __cplusplus >= 202002L
+	#include <compare>
+#endif
 
 namespace Bdf
 {
-	
+	/**
+	 * A BdfNamedList represents a BDF named list.
+	 * Unlike BdfList objects, BdfNamedList tags are permitted to have string keys.
+	 * Items on a BdfNamedList may be accessed either by a string key, or an
+	 * integer key as on a BdfList.
+	 * However, unlike a BdfLists, the list of valid keys is not guranteed to be in
+	 * numerical order.
+	 * @since 1.0
+	 */
 	class BdfNamedList
 	{
 	private:
 	
 		class Item;
-
+		
+		/** 
+		 * Subclass that represents an entry on a BdfList's linked list.
+		 * @internal
+		 * @since 1.4.0
+		 */
 		class Item
 		{
 		public:
@@ -33,27 +51,164 @@ namespace Bdf
 		BdfLookupTable* lookupTable;
 
 	public:
-		BdfNamedList(BdfLookupTable* lookupTable);
-		BdfNamedList(BdfLookupTable* lookupTable, const char* data, int size);
-		BdfNamedList(BdfLookupTable* lookupTable, BdfStringReader* sr);
-	
-		virtual ~BdfNamedList();
-	
-		void getLocationUses(int* locations);
-		int serializeSeeker(int* locations);
-		int serialize(char *data, int* locations);
-		void serializeHumanReadable(std::ostream &stream, BdfIndent indent, int upto);
+		/**
+		 * Constructs an empty BdfList which will use the lookup table at lookupTable for further operations.
+		 * @internal
+		 */
+		BdfList(BdfLookupTable* lookupTable);
+		
+		/**
+		 * Uses the char data at data to construct a BdfList.
+		 * @internal
+		 */
+		BdfList(BdfLookupTable* lookupTable, const char* data, int size);
+		
+		/**
+		 * Uses the string reader at sr to construct a BdfList.
+		 * @internal
+		 */
+		BdfList(BdfLookupTable* lookupTable, BdfStringReader* sr);
 
-		BdfNamedList* clear();	
+	        /**
+		 * Deleted (no copy constructor).
+	         */
+		BdfNamedList(const BdfNamedList&) = delete;
+		
+		/**
+		 * Destroys the BdfNamedList.
+		 * @since 1.0
+		 */
+		virtual ~BdfNamedList() noexcept;
+		
+		/**
+		 * @internal
+		 * @since 1.0
+		 */	
+		void getLocationUses(int* locations) const noexcept;
+		
+		/**
+		 * @internal
+		 * @since 1.0
+		 */	
+		int serializeSeeker(int* locations) const;
+		
+		/**
+		 * Serialises the named list to data using locations
+		 * @internal
+		 * @since 1.0
+		 */	
+		int serialize(char *data, int* locations) const;
+		
+		/**
+		 * Serialises the named list to &stream.
+		 * @internal
+		 * @since 1.0
+		 */	
+		void serializeHumanReadable(std::ostream &stream, BdfIndent indent, int upto) const;
+		
+		/**
+		 * Removes all elements in the BdfNamedList.
+		 * @return the BdfNamedList, now with all elements removed.
+		 * @since 1.4.0
+		 */
+		BdfNamedList* clear();
+		
+		/**
+		 * Gets the item located at key. If it does not exist, creates it.
+		 * @param key the key to search for in the list.
+		 * @return a pointer to the object located at key.
+		 * @warning Relying on this method's ability to create keys that don't exist is deprecated. From 2.0.0 onwards, this method
+		 *          will throw an std::out_of_range exception in that case instead.
+		 * @since 1.0
+		 */	
 		BdfObject* get(int key);
+		
+		/**
+		 * Gets the item located at key. If it does not exist, creates it.
+		 * @param key the key to search for in the list.
+		 * @return a pointer to the object located at key.
+		 * @warning Relying on this method's ability to create keys that don't exist is deprecated. From 2.0.0 onwards, this method
+		 *          will throw an std::out_of_range exception in that case instead.
+		 * @since 1.0
+		 */
 		BdfObject* get(std::string key);
+		
+		/**
+		 * Replaces the object located at key with the object located at value.
+		 * If key does not exist, create it.
+		 * @param key the key to replace or add to the list.
+		 * @param value the BdfObject to replace or add at key.
+		 * @return the BdfNamedList, now with the object set performed.
+		 * @since 1.0
+		 */
 		BdfNamedList* set(std::string key, BdfObject* value);
+		
+		/**
+		 * Replaces the object located at key with the object located at value.
+		 * If key does not exist, create it.
+		 * @param key the key to replace or add to the list.
+		 * @param value the BdfObject to replace or add at key.
+		 * @return the BdfNamedList, now with the object set performed.
+		 * @since 1.0
+		 */
 		BdfNamedList* set(int key, BdfObject* value);
-		BdfObject* remove(std::string key);
-		BdfObject* remove(int key);
-		std::vector<int> keys();
-		bool exists(std::string key);
-		bool exists(int key);
+		
+		/**
+		 * Removes the object located at key and returns that object.
+		 * @param key the location of the BdfObject that needs to be popped.
+		 * @return the BdfObject that lived at key.
+		 * @since 1.0
+		 * @deprecated since 1.4.0, will be replaced by pop() in 2.0.0 with no behaviour change.
+		 */
+		BdfObject* remove(std::string key) noexcept;
+		
+		/**
+		 * Removes the object located at key and returns that object.
+		 * @param key the location of the BdfObject that needs to be popped.
+		 * @return the BdfObject that lived at key.
+		 * @since 1.0
+		 * @deprecated since 1.4.0, will be replaced by pop() in 2.0.0 with no behaviour change.
+		 */
+		BdfObject* remove(int key) noexcept;
+		
+		/**
+		 * Pops the BdfObject located at the specified key from the list, then removes it.
+		 * @param key the location of the BdfObject that needs to be popped.
+		 * @return the BdfObject that lived at key.
+		 * @since 1.4.0
+		 */
+		BdfObject* pop(std::string key) noexcept;
+		
+		/**
+		 * Pops the BdfObject located at the specified key from the list, then removes it.
+		 * @param key the location of the BdfObject that needs to be popped.
+		 * @return the BdfObject that lived at key.
+		 * @since 1.4.0
+		 */
+		BdfObject* pop(int key) noexcept;
+		
+		/**
+		 * Gets a full list of integer keys that exist in the BdfNamedList.
+		 * @return a vector containing a list of keys.
+		 * @since 1.0
+		 */
+		std::vector<int> keys() const noexcept;
+		
+		/**
+		 * Checks if key exists in the BdfNamedList.
+		 * @param key the key to check for existence in the named list.
+		 * @return true if the key exists, false otherwise.
+		 * @since 1.0
+		 */
+		bool exists(std::string key) const noexcept;
+		
+		/**
+		 * Checks if key exists in the BdfNamedList.
+		 * @param key the key to check for existence in the named list.
+		 * @return true if the key exists, false otherwise.
+		 * @since 1.0
+		 */
+		bool exists(int key) const noexcept;
 	};
 }
 
