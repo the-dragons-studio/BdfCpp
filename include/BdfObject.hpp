@@ -8,6 +8,11 @@
 
 namespace Bdf
 {
+	/**
+  	 * Class that represents a standard BDF node, or object.
+    	 * They can be cast to values, if they are of the correct type. Alternatively, you can set their type and data.
+         * @since 1.0
+	 */
 	class BdfObject
 	{
 	private:
@@ -88,16 +93,51 @@ namespace Bdf
 		 */
 		explicit operator bool() const noexcept;
 
+		/**
+  		 * @internal
+     		 */
 		void getLocationUses(int* locations);
+
+		/**
+  		 * @internal
+     		 */
 		int serializeSeeker(int* locations);
+
+		/**
+  		 * @internal
+     		 */
 		int serialize(char* data, int* locations, unsigned char flags);
+
+		/**
+  		 * @internal
+     		 */
 		void serializeHumanReadable(std::ostream &stream, BdfIndent indent, int upto);
-	
+
+		/**
+  		 * @internal
+     		 */
 		static void getFlagData(const char* data, char* type, char* size_bytes, char* parent_flags);
+
+		/**
+  		 * @internal
+     		 */
 		static char getSizeBytes(char size_bytes);
+
+		/**
+  		 * @internal
+     		 */
 		static int getSize(const char* data);
-		
+
+		/**
+  		 * Gets the location of the key specified at key.
+     		 * @internal
+		 */
 		int getKeyLocation(std::string key);
+
+		/**
+  		 * Gets the name of the key located at key.
+     		 * @internal
+		 */
 		std::string getKeyName(int key);
 	
 		/**
@@ -126,29 +166,152 @@ namespace Bdf
                  *          nullptr if the object is not already a list.
 		 */
 		BdfNamedList* getNamedList() const noexcept;
-	
-		BdfObject* setAutoInt(long v);
-		long getAutoInt();
+
+		/**
+  		 * Automatically chooses the most appropriate integer size for the integer at v.
+     		 * @param v the integer to write to the object.
+		 * @return the BdfObject, now with v written.
+   		 * @since 1.0
+      		 */
+		BdfObject* setAutoInt(int64_t v);
+
+		/**
+  		 * Return any integer type stored in the object.
+     		 * @return the integer stored if the object is any integer type, or 0 if not an integer.
+		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
+   		 * @since 1.0
+      		 */
+		int64_t getAutoInt();
 	
 		// Get
 	
 		// Primitives
+		/**
+  		 * Return an integer if one is stored in this.
+     		 * @return the integer stored if the object is any integer type, or 0 if not an integer.
+		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
+   		 * @since 1.0
+      		 */
 		int32_t getInteger();
+
+		/**
+  		 * Return a boolean if one is stored in this.
+     		 * @return the boolean stored if the object is any integer type, or 0 if not an integer.
+		 * @deprecated Instead of relying on false as a sentinel value, this method will return an std::optional in 2.0.0.
+   		 * @since 1.0
+      		 */
 		bool getBoolean();
+
+		/**
+  		 * Return a long if one is stored in this.
+     		 * @return the long stored if the object is any integer type, or 0 if not an integer.
+		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
+   		 * @since 1.0
+      		 */
 	 	int64_t getLong();
+
+		/**
+  		 * Return a short if one is stored in this.
+     		 * @return the short stored if the object is any integer type, or 0 if not an integer.
+		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
+   		 * @since 1.0
+      		 */
 	 	int16_t getShort();
+
+		/**
+  		 * Return a byte if one is stored in this.
+     		 * @return the byte stored if the object is any integer type, or 0 if not an integer.
+		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
+   		 * @since 1.0
+      		 */
 	 	char getByte();
+
+		/**
+  		 * Return a double if one is stored in this.
+     		 * @return the double stored if the object is any integer type, or 0 if not an integer.
+		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
+   		 * @since 1.0
+      		 */
 		double getDouble();
+
+		/**
+  		 * Return a float if one is stored in this.
+     		 * @return the float stored if the object is any integer type, or 0 if not an integer.
+		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
+   		 * @since 1.0
+      		 */
 		float getFloat();
 	
 		// Arrays
-		void getIntegerArray(int32_t **v, int* s);
-		void getBooleanArray(bool **v, int* s);
-	 	void getLongArray(int64_t **v, int* s);
-	 	void getShortArray(int16_t **v, int* s);
-	 	void getByteArray(char **v, int* s);
-		void getDoubleArray(double **v, int* s);
-		void getFloatArray(float **v, int* s);
+		/**
+		 * Provides a pointer to a copy of an integer array at v.
+		 * It is the caller's responsibility to delete the data after calling this function.
+		 * @param v pointer to where the array will be written.
+		 * @param s an integer to which the size of the array will be written. It is the caller's
+		 *        responsibility to ensure this size is never exceeded.
+		 * @since 1.0
+		 */
+		void getIntegerArray(int32_t **v, int* s) const;
+		
+		/**
+		 * Provides a pointer to a copy of a boolean array at v.
+		 * It is the caller's responsibility to delete the data after calling this function.
+		 * @param v pointer to where the array will be written.
+		 * @param s an integer to which the size of the array will be written. It is the caller's
+		 *        responsibility to ensure this size is never exceeded.
+		 * @since 1.0
+		 */
+		void getBooleanArray(bool **v, int* s) const;
+		
+		/**
+		 * Provides a pointer to a copy of a long array at v.
+		 * It is the caller's responsibility to delete the data after calling this function.
+		 * @param v pointer to where the array will be written.
+		 * @param s an integer to which the size of the array will be written. It is the caller's
+		 *        responsibility to ensure this size is never exceeded.
+		 * @since 1.0
+		 */
+	 	void getLongArray(int64_t **v, int* s) const;
+		
+		/**
+		 * Provides a pointer to a copy of a short array at v.
+		 * It is the caller's responsibility to delete the data after calling this function.
+		 * @param v pointer to where the array will be written.
+		 * @param s an integer to which the size of the array will be written. It is the caller's
+		 *        responsibility to ensure this size is never exceeded.
+		 * @since 1.0
+		 */
+	 	void getShortArray(int16_t **v, int* s) const;
+		
+		/**
+		 * Provides a pointer to a copy of a byte array at v.
+		 * It is the caller's responsibility to delete the data after calling this function.
+		 * @param v pointer to where the array will be written.
+		 * @param s an integer to which the size of the array will be written. It is the caller's
+		 *        responsibility to ensure this size is never exceeded.
+		 * @since 1.0
+		 */
+	 	void getByteArray(char **v, int* s) const;
+		
+		/**
+		 * Provides a pointer to a copy of a double array at v.
+		 * It is the caller's responsibility to delete the data after calling this function.
+		 * @param v pointer to where the array will be written.
+		 * @param s an integer to which the size of the array will be written. It is the caller's
+		 *        responsibility to ensure this size is never exceeded.
+		 * @since 1.0
+		 */
+		void getDoubleArray(double **v, int* s) const;
+		
+		/**
+		 * Provides a pointer to a copy of a float array at v.
+		 * It is the caller's responsibility to delete the data after calling this function.
+		 * @param v pointer to where the array will be written.
+		 * @param s an integer to which the size of the array will be written. It is the caller's
+		 *        responsibility to ensure this size is never exceeded.
+		 * @since 1.0
+		 */
+		void getFloatArray(float **v, int* s) const;
 	
 		// Objects
 		std::string getString();
@@ -158,26 +321,159 @@ namespace Bdf
 		// Set
 	
 		// Primitives
+		/**
+		 * Sets the BdfObject using the integer given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new integer to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 		BdfObject* setInteger(int32_t v);
+
+		/**
+		 * Sets the BdfObject using the boolean given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new boolean to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 		BdfObject* setBoolean(bool v);
+
+		/**
+		 * Sets the BdfObject using the long given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new long to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 	 	BdfObject* setLong(int64_t v);
+
+		/**
+		 * Sets the BdfObject using the short given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new short to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 	 	BdfObject* setShort(int16_t v);
+
+		/**
+		 * Sets the BdfObject using the byte given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new byte to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 	 	BdfObject* setByte(char v);
+
+		/**
+		 * Sets the BdfObject using the double given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new double to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 		BdfObject* setDouble(double v);
+
+		/**
+		 * Sets the BdfObject using the float given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new float to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 		BdfObject* setFloat(float v);
 	
 		// Arrays
+		/**
+		 * Sets the BdfObject using the integer array given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new integer array to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 		BdfObject* setIntegerArray(const int32_t *v, int size);
+
+		/**
+		 * Sets the BdfObject using the boolean array given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new boolean array to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 		BdfObject* setBooleanArray(const bool *v, int size);
+
+		/**
+		 * Sets the BdfObject using the long array given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new long array to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 	 	BdfObject* setLongArray(const int64_t *v, int size);
+
+		/**
+		 * Sets the BdfObject using the short array given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new short array to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 	 	BdfObject* setShortArray(const int16_t *v, int size);
+
+		/**
+		 * Sets the BdfObject using the byte array given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new byte array to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 	 	BdfObject* setByteArray(const char *v, int size);
+
+		/**
+		 * Sets the BdfObject using the double array given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new double array to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 		BdfObject* setDoubleArray(const double *v, int size);
+
+		/**
+		 * Sets the BdfObject using the float array given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new float array to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 		BdfObject* setFloatArray(const float *v, int size);
 	
 		// Objects
+		/**
+		 * Sets the BdfObject using the string given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new string to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 		BdfObject* setString(std::string v);
+
+		/**
+		 * Sets the BdfObject using the BdfList given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new BdfList to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 		BdfObject* setList(BdfList* v);
+
+		/**
+		 * Sets the BdfObject using the BdfNamedList given at v.
+		 * All data in the original object will be lost.
+		 * @param v the new BdfNamedList to write.
+		 * @return a pointer to this object, now with the new data written.
+		 * @since 1.0
+		 */
 		BdfObject* setNamedList(BdfNamedList* v);
 
 		// Hybrid getters and setters
