@@ -14,7 +14,7 @@ namespace Bdf
 	 * Unlike BdfNamedList objects, string keys cannot be used to access items on
 	 * the list, but keys are guranteed to be sequential.
   	 * @since 1.0
-    	 * @note Called BdfArray prior to 1.3.
+     * @note Called BdfArray prior to 1.3.
 	 */
 	class BdfList
 	{
@@ -114,7 +114,7 @@ namespace Bdf
                  *             In 2.0.0, use BdfObject* getStart() instead.
 		 * @since 1.4.0
 		 */
-		Item* getStart();
+		Item* getStart() const noexcept;
 		
 		/**
 		 * Get the item located at the end of the list.
@@ -123,7 +123,7 @@ namespace Bdf
                  *             In 2.0.0, use BdfObject* getEnd() instead.
 		 * @since 1.4.0
 		 */
-		Item* getEnd();
+		Item* getEnd() const noexcept;
 		
 		/**
 		 * Inserts a new object after the item given in item.

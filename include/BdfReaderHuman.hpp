@@ -8,12 +8,12 @@ namespace Bdf
 {
 	/**
 	 * Derived class of BdfReader that unserialises human-readable BDF data instead of binary data.
-         * This class may not be used for binary data; use BdfReader instead.
+     * This class may not be used for binary data; use BdfReader instead.
 	 * All other operations of BdfReader are supported, including getting an BdfObject for viewing
-         * and modifying data parsed, as well as serialising the data either as binary or human-readable data.
+     * and modifying data parsed, as well as serialising the data either as binary or human-readable data.
+	 * @newable
+     * @stable to extend
 	 * @since 1.0
-  	 * @newable
-    	 * @stable to extend
 	 */
 	class BdfReaderHuman : public BdfReader
 	{
@@ -23,8 +23,9 @@ namespace Bdf
 		 * @param data narrow-encoded text representing human-readable BDF data.
 		 * @warning Do not use this constructor for BDF binary data! Instead, use BdfReader::BdfReader(const char* data, int size).
 		 * @throw BdfError if data could not be parsed.
-                 * @warning Implicit conversion of BdfReaderHuman objects using this constructor is deprecated.
-      		 *          This constructor will be marked explicit from 2.0.0 onwards.
+         * @warning Implicit conversion of BdfReaderHuman objects using this constructor is deprecated.
+      	 *          This constructor will be marked explicit from 2.0.0 onwards.
+		 * @since 1.0
 		 */
 		BdfReaderHuman(std::string data);
 		
@@ -33,7 +34,8 @@ namespace Bdf
 		 * @param data wide-encoded text representing human-readable BDF data.
 		 * @throw BdfError if data could not be parsed.
    		 * @warning Implicit conversion of BdfReaderHuman objects using this constructor is deprecated.
-      		 *          This constructor will be marked explicit from 2.0.0 onwards.
+         *          This constructor will be marked explicit from 2.0.0 onwards.
+		 * @since 1.0
 		 */
 		BdfReaderHuman(std::wstring data);
 	};

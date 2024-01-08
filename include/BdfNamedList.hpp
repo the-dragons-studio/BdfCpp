@@ -55,23 +55,23 @@ namespace Bdf
 		 * Constructs an empty BdfList which will use the lookup table at lookupTable for further operations.
 		 * @internal
 		 */
-		BdfList(BdfLookupTable* lookupTable);
+		BdfNamedList(BdfLookupTable* lookupTable);
 		
 		/**
 		 * Uses the char data at data to construct a BdfList.
 		 * @internal
 		 */
-		BdfList(BdfLookupTable* lookupTable, const char* data, int size);
+		BdfNamedList(BdfLookupTable* lookupTable, const char* data, int size);
 		
 		/**
 		 * Uses the string reader at sr to construct a BdfList.
 		 * @internal
 		 */
-		BdfList(BdfLookupTable* lookupTable, BdfStringReader* sr);
+		BdfNamedList(BdfLookupTable* lookupTable, BdfStringReader* sr);
 
-	        /**
+	    /**
 		 * Deleted (no copy constructor).
-	         */
+	     */
 		BdfNamedList(const BdfNamedList&) = delete;
 		
 		/**
@@ -111,7 +111,7 @@ namespace Bdf
 		 * @return the BdfNamedList, now with all elements removed.
 		 * @since 1.4.0
 		 */
-		BdfNamedList* clear();
+		BdfNamedList* clear() noexcept;
 		
 		/**
 		 * Gets the item located at key. If it does not exist, creates it.
@@ -141,7 +141,7 @@ namespace Bdf
 		 * @return the BdfNamedList, now with the object set performed.
 		 * @since 1.0
 		 */
-		BdfNamedList* set(std::string key, BdfObject* value);
+		BdfNamedList* set(std::string key, BdfObject* value) noexcept;
 		
 		/**
 		 * Replaces the object located at key with the object located at value.
@@ -151,23 +151,7 @@ namespace Bdf
 		 * @return the BdfNamedList, now with the object set performed.
 		 * @since 1.0
 		 */
-		BdfNamedList* set(int key, BdfObject* value);
-
-		/**
-		 * Removes the object located at key.
-		 * @param key the location of the BdfObject that needs to be removed.
-		 * @return the BdfNamedList, now with the object at key removed.
-		 * @since 1.4.0
-		 */
-		BdfList* remove(std::string key) noexcept;
-
-		/**
-		 * Removes the object located at key.
-		 * @param key the location of the BdfObject that needs to be removed.
-		 * @return the BdfNamedList, now with the object at key removed.
-		 * @since 1.4.0
-		 */
-		BdfList* remove(int key) noexcept;
+		BdfNamedList* set(int key, BdfObject* value) noexcept;
 
 		/**
 		 * Removes the object located at key and returns that object.
@@ -195,16 +179,18 @@ namespace Bdf
 		
 		/**
 		 * Pops the BdfObject located at the specified key from the list, then removes it.
+		 * Remember to delete the object when you're done, as it will no longer belong to any container and won't be deleted on its own.
 		 * @param key the location of the BdfObject that needs to be popped.
-		 * @return the BdfObject that lived at key.
+		 * @return the BdfObject that lived at key, or null if no object was found at key.
 		 * @since 1.4.0
 		 */
 		BdfObject* pop(std::string key) noexcept;
 		
 		/**
 		 * Pops the BdfObject located at the specified key from the list, then removes it.
+		 * Remember to delete the object when you're done, as it will no longer belong to any container and won't be deleted on its own.
 		 * @param key the location of the BdfObject that needs to be popped.
-		 * @return the BdfObject that lived at key.
+		 * @return the BdfObject that lived at key, or null if no object was found at key.
 		 * @since 1.4.0
 		 */
 		BdfObject* pop(int key) noexcept;

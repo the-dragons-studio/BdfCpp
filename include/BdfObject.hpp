@@ -18,7 +18,7 @@ namespace Bdf
 	private:
 	
 		BdfLookupTable* lookupTable;
-		int last_seek;
+		mutable int last_seek;
 		void *object;
 		char type;
 		char *data;
@@ -46,12 +46,6 @@ namespace Bdf
 		 */
 		BdfObject(BdfLookupTable* lookupTable, const char *data, int size);
 		
-		/**
-		 * Initialises a BdfObject using the given StringReader at sr.
-		 * @internal
-		 */
-		BdfObject(BdfLookupTable* lookupTable, BdfStringReader* sr);
-
 		/**
 		 * Initialises a BdfObject using the given StringReader at sr.
 		 * @internal
@@ -96,22 +90,22 @@ namespace Bdf
 		/**
   		 * @internal
      		 */
-		void getLocationUses(int* locations);
+		void getLocationUses(int* locations) const;
 
 		/**
   		 * @internal
      		 */
-		int serializeSeeker(int* locations);
+		int serializeSeeker(int* locations) const;
 
 		/**
   		 * @internal
      		 */
-		int serialize(char* data, int* locations, unsigned char flags);
+		int serialize(char* data, int* locations, unsigned char flags) const;
 
 		/**
   		 * @internal
      		 */
-		void serializeHumanReadable(std::ostream &stream, BdfIndent indent, int upto);
+		void serializeHumanReadable(std::ostream &stream, BdfIndent indent, int upto) const;
 
 		/**
   		 * @internal
@@ -132,13 +126,13 @@ namespace Bdf
   		 * Gets the location of the key specified at key.
      		 * @internal
 		 */
-		int getKeyLocation(std::string key);
+		int getKeyLocation(std::string key) const;
 
 		/**
   		 * Gets the name of the key located at key.
      		 * @internal
 		 */
-		std::string getKeyName(int key);
+		std::string getKeyName(int key) const;
 	
 		/**
 		 * Attempts to cast the object to a std::string. If the object is not already a string, it is converted to one, and all data in the
@@ -166,6 +160,26 @@ namespace Bdf
                  *          nullptr if the object is not already a list.
 		 */
 		BdfNamedList* getNamedList() const noexcept;
+		
+		/**
+		 * Creates a new object based on this object's BdfLookupTable.
+		 * @since 1.0
+		 */		
+		BdfObject* newObject() const;
+		
+		/**
+		 * Creates a new BdfNamedList based on this object's BdfLookupTable.
+		 * Unlike getOrNewNamedList(), this method does not modify the original object's type or data.
+		 * @since 1.0
+		 */
+		BdfNamedList* newNamedList() const;
+		
+		/**
+		 * Creates a new BdfList based on this object's BdfLookupTable.
+		 * Unlike getOrNewList(), this method does not modify the original object's type or data.
+		 * @since 1.0
+		 */
+		BdfList* newList() const;
 
 		/**
   		 * Automatically chooses the most appropriate integer size for the integer at v.
@@ -181,7 +195,7 @@ namespace Bdf
 		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
       		 */
-		int64_t getAutoInt();
+		int64_t getAutoInt() const;
 	
 		// Get
 	
@@ -192,7 +206,7 @@ namespace Bdf
 		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
       		 */
-		int32_t getInteger();
+		int32_t getInteger() const noexcept;
 
 		/**
   		 * Return a boolean if one is stored in this.
@@ -200,7 +214,7 @@ namespace Bdf
 		 * @deprecated Instead of relying on false as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
       		 */
-		bool getBoolean();
+		bool getBoolean() const noexcept;
 
 		/**
   		 * Return a long if one is stored in this.
@@ -208,7 +222,7 @@ namespace Bdf
 		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
       		 */
-	 	int64_t getLong();
+	 	int64_t getLong() const noexcept;
 
 		/**
   		 * Return a short if one is stored in this.
@@ -216,7 +230,7 @@ namespace Bdf
 		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
       		 */
-	 	int16_t getShort();
+	 	int16_t getShort() const noexcept;
 
 		/**
   		 * Return a byte if one is stored in this.
@@ -224,7 +238,7 @@ namespace Bdf
 		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
       		 */
-	 	char getByte();
+	 	char getByte() const noexcept;
 
 		/**
   		 * Return a double if one is stored in this.
@@ -232,7 +246,7 @@ namespace Bdf
 		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
       		 */
-		double getDouble();
+		double getDouble() const noexcept;
 
 		/**
   		 * Return a float if one is stored in this.
@@ -240,7 +254,7 @@ namespace Bdf
 		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
       		 */
-		float getFloat();
+		float getFloat() const noexcept;
 	
 		// Arrays
 		/**

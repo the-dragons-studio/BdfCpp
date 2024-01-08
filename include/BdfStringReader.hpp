@@ -6,6 +6,10 @@
 
 namespace Bdf
 {
+	/**
+	 * Class used to help unserialise human-readable BDF files.
+	 * @internal
+	 */
 	class BdfStringReader
 	{
 	public:
