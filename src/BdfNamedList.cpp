@@ -114,7 +114,6 @@ BdfNamedList::BdfNamedList(BdfLookupTable* pLookupTable, BdfStringReader* sr)
 			// There should be a colon after this
 			sr->ignoreBlanks();
 			if(sr->upto[0] != ':') {
-				std::cout << "ERROR: " << sr->upto[0] << "\n";
 				throw BdfError(BdfError::ERROR_SYNTAX, *sr);
 			}
 	
@@ -247,11 +246,25 @@ BdfNamedList* BdfNamedList::set(int key, BdfObject* v)
 	return this;
 }
 
-BdfObject* BdfNamedList::remove(std::string key) {
-	return remove(lookupTable->getLocation(key));
+BdfList* BdfNamedList::remove(std::string key) {
+	delete this->pop(key);
+	return this;
 }
 
-BdfObject* BdfNamedList::remove(int key)
+BdfList* BdfNamedList::remove(int key) {
+	delete this->pop(key);
+	return this;
+}
+
+BdfObject* BdfNamedList::remove(int key) {
+        return this->pop(key);
+}
+
+BdfObject* BdfNamedList::pop(std::string key) {
+	return this->pop(lookupTable->getLocation(key));
+}
+
+BdfObject* BdfNamedList::pop(int key)
 {
 	Item** cur = &this->start;
 
