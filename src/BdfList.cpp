@@ -186,6 +186,10 @@ BdfList* BdfList::insertNext(Item* item, BdfObject* object)
 	return this;
 }
 
+BdfList* BdfList::insertNext(int key, BdfObject* object) {
+	return this->insertNext(this->getAtIndex(key), object);
+}
+
 BdfList* BdfList::insertLast(Item* item, BdfObject* object)
 {
 	Item* item_new = new Item();
@@ -211,6 +215,10 @@ BdfList* BdfList::insertLast(Item* item, BdfObject* object)
 	}
 
 	return this;
+}
+
+BdfList* BdfList::insertLast(int key, BdfObject* object) {
+	return this->insertLast(this->getAtIndex(key), object);
 }
 
 BdfList* BdfList::remove(Item* item)
