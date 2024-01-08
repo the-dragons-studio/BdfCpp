@@ -318,7 +318,7 @@ nl.set("illegal", bdf2->newObject()->setString("action"));
 Once a reader has been freed, or any
 object connected to it, every object
 connected to that object will also
-bee freed.
+be freed.
 
 ```C++
 
@@ -334,9 +334,9 @@ BdfNamedList* nl2 = nl->get("namedList")->getNamedList();
 // so don't do this.
 delete nl;
 
-// Do this instead to avoid undefined
+// To clear nl, do this instead to avoid undefined
 // behaviour and nl will be freed.
-bdf->setNamedList(bdf->newNamedList());
+bdf->clear();
 
 ```
 
