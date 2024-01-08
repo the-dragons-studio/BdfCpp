@@ -7,7 +7,7 @@ namespace Bdf {
 	 * The header version.
 	 * @todo Convert this to use cmake instead.
 	 */
-	const std::string VERSION = "1.4.0";
+	const std::string VERSION = "1.4.1-alpha";
 	
 	/**
 	 * The header codename.
