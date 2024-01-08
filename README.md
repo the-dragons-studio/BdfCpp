@@ -333,7 +333,14 @@ BdfReader movedReader;
 {
     BdfReader expiringReader;
     bdf = expiringReader.getObject();
-    movedReader = std::move(expiringReader); // Transfer ownership of bdf from expiringReader to movedReader using move assignment.
+
+    /*
+     * Transfer ownership of bdf from expiringReader to movedReader using move assignment.
+     * This causes expiringReader to contain the same contents as movedReader which was
+     * default-constructed (so will be empty), but that's okay since we won't be using
+     * expiringReader again anyway.
+     */
+    movedReader = std::move(expiringReader);
 } // expiringReader is freed at this point, but movedReader is NOT freed
 
 bdf->setString("Hello defined behaviour!"); // OK; bdf still refers to movedReader (formerly expiringReader)'s object
