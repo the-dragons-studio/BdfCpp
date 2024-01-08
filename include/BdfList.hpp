@@ -1,4 +1,3 @@
-
 #ifndef BDFLIST_HPP_
 #define BDFLIST_HPP_
 
@@ -111,7 +110,7 @@ namespace Bdf
 		/**
 		 * Get the item located at the start of the list.
    		 * @return the item at the start of the list.
-   		 * @deprecated Will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
+   		 * @deprecated since 1.4.0, will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
                  *             In 2.0.0, use BdfObject* getStart() instead.
 		 * @since 1.4.0
 		 */
@@ -120,7 +119,7 @@ namespace Bdf
 		/**
 		 * Get the item located at the end of the list.
    		 * @return the item at the end of the list.
-   		 * @deprecated Will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
+   		 * @deprecated since 1.4.0, will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
                  *             In 2.0.0, use BdfObject* getEnd() instead.
 		 * @since 1.4.0
 		 */
@@ -131,10 +130,13 @@ namespace Bdf
    		 * @param item the item at which the object will be inserted next to.
 		 * @param o the BdfObject to add to the list.
                  * @return the BdfList, now with o added to the list.
-                 * @deprecated Will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
+                 * @deprecated since 1.4.0, will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
                  *             Use insertNext(int index, BdfObject* object) instead.
 		 * @since 1.4.0
 		 */
+		#if __cplusplus >= 201402L
+		[[deprecated("Use Bdf::BdfList::insertNext(int index, BdfObject* object) instead.")]]
+		#endif
 		BdfList* insertNext(Item* item, BdfObject* object);
 
 		/**
@@ -151,10 +153,13 @@ namespace Bdf
   		 * @param item the item at which the object will be inserted before.
 		 * @param o the BdfObject to add to the list.
    		 * @return the BdfList, now with o added to the list.
-   		 * @deprecated Will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
+   		 * @deprecated since 1.4.0, will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
                  *             Use insertLast(int index, BdfObject* object) instead.
 		 * @since 1.4.0
 		 */
+		#if __cplusplus >= 201402L
+		[[deprecated("Use Bdf::BdfList::insertLast(int index, BdfObject* object) instead.")]]
+		#endif
 		BdfList* insertLast(Item* item, BdfObject* object);
 
 		/**
@@ -189,10 +194,13 @@ namespace Bdf
 		 * Remove the Item given in item.
    		 * @param Item the item to remove from the list.
 		 * @return the BdfList, now with item removed.
-   		 * @deprecated Will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
+   		 * @deprecated since 1.4.0, will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
                  *             Use remove(BdfObject* object) or remove(int id) instead.
    		 * @since 1.4.0
 		 */
+		#if __cplusplus >= 201402L
+		[[deprecated("Use Bdf::BdfList::remove(BdfObject* object) or Bdf::BdfList::remove(int id) instead.")]]
+		#endif
 		BdfList* remove(Item* item) noexcept;
 		
 		/**
