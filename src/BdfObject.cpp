@@ -1206,7 +1206,7 @@ BdfList* BdfObject::newList() {
 	return new BdfList(lookupTable);
 }
 
-BdfObject* BdfObject::setAutoInt(long number)
+BdfObject* BdfObject::setAutoInt(int64_t number)
 {
 	if(number > 2147483648L || number <= -2147483648L) {
 		setLong(number);
@@ -1221,7 +1221,7 @@ BdfObject* BdfObject::setAutoInt(long number)
 	return this;
 }
 
-long BdfObject::getAutoInt()
+int64_t BdfObject::getAutoInt()
 {
 	switch(type)
 	{
@@ -1698,4 +1698,31 @@ BdfObject* BdfObject::setNamedList(BdfNamedList* v)
 	object = v;
 
 	return this;
+}
+
+// Hybrid getters and setters
+BdfNamedList* BdfObject::newSetAndGetNamedList() {
+	this->setNamedList(this->newNamedList());
+	return this->getNamedList();
+}
+
+BdfList* BdfObject::newSetAndGetList() {
+	this->setList(this->newList());
+	return this->getList();
+}
+
+BdfNamedList* BdfObject::getOrNewNamedList() {
+	if (this->type == BdfTypes::NAMED_LIST) {
+		return this->getNamedList();
+	}
+	
+	return this->newSetAndGetNamedList();
+}
+
+BdfList* BdfObject::getOrNewList() {
+	if (this->type == BdfTypes::LIST) {
+		return this->getList();
+	}
+	
+	return this->newSetAndGetList();
 }
