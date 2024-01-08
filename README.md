@@ -17,6 +17,12 @@ Binary Data Format (BDF) is a statically typed data representation
 format. It was made to be free, fast, compact, and seamlessly
 convertable between its human readable and binary representations.
 
+This repository is a fork from the original <a href="https://github.com/jsrobson10/BdfCpp">BdfCpp created
+by jsrobson</a>. Compared to the original, this fork is aiming to offer better documentation (via Doxygen integration), 
+an easier build process and optional support for in-library compression via BdfReaderXz and BdfReaderGz. 
+
+This fork also formally uses <a href="https://semver.org/">Semantic Versioning</a>; although this version (2.0) is incompatible with the original repository, a branch (1.4) is also available that retains full compatibility.
+
 ### Languages
 
 - C++
@@ -309,10 +315,41 @@ nl.set("illegal", bdf2->newObject()->setString("action"));
 
 ```
 
-Once a reader has been freed, or any
-object connected to it, every object
-connected to that object will also
-bee freed.
+Once a reader has been freed, or any object connected to it, every object connected to that object will also be freed. Where possible, use the reader's move constructor and assignment operator to extend lifetime and avoid dangling pointers.
+
+```C++
+
+BdfObject* bdf;
+
+{
+    BdfReader expiringReader;
+    bdf = expiringReader.getObject();
+} // expiringReader is freed at this point
+
+// bdf->setString("Hello undefined behaviour!"); // Undefined behaviour since bdf was freed when expiringReader was freed.
+
+BdfReader movedReader;
+
+{
+    BdfReader expiringReader;
+    bdf = expiringReader.getObject();
+
+    /*
+     * Transfer ownership of bdf from expiringReader to movedReader using move assignment.
+     * This causes expiringReader to contain the same contents as a default-constructed
+     * reader (so will be empty), but that's okay since we won't be using expiringReader again
+     * anyway.
+     *
+     * Be careful with move assignment, as this frees the contents of movedReader as well, so
+     * dereferencing its getObject() pointer after this would also cause undefined behaviour!
+     */
+    movedReader = std::move(expiringReader);
+} // expiringReader is freed at this point, but movedReader is NOT freed
+
+bdf->setString("Hello defined behaviour!"); // OK; bdf still refers to movedReader (formerly expiringReader)'s object
+```
+
+Do not delete the pointers returned by BdfObjects. Instead, use the clear() function to safely free data.
 
 ```C++
 
@@ -328,8 +365,15 @@ BdfNamedList* nl2 = nl->get("namedList")->getNamedList();
 // so don't do this.
 delete nl;
 
-// Do this instead to avoid undefined
+// To clear nl, do this instead to avoid undefined
 // behaviour and nl will be freed.
-bdf->setNamedList(bdf->newNamedList());
+bdf->clear();
 
 ```
+
+### Installation
+This fork uses CMake to build. The base library requires only a C++11 compiler.
+* Unpack BdfCpp to a chosen folder.
+* Navigate to the BdfCpp source folder in a command line window.
+* Run ``cmake .`` using your preferred command line arguments (e.g. ``cmake . -G MinGW Makefiles``)
+* Use the generated project files to build the project.
