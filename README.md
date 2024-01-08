@@ -315,10 +315,31 @@ nl.set("illegal", bdf2->newObject()->setString("action"));
 
 ```
 
-Once a reader has been freed, or any
-object connected to it, every object
-connected to that object will also
-be freed.
+Once a reader has been freed, or any object connected to it, every object connected to that object will also be freed. Where possible, use the reader's move constructor and assignment operator to extend lifetime and avoid dangling pointers.
+
+```C++
+
+BdfObject* bdf;
+
+{
+    BdfReader expiringReader;
+    bdf = expiringReader.getObject();
+} // expiringReader is freed at this point
+
+// bdf->setString("Hello undefined behaviour!"); // Undefined behaviour since bdf was freed when expiringReader was freed.
+
+BdfReader movedReader;
+
+{
+    BdfReader expiringReader;
+    bdf = expiringReader.getObject();
+    movedReader = std::move(expiringReader); // Transfer ownership of bdf from expiringReader to movedReader using move assignment.
+} // expiringReader is freed at this point, but movedReader is NOT freed
+
+bdf->setString("Hello defined behaviour!"); // OK; bdf still refers to movedReader (formerly expiringReader)'s object
+```
+
+Do not delete the pointers returned by BdfObjects. Instead, use the clear() function to safely free data.
 
 ```C++
 
