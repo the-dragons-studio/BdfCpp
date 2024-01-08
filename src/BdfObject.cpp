@@ -795,6 +795,10 @@ char BdfObject::getType() const noexcept {
 	return type;
 }
 
+BdfObject::operator bool() const noexcept {
+	return (this->getType() != BdfTypes::UNDEFINED);
+}
+
 int BdfObject::serializeSeeker(int* locations) const
 {
 	int size = getDefaultSize(type);
