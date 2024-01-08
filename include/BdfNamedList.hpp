@@ -152,7 +152,23 @@ namespace Bdf
 		 * @since 1.0
 		 */
 		BdfNamedList* set(int key, BdfObject* value);
-		
+
+		/**
+		 * Removes the object located at key.
+		 * @param key the location of the BdfObject that needs to be removed.
+		 * @return the BdfNamedList, now with the object at key removed.
+		 * @since 1.4.0
+		 */
+		BdfList* remove(std::string key) noexcept;
+
+		/**
+		 * Removes the object located at key.
+		 * @param key the location of the BdfObject that needs to be removed.
+		 * @return the BdfNamedList, now with the object at key removed.
+		 * @since 1.4.0
+		 */
+		BdfList* remove(int key) noexcept;
+
 		/**
 		 * Removes the object located at key and returns that object.
 		 * @param key the location of the BdfObject that needs to be popped.
@@ -160,6 +176,9 @@ namespace Bdf
 		 * @since 1.0
 		 * @deprecated since 1.4.0, will be replaced by pop() in 2.0.0 with no behaviour change.
 		 */
+		#if __cplusplus >= 201402L
+		[[deprecated("Use Bdf::BdfNamedList::pop(std::string key) instead.")]]
+		#endif
 		BdfObject* remove(std::string key) noexcept;
 		
 		/**
@@ -169,6 +188,9 @@ namespace Bdf
 		 * @since 1.0
 		 * @deprecated since 1.4.0, will be replaced by pop() in 2.0.0 with no behaviour change.
 		 */
+		#if __cplusplus >= 201402L
+		[[deprecated("Use Bdf::BdfNamedList::pop(int key) instead.")]]
+		#endif
 		BdfObject* remove(int key) noexcept;
 		
 		/**
