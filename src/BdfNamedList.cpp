@@ -250,7 +250,7 @@ BdfObject* BdfNamedList::remove(int key) noexcept {
         return this->pop(key);
 }
 
-BdfObject* BdfNamedList::pop(std::string key) noexcept {
+BdfObject* BdfNamedList::remove(std::string key) noexcept {
 	return this->pop(lookupTable->getLocation(key));
 }
 
