@@ -16,14 +16,20 @@ namespace Bdf {
 	
 	/**
 	 * Get the build date of the library currently in use with BdfCpp.
-	 * If using a static library, returns the build date of libbdf.a. If using a shared library, returns the build date of libbdf.dll or libbdf.so.
+	 * - If using a static library, returns the build date of the static library that was used to build the executable,
+         *   for example libbdf.a. 
+         * - If using a shared library, returns the build date of the shared library that was used when the executable was launched,
+         *   for example libbdf.dll or libbdf.so.
 	 * @return the build date in ISO 8601 UTC format.
 	 */
 	const std::string getLibraryBuildDate();
 	
 	/**
 	 * Get the version of the library currently in use with BdfCpp.
-	 * If using a static library, returns the version of libbdf.a. If using a shared library, returns the version of libbdf.dll or libbdf.so.
+	 * - If using a static library, returns the build date of the static library that was used to build the executable,
+         *   for example libbdf.a. 
+         * - If using a shared library, returns the build date of the shared library that was used when the executable was launched,
+         *   for example libbdf.dll or libbdf.so.
 	 * @return a string containing the library version.
 	 */
 	const std::string getLibraryVersion();
