@@ -141,7 +141,7 @@ namespace Bdf
 		std::string getContext() const noexcept;
 	
 		/**
-		 * Same as getError().c_str().
+		 * Get the C++ exception error message. Same as getError().c_str().
 		 * @note Callers of this method should be capable of handling multiline strings.
 		 * @return a const char* string representing the error.
 		 * @since 1.0
