@@ -1,5 +1,5 @@
 
-#include <bdf/Bdf.hpp>
+#include "../include/Bdf.hpp"
 
 #include <iostream>
 #include <fstream>
