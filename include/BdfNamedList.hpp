@@ -8,10 +8,6 @@
 #include <string>
 #include <algorithm>
 
-#if __cplusplus >= 202002L
-	#include <compare>
-#endif
-
 namespace Bdf
 {
 	/**
