@@ -5,7 +5,6 @@
 #include "Bdf.hpp"
 #include <iostream>
 #include <string>
-#include <filesystem>
 
 namespace Bdf
 {
