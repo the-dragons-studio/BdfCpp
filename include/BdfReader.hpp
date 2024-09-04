@@ -10,20 +10,20 @@
 namespace Bdf
 {
 	/**
-	 * Class that unserialises BDF data and exposes it through a pointed at BdfObject, allowing callers to interface with it programatically.
-     * Data may also be serialised as either binary data or human-readable data.
+	 * Class that unserialises binary BDF data and exposes it through a pointed at BdfObject, allowing callers to interface with it programatically.
+         * Data may also be serialised as either binary data or human-readable data.
 	 *
-     * This class should be your main entry point to interfacing with the BdfReader library. To use it, call the BdfReader(const char* data, size_t size)
-	 * constructor, which will unserialise the data.
-     *
+         * This class or one of its extended classes should be your main entry point to interfacing with the BdfReader library. 
+	 * To use it, call the BdfReader(const char* data, size_t size) constructor, which will unserialise the data.
+         *
 	 * Make sure that the BdfReader remains alive for the duration that you need to interface with its BdfObject. Once it is destructed (either by going
 	 * out of scope or by being the left-hand side value of move assignment, all pointers to its object and any subobjects become invalid; their behaviour
 	 * when dereferenced from this point on is undefined. Consider moving the object using the move constructor and assignment operators to prevent
 	 * invalidating pointers. In addition, do not attempt to delete any pointers obtained using this object.
 	 *
 	 * @newable
-     * @stable to extend
-     * @since 1.0
+         * @stable to extend
+         * @since 1.0
 	 */
 	class BdfReader
 	{
@@ -32,7 +32,7 @@ namespace Bdf
 		BdfLookupTable* lookupTable;
 
 		/**
-         * Initialises an empty BdfReader.
+                 * Initialises an empty BdfReader.
 		 * @since 1.0
    		 */
 		void initEmpty();
@@ -56,7 +56,7 @@ namespace Bdf
 		/** 
 		 * Move constructor. Takes ownership of all of BdfReader's resources as well as all BdfObjects it owns.
 		 * The BdfReader given in that becomes a default constructed reader.
-         * @param that the object which will be used to construct this reader.
+                 * @param that the object which will be used to construct this reader.
 		 * @since 1.4.0
 		 */
 		BdfReader(BdfReader &&that) noexcept;
@@ -64,15 +64,15 @@ namespace Bdf
 		/**
 		 * Switches the pointers of this with that for both the lookupTable and object.
    		 * @param that the object to switch pointers with.
-         * @since 1.4.0
+                 * @since 1.4.0
 		 */
 		void swap(BdfReader &&that) noexcept;
 		
 		/**
 		 * Deleted (no copy constructor).
 		 * Unfortunately, due to how BdfReaders are unserialised, it's not possible to copy objects purely based
-		 * on any given BdfReader.
-         * @since 1.4.0
+		 * on any given BdfReader. This may change in 2.0.
+                 * @since 1.4.0
 		 */
 		BdfReader(const BdfReader&) = delete;
 		
@@ -81,14 +81,14 @@ namespace Bdf
 		 * The BdfReader given in that becomes a default constructed reader.
 		 * @warning All pointers to objects created from the old BdfObject will also become invalid.
    		 * @param that the object which will be assigned to this.
-      	 * @return a new BdfReader using that's resources.
+      	         * @return a new BdfReader using that's resources.
 	 	 * @since 1.4.0
 		 */
 		BdfReader& operator=(BdfReader &&that) noexcept;
 		
 		/**
 		 * Deleted (no copy assignment).
-         * @since 1.4.0
+                 * @since 1.4.0
 		 */
 		BdfReader& operator=(const BdfReader&) = delete;
 		
@@ -154,8 +154,8 @@ namespace Bdf
 		/**
 		 * Streams human-readable BDF data representing the BdfObject contained in the reader
 		 * to &stream, indented using the indenter provided at indent.
-   	     * @param stream an output stream to which human-readable BDF data will be sent.
-	     * @param indent settings used for indenting the human-readable BDF data.
+   	         * @param stream an output stream to which human-readable BDF data will be sent.
+	         * @param indent settings used for indenting the human-readable BDF data.
    		 * @since 1.0
 		 */
 		void serializeHumanReadable(std::ostream &stream, BdfIndent indent);  
