@@ -19,8 +19,8 @@ namespace Bdf
 		std::string breaker;
 		
 		/**
-		 * Creates an indenter.
-		 * The given strings must not contain any characters other than spaces, tabs and line breaking characters.
+		 * Creates an indenter which can be passed to various serialising methods to customise
+                 * how they will be indented.
 		 * @param indent the string that will be used to indent (for example, in a BdfNamedList).
 		 * @param breaker the string that will be used to line break at the end of the line.
 		 */
