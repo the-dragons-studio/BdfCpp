@@ -358,8 +358,7 @@ void BdfList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it
 
 	if(upto != NULL)
 	{
-		for(;;)
-		{
+		do { // @todo: Replace this with iterator-based for loop
 			BdfObject *o = upto->object;
 	
 			out << indent.breaker;
@@ -370,16 +369,8 @@ void BdfList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it
 			o->serializeHumanReadable(out, indent, it + 1);
 			upto = upto->next;
 	
-			if(upto != NULL)
-			{
-				out << ", ";
-			}
-
-			else
-			{
-				break;
-			}
-		}
+		} while (upto != NULL);
+		
 	}
 
  	out << indent.breaker;
