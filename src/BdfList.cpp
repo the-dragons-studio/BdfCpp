@@ -373,11 +373,7 @@ void BdfList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it
 		
 	}
 
- 	out << indent.breaker;
-
-	out << indent.calcIndent(it);
-
-	out << "]";
+ 	out << indent.breaker << indent.calcIndent(it) << "]";
 }
 
 
