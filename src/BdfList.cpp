@@ -343,8 +343,7 @@ int BdfList::serialize(char *data, int* locations)
 	return pos;
 }
 
-void BdfList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it)
-{
+void BdfList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it) {
 	if(this->start == NULL)
 	{
 		out << "[]";
@@ -354,23 +353,25 @@ void BdfList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it
 
 	out << "[";
 
-	Item* upto = this->start;
+	// Get an iterator (only need const)
+	BdfList::ConstIterator iterator = this->cbegin();
 
-	if(upto != NULL)
-	{
-		do { // @todo: Replace this with iterator-based for loop
-			BdfObject *o = upto->object;
-	
-			out << indent.breaker;
+	if(iterator) {
+		do {
+			// For the second and onward iterations, print a comma separator. 
+			if (iterator != this->cbegin()) {
+				out << ", ";
+			}
 
-			// Untested replacement of loop-based indent with BdfIndent::calcIndent; does it work?
-			out << indent.calcIndent(it);
-	
-			o->serializeHumanReadable(out, indent, it + 1);
-			upto = upto->next;
-	
-		} while (upto != NULL);
-		
+			// Print a breaker and indenter.
+			out << indent.breaker << indent.calcIndent(it);
+
+			// Get the iterator's BdfObject's serialisation.
+			iterator->serializeHumanReadable(out, indent, it + 1);
+			
+			// Iterate. We'll only proceed back to the comma if this doesn't equal the end.
+			++iterator;
+		} while (iterator != this->cend());					
 	}
 
  	out << indent.breaker << indent.calcIndent(it) << "]";
