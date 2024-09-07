@@ -5,11 +5,16 @@
 
 using namespace Bdf;
 
-BdfIndent::BdfIndent(std::string pIndent, std::string pBreaker): indent(pIndent), breaker(pBreaker) {
-    // Check that all characters in the strings don't have illegal characters
-    if (this->indent.find_first_not_of("\t\n ") != std::string::npos) {
-        throw std::invalid_argument(std::string("Bdf::BdfIndent: Indenter \"") + this->indenter + "\" contains non-whitespace or newline characters.");
-    } else if (this->breaker.find_first_not_of("\t\n ") != std::string::npos) {
-        throw std::invalid_argument(std::string("Bdf::BdfIndent: Breaker \"") + this->breaker + "\" contains non-whitespace or newline characters.");
-    }
+BdfIndent::BdfIndent(std::string pIndent, std::string pBreaker): indent(pIndent), breaker(pBreaker) {}
+
+// Moved from BdfObject::calcIndent() to be more useful to other classes that need it.
+// @todo: Try to make constexpr?
+std::string BdfIndent::calcIndent(int it) {
+	std::string t = "";
+
+	for(int i=0; i<=it;i ++) {
+		t += this->indent;
+	}
+
+	return t;
 }
