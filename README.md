@@ -21,7 +21,7 @@ This repository is a fork from the original <a href="https://github.com/jsrobson
 by jsrobson</a>. Compared to the original, this fork is aiming to offer better documentation (via Doxygen integration), 
 an easier build process and optional support for in-library compression via BdfReaderXz and BdfReaderGz. 
 
-This fork also formally uses <a href="https://semver.org/">Semantic Versioning</a>; this version intends to provide full backwards compatibility (albeit not without some deprecations) to all versions of the jsrobson10 version.
+This fork also formally uses <a href="https://semver.org/">Semantic Versioning</a>; although this version (2.0) is incompatible with the original repository, a branch (1.4) is also available that retains full compatibility.
 
 ### Languages
 
@@ -372,7 +372,7 @@ bdf->clear();
 ```
 
 ### Installation
-This fork uses CMake to build. The base library requires only a C++11 compiler.
+This fork uses CMake to build. The base library requires only a C++17 compiler, whereas enabling the compression reader functions also requires the LZMA and GZip libraries. Follow these instructions to generate all needed files to start using BdfCpp.
 * Unpack BdfCpp to a chosen folder.
 * Navigate to the BdfCpp source folder in a command line window.
 * Run ``cmake .`` using your preferred command line arguments (e.g. ``cmake . -G MinGW Makefiles``)
