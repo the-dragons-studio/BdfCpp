@@ -363,10 +363,9 @@ void BdfList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it
 			BdfObject *o = upto->object;
 	
 			out << indent.breaker;
-	
-			for(int n=0;n<=it;n++) {
-				out << indent.indent;
-			}
+
+			// Untested replacement of loop-based indent with BdfIndent::calcIndent; does it work?
+			out << indent.calcIndent(it);
 	
 			o->serializeHumanReadable(out, indent, it + 1);
 			upto = upto->next;
@@ -385,9 +384,7 @@ void BdfList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it
 
  	out << indent.breaker;
 
-	for(int n=0;n<it;n++) {
-		out << indent.indent;
-	}
+	out << indent.calcIndent(it);
 
 	out << "]";
 }
