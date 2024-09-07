@@ -343,20 +343,17 @@ int BdfList::serialize(char *data, int* locations)
 	return pos;
 }
 
-void BdfList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it) {
-	if(this->start == NULL)
-	{
-		out << "[]";
-		
-		return;
-	}
-
-	out << "[";
-
+void BdfList::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it) {
 	// Get an iterator (only need const)
 	BdfList::ConstIterator iterator = this->cbegin();
 
-	if(iterator) {
+	if (!iterator) {
+        	out << "[]";
+		return;
+	} else {
+		std::string indenterCalculated = indent.calcIndent(it);
+		out << "[";
+		
 		do {
 			// For the second and onward iterations, print a comma separator. 
 			if (iterator != this->cbegin()) {
@@ -364,17 +361,17 @@ void BdfList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it
 			}
 
 			// Print a breaker and indenter.
-			out << indent.breaker << indent.calcIndent(it);
+			out << indent.breaker << indenterCalculated;
 
 			// Get the iterator's BdfObject's serialisation.
 			iterator->serializeHumanReadable(out, indent, it + 1);
 			
 			// Iterate. We'll only proceed back to the comma if this doesn't equal the end.
 			++iterator;
-		} while (iterator != this->cend());					
-	}
+		} while (iterator != this->cend());
 
- 	out << indent.breaker << indent.calcIndent(it) << "]";
+		out << indent.breaker << indenterCalculated << "]";
+	} 	
 }
 
 
