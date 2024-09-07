@@ -928,7 +928,7 @@ void BdfObject::getLocationUses(int* locations) const
 	}
 }
 
-std::string calcIndent(BdfIndent indent, int it)
+std::string calcIndent(const BdfIndent &indent, int it)
 {
 	std::string t = "";
 
@@ -969,7 +969,7 @@ void decimalToStream(std::ostream &out, float v)
 	}
 }
 
-void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it)
+void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it)
 {
 	switch (type)
 	{
