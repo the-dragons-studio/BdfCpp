@@ -8,6 +8,8 @@ namespace Bdf
 {
 	/**
 	 * Class used to configure indenting and line breaking of serialising human-readable BDF files.
+  	 * @since 1.0
+         * @newable
 	 */
 	class BdfIndent
 	{
