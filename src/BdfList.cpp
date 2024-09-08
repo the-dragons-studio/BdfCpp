@@ -360,7 +360,7 @@ int BdfList::serialize(char *data, int* locations) const
 	return pos;
 }
 
-void BdfList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it)
+void BdfList::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it)
 {
 	if(this->startItem == nullptr)
 	{
