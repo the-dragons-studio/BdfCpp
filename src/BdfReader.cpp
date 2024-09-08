@@ -6,6 +6,7 @@
 #include <sstream>
 #include <codecvt>
 #include <locale>
+#include <algorithm>
 
 using namespace Bdf;
 using namespace BdfHelpers;
@@ -20,7 +21,7 @@ BdfReader::BdfReader() {
 	initEmpty();
 }
 
-BdfReader::BdfReader(const char* data, int size)
+BdfReader::BdfReader(const char* data, size_t size)
 {
 	if(size == 0) {
 		initEmpty();
@@ -48,8 +49,7 @@ BdfReader::BdfReader(const char* data, int size)
 	
 	// Check if there is enough space in the buffer
 	if(bdf_size <= 0 || bdf_size + lookupTable_size_bytes > size) {
-		initEmpty();
-		return;
+		throw BdfError(BdfError::ERROR_SIZE_TAG_MISMATCH);
 	}
 	
 	const char* data_bdf = data;
@@ -73,8 +73,7 @@ BdfReader::BdfReader(const char* data, int size)
 	
 	// Check if there is enough space in the buffer
 	if(bdf_size + lookupTable_size_bytes + lookupTable_size > size) {
-		initEmpty();
-		return;
+		throw BdfError(BdfError::ERROR_SIZE_TAG_MISMATCH);
 	}
 	
 	// Load the lookup table and the objects from the buffer
@@ -82,12 +81,32 @@ BdfReader::BdfReader(const char* data, int size)
 	bdf = new BdfObject(lookupTable, data_bdf, bdf_size);
 }
 
+BdfReader::BdfReader(BdfReader &&that) noexcept : BdfReader() {
+	this->swap(std::move(that));
+}
+
+void BdfReader::swap(BdfReader &&that) noexcept {
+	std::swap(this->lookupTable, that.lookupTable);
+	std::swap(this->bdf, that.bdf);
+	
+	// Make sure the lookupTable's address correctly points at the new BdfReader
+	this->lookupTable->changeReader(this);
+	that.lookupTable->changeReader(&that);
+}
+
+BdfReader& BdfReader::operator=(BdfReader &&that) noexcept {
+	BdfReader temp(std::move(that));
+	this->swap(std::move(temp));
+	
+	return *this;
+}
+
 BdfReader::~BdfReader() {
 	delete lookupTable;
 	delete bdf;
 }
 
-void BdfReader::serialize(char** pData, int* pSize)
+void BdfReader::serialize(char** pData, int* pSize) const
 {
 	int locations_size = lookupTable->size();
 	int* locations = new int[locations_size];
@@ -141,6 +160,10 @@ BdfObject* BdfReader::getObject() {
 	return bdf;
 }
 
+const BdfObject* BdfReader::getObject() const {
+	return bdf;
+}
+
 BdfObject* BdfReader::resetObject()
 {
 	delete bdf;
@@ -148,7 +171,7 @@ BdfObject* BdfReader::resetObject()
 	return bdf;
 }
 
-std::string BdfReader::serializeHumanReadable(BdfIndent indent)
+std::string BdfReader::serializeHumanReadable(BdfIndent indent) const
 {
 	std::stringstream stream;
 
@@ -157,16 +180,16 @@ std::string BdfReader::serializeHumanReadable(BdfIndent indent)
 	return stream.str();
 }
 
-std::string BdfReader::serializeHumanReadable() {
+std::string BdfReader::serializeHumanReadable() const {
 	return serializeHumanReadable(BdfIndent("", ""));
 }
 
-void BdfReader::serializeHumanReadable(std::ostream &stream) {
+void BdfReader::serializeHumanReadable(std::ostream &stream) const {
 	bdf->serializeHumanReadable(stream, BdfIndent("", ""), 0);
 	stream << "\n";
 }
 
-void BdfReader::serializeHumanReadable(std::ostream &stream, BdfIndent indent) {
+void BdfReader::serializeHumanReadable(std::ostream &stream, BdfIndent indent) const {
 	bdf->serializeHumanReadable(stream, indent, 0);
 	stream << "\n";
 }

@@ -114,7 +114,6 @@ BdfNamedList::BdfNamedList(BdfLookupTable* pLookupTable, BdfStringReader* sr)
 			// There should be a colon after this
 			sr->ignoreBlanks();
 			if(sr->upto[0] != ':') {
-				std::cout << "ERROR: " << sr->upto[0] << "\n";
 				throw BdfError(BdfError::ERROR_SYNTAX, *sr);
 			}
 	
@@ -150,12 +149,12 @@ BdfNamedList::BdfNamedList(BdfLookupTable* pLookupTable, BdfStringReader* sr)
 	}
 }
 
-BdfNamedList::~BdfNamedList()
+BdfNamedList::~BdfNamedList() noexcept
 {
 	clear();
 }
 
-BdfNamedList* BdfNamedList::clear()
+BdfNamedList* BdfNamedList::clear() noexcept
 {
 	Item* cur = this->start;
 	Item* next;
@@ -173,7 +172,7 @@ BdfNamedList* BdfNamedList::clear()
 	return this;
 }
 
-std::vector<int> BdfNamedList::keys()
+std::vector<int> BdfNamedList::keys() const noexcept
 {
 	std::vector<int> keys;
 	Item* cur = this->start;
@@ -197,11 +196,11 @@ std::vector<int> BdfNamedList::keys()
 	return keys;
 }
 
-bool BdfNamedList::exists(std::string key) {
+bool BdfNamedList::exists(std::string key) const noexcept {
 	return exists(lookupTable->getLocation(key));
 }
 
-bool BdfNamedList::exists(int key)
+bool BdfNamedList::exists(int key) const noexcept
 {
 	Item* cur = this->start;
 
@@ -247,11 +246,21 @@ BdfNamedList* BdfNamedList::set(int key, BdfObject* v)
 	return this;
 }
 
-BdfObject* BdfNamedList::remove(std::string key) {
-	return remove(lookupTable->getLocation(key));
+BdfList* BdfNamedList::remove(std::string key) {
+	delete this->pop(key);
+	return this;
 }
 
-BdfObject* BdfNamedList::remove(int key)
+BdfList* BdfNamedList::remove(int key) {
+	delete this->pop(key);
+	return this;
+}
+
+BdfObject* BdfNamedList::pop(std::string key) noexcept {
+	return this->pop(lookupTable->getLocation(key));
+}
+
+BdfObject* BdfNamedList::pop(int key) noexcept
 {
 	Item** cur = &this->start;
 
@@ -276,12 +285,20 @@ BdfObject* BdfNamedList::remove(int key)
 	return NULL;
 }
 
-BdfObject* BdfNamedList::get(std::string key) {
+BdfObject* BdfNamedList::get(std::string key) const {
+	if(!this->exists(key)) {
+		throw std::out_of_range("key " + key + " does not exist");
+	}
+	
 	return get(lookupTable->getLocation(key));
 }
 
-BdfObject* BdfNamedList::get(int key)
+BdfObject* BdfNamedList::get(int key) const
 {
+	if(!this->exists(key)) {
+		throw std::out_of_range("key " + std::to_string(key) + " does not exist");
+	}
+	
 	Item* cur = this->start;
 
 	while(cur != NULL)
@@ -293,14 +310,11 @@ BdfObject* BdfNamedList::get(int key)
 
 		cur = cur->next;
 	}
-
-	BdfObject* v = new BdfObject(lookupTable);
-	set(key, v);
-
-	return v;
+	
+	return nullptr;
 }
 
-int BdfNamedList::serializeSeeker(int* locations)
+int BdfNamedList::serializeSeeker(int* locations) const
 {
 	int size = 0;
 	Item* cur = this->start;
@@ -324,7 +338,7 @@ int BdfNamedList::serializeSeeker(int* locations)
 	return size;
 }
 
-int BdfNamedList::serialize(char* data, int* locations)
+int BdfNamedList::serialize(char* data, int* locations) const
 {
 	int pos = 0;
 	Item* cur = this->start;
@@ -369,7 +383,7 @@ int BdfNamedList::serialize(char* data, int* locations)
 	return pos;
 }
 
-void BdfNamedList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it)
+void BdfNamedList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it) const
 {
 	if(this->start == NULL)
 	{
@@ -419,7 +433,7 @@ void BdfNamedList::serializeHumanReadable(std::ostream &out, BdfIndent indent, i
 	out << "}";
 }
 
-void BdfNamedList::getLocationUses(int* locations)
+void BdfNamedList::getLocationUses(int* locations) const noexcept
 {
 	Item* cur = this->start;
 
@@ -429,4 +443,31 @@ void BdfNamedList::getLocationUses(int* locations)
 		cur->object->getLocationUses(locations);
 		cur = cur->next;
 	}
+}
+
+std::partial_ordering BdfNamedList::operator<=>(const BdfNamedList& rhs) const noexcept {
+	std::vector<int> lhsKeys = this->keys();
+	std::vector<int> rhsKeys = rhs.keys();
+	
+	std::vector<int> keysToCheck;
+    std::set_intersection(lhsKeys.begin(), lhsKeys.end(), rhsKeys.begin(), rhsKeys.end(), std::back_inserter(keysToCheck));
+	
+	std::partial_ordering iComparisonResult = std::partial_ordering::unordered;
+	
+	// Iterate through the keys common to both BdfNamedLists
+	for (int i : keysToCheck) {
+		iComparisonResult = (this->get(i) <=> rhs.get(i));
+		
+		// Return the first comparison result that isn't std::partial_ordering::equivalent.
+		if (iComparisonResult != std::partial_ordering::equivalent) {
+			return iComparisonResult;
+		}
+	}
+	
+	// If the above for loop fails to find a result, fall back to the original keys() sizes.
+	return (lhsKeys.size() <=> rhsKeys.size());
+}
+
+bool BdfNamedList::operator==(const BdfNamedList& rhs) const noexcept {
+	return ((*this <=> rhs) == std::partial_ordering::equivalent);
 }

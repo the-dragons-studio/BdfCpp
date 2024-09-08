@@ -675,7 +675,7 @@ BdfObject::BdfObject(BdfLookupTable* pLookupTable, BdfStringReader* sr)
 
 	bool isDecimal = false;
 
-	for(;;)
+	for(;;) // @fixme This really should break at end of file, rather than relying on exceptions to do that.
 	{
 		if(!sr->inRange()) {
 			throw BdfError(BdfError::ERROR_END_OF_FILE, *sr);
@@ -791,7 +791,7 @@ void BdfObject::freeAll()
 	type = BdfTypes::UNDEFINED;
 }
 
-char BdfObject::getType() {
+char BdfObject::getType() const noexcept {
 	return type;
 }
 
@@ -924,6 +924,17 @@ void BdfObject::getLocationUses(int* locations)
 	}
 }
 
+std::string calcIndent(BdfIndent indent, int it)
+{
+	std::string t = "";
+
+	for(int i=0;i<=it;i++) {
+		t += indent.indent;
+	}
+
+	return t;
+}
+
 void decimalToStream(std::ostream &out, double v)
 {
 	if(std::isnan(v)) {
@@ -954,7 +965,7 @@ void decimalToStream(std::ostream &out, float v)
 	}
 }
 
-void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it)
+void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it)
 {
 	switch (type)
 	{
@@ -971,41 +982,41 @@ void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &inden
 		}
 
 		case BdfTypes::STRING: {
-			out << serializeString(getString());
+			out << serializeString(*getString());
 			return;
 		}
 
 		// Primitives
 
 		case BdfTypes::INTEGER: {
-			out << getInteger() << "I";
+			out << *getInteger() << "I";
 			return;
 		}
 
 		case BdfTypes::BOOLEAN: {
-			if(getBoolean()) out << "true";
+			if(*getBoolean()) out << "true";
 			else out << "false";
 			return;
 		}
 
 		case BdfTypes::LONG: {
-			out << getLong() << "L";
+			out << *getLong() << "L";
 			return;
 		}
 
 		case BdfTypes::SHORT: {
-			out << getShort() << "S";
+			out << *getShort() << "S";
 			return;
 		}
 
 		case BdfTypes::BYTE: {
-			out << (int)getByte() << "B";
+			out << (int)(*getByte()) << "B";
 			return;
 		}
 
 		case BdfTypes::DOUBLE:
 		{
-			decimalToStream(out, getDouble());
+			decimalToStream(out, *getDouble());
 			out << "D";
 
 			return;
@@ -1013,7 +1024,7 @@ void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &inden
 
 		case BdfTypes::FLOAT:
 		{
-			decimalToStream(out, getFloat());
+			decimalToStream(out, *getFloat());
 			out << "F";
 
 			return;
@@ -1030,11 +1041,11 @@ void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &inden
 			getIntegerArray(&v, &size);
 
 			for(int i=0;i<size;i++) {
-				out << indent.breaker << indent.calcIndent(it) << v[i] << "I";
+				out << indent.breaker << calcIndent(indent, it) << v[i] << "I";
 				if(i != size - 1) out << ", ";
 			}
 
-			out << indent.breaker << indent.calcIndent(it - 1) << ")";
+			out << indent.breaker << calcIndent(indent, it - 1) << ")";
 
 			delete[] v;
 			return;
@@ -1049,11 +1060,11 @@ void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &inden
 			getBooleanArray(&v, &size);
 
 			for(int i=0;i<size;i++) {
-				out << indent.breaker << indent.calcIndent(it) << (v[i] ? "true" : "false");
+				out << indent.breaker << calcIndent(indent, it) << (v[i] ? "true" : "false");
 				if(i != size - 1) out << ", ";
 			}
 
-			out << indent.breaker << indent.calcIndent(it - 1) + ")";
+			out << indent.breaker << calcIndent(indent, it - 1) + ")";
 
 			delete[] v;
 			return;
@@ -1068,11 +1079,11 @@ void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &inden
 			getLongArray(&v, &size);
 
 			for(int i=0;i<size;i++) {
-				out << indent.breaker << indent.calcIndent(it) << v[i] << "L";
+				out << indent.breaker << calcIndent(indent, it) << v[i] << "L";
 				if(i != size - 1) out << ", ";
 			}
 
-			out << indent.breaker << indent.calcIndent(it - 1) << ")";
+			out << indent.breaker << calcIndent(indent, it - 1) << ")";
 
 			delete[] v;
 			return;
@@ -1087,11 +1098,11 @@ void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &inden
 			getShortArray(&v, &size);
 
 			for(int i=0;i<size;i++) {
-				out << indent.breaker << indent.calcIndent(it) << v[i] << "S";
+				out << indent.breaker << calcIndent(indent, it) << v[i] << "S";
 				if(i != size - 1) out << ", ";
 			}
 
-			out << indent.breaker << indent.calcIndent(it - 1) << ")";
+			out << indent.breaker << calcIndent(indent, it - 1) << ")";
 
 			delete[] v;
 			return;
@@ -1106,11 +1117,11 @@ void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &inden
 			getByteArray(&v, &size);
 
 			for(int i=0;i<size;i++) {
-				out << indent.breaker << indent.calcIndent(it) << (int)v[i] << "B";
+				out << indent.breaker << calcIndent(indent, it) << (int)v[i] << "B";
 				if(i != size - 1) out << ", ";
 			}
 
-			out << indent.breaker << indent.calcIndent(it - 1) << ")";
+			out << indent.breaker << calcIndent(indent, it - 1) << ")";
 
 			delete[] v;
 			return;
@@ -1126,7 +1137,7 @@ void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &inden
 
 			for(int i=0;i<size;i++)
 			{
-				out << indent.breaker << indent.calcIndent(it);
+				out << indent.breaker << calcIndent(indent, it);
 				
 				decimalToStream(out, v[i]);
 				
@@ -1135,7 +1146,7 @@ void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &inden
 				if(i != size - 1) out << ", ";
 			}
 
-			out << indent.breaker << indent.calcIndent(it - 1) << ")";
+			out << indent.breaker << calcIndent(indent, it - 1) << ")";
 
 			delete[] v;
 			return;
@@ -1151,7 +1162,7 @@ void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &inden
 
 			for(int i=0;i<size;i++)
 			{
-				out << indent.breaker << indent.calcIndent(it);
+				out << indent.breaker << calcIndent(indent, it);
 				
 				decimalToStream(out, v[i]);
 				
@@ -1160,7 +1171,7 @@ void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &inden
 				if(i != size - 1) out << ", ";
 			}
 
-			out << indent.breaker << indent.calcIndent(it - 1) << ")";
+			out << indent.breaker << calcIndent(indent, it - 1) << ")";
 
 			delete[] v;
 			return;
@@ -1187,12 +1198,38 @@ BdfObject* BdfObject::newObject() {
 	return new BdfObject(lookupTable);
 }
 
-BdfNamedList* BdfObject::newNamedList() {
+BdfNamedList* BdfObject::newNamedList() const {
 	return new BdfNamedList(lookupTable);
 }
 
-BdfList* BdfObject::newList() {
+BdfList* BdfObject::newList() const {
 	return new BdfList(lookupTable);
+}
+
+BdfNamedList* BdfObject::newSetAndGetNamedList() {
+	this->setNamedList(this->newNamedList());
+	return this->getNamedList();
+}
+
+BdfList* BdfObject::newSetAndGetList() {
+	this->setList(this->newList());
+	return this->getList();
+}
+
+BdfNamedList* BdfObject::getOrNewNamedList() {
+	if (this->type == BdfTypes::NAMED_LIST) {
+		return this->getNamedList();
+	}
+	
+	return this->newSetAndGetNamedList();
+}
+
+BdfList* BdfObject::getOrNewList() {
+	if (this->type == BdfTypes::LIST) {
+		return this->getList();
+	}
+	
+	return this->newSetAndGetList();
 }
 
 BdfObject* BdfObject::setAutoInt(long number)
@@ -1210,7 +1247,7 @@ BdfObject* BdfObject::setAutoInt(long number)
 	return this;
 }
 
-long BdfObject::getAutoInt()
+std::optional<int64_t> BdfObject::getAutoInt()
 {
 	switch(type)
 	{
@@ -1223,72 +1260,76 @@ long BdfObject::getAutoInt()
 		case BdfTypes::LONG:
 			return getLong();
 		default:
-			return 0;
+			return std::nullopt;
 	}
+}
+
+int64_t getAutoIntOr(int64_t sentinel) {
+	return this->getAutoInt().value_or(sentinel);
 }
 
 // Get
 
 // Primitives
 
-int32_t BdfObject::getInteger()
+std::optional<int32_t> BdfObject::getInteger() const noexcept
 {
 	if(type != BdfTypes::INTEGER) {
-		return 0;
+		return std::nullopt;
 	}
 
-	return get_netsi(data);
+	return std::optional(get_netsi(data));
 }
 
-bool BdfObject::getBoolean()
+std::optional<bool> BdfObject::getBoolean() const noexcept
 {
 	if(type == BdfTypes::BOOLEAN) {
 		return data[0] == 0x01;
 	} else {
-		return false;
+		return std::nullopt;
 	}
 }
 
-int64_t BdfObject::getLong()
+std::optional<int64_t> BdfObject::getLong() const noexcept
 {
 	if(type != BdfTypes::LONG) {
-		return 0;
+		return std::nullopt;
 	}
 
 	return get_netsl(data);
 }
 
-int16_t BdfObject::getShort()
+std::optional<int16_t> BdfObject::getShort() const noexcept
 {
 	if(type != BdfTypes::SHORT) {
-		return 0;
+		return std::nullopt;
 	}
 
 	return get_netss(data);
 }
 
-char BdfObject::getByte()
+std::optional<int8_t> BdfObject::getByte() const noexcept
 {
 	if(type != BdfTypes::BYTE) {
-		return 0;
+		return std::nullopt;
 	}
 
 	return data[0];
 }
 
-double BdfObject::getDouble()
+std::optional<double> BdfObject::getDouble() const noexcept
 {
 	if(type != BdfTypes::DOUBLE) {
-		return 0;
+		return std::nullopt;
 	}
 
 	return get_netd(data);
 }
 
-float BdfObject::getFloat()
+std::optional<float> BdfObject::getFloat() const noexcept
 {
 	if(type != BdfTypes::FLOAT) {
-		return 0;
+		return std::nullopt;
 	}
 
 	return get_netf(data);
@@ -1296,7 +1337,7 @@ float BdfObject::getFloat()
 
 // Arrays
 
-void BdfObject::getIntegerArray(int32_t** v, int* pSize)
+void BdfObject::getIntegerArray(int32_t** v, int* pSize) const
 {
 	if(type != BdfTypes::ARRAY_INTEGER) {
 		*v = new int32_t[0];
@@ -1314,7 +1355,7 @@ void BdfObject::getIntegerArray(int32_t** v, int* pSize)
 	}
 }
 
-void BdfObject::getBooleanArray(bool** v, int* pSize)
+void BdfObject::getBooleanArray(bool** v, int* pSize) const
 {
 	if(type != BdfTypes::ARRAY_BOOLEAN) {
 		*v = new bool[0];
@@ -1330,7 +1371,7 @@ void BdfObject::getBooleanArray(bool** v, int* pSize)
 	}
 }
 
-void BdfObject::getShortArray(int16_t** v, int* pSize)
+void BdfObject::getShortArray(int16_t** v, int* pSize) const
 {
 	if(type != BdfTypes::ARRAY_SHORT) {
 		*v = new int16_t[0];
@@ -1348,7 +1389,7 @@ void BdfObject::getShortArray(int16_t** v, int* pSize)
 	}
 }
 
-void BdfObject::getLongArray(int64_t** v, int* pSize)
+void BdfObject::getLongArray(int64_t** v, int* pSize) const
 {
 	if(type != BdfTypes::ARRAY_LONG) {
 		*v = new int64_t[0];
@@ -1366,7 +1407,7 @@ void BdfObject::getLongArray(int64_t** v, int* pSize)
 	}
 }
 
-void BdfObject::getByteArray(char** v, int* pSize)
+void BdfObject::getByteArray(char** v, int* pSize) const
 {
 	if(type != BdfTypes::ARRAY_BYTE) {
 		*v = new char[0];
@@ -1378,7 +1419,7 @@ void BdfObject::getByteArray(char** v, int* pSize)
 	memcpy(*v, data, s);
 }
 
-void BdfObject::getDoubleArray(double** v, int* pSize)
+void BdfObject::getDoubleArray(double** v, int* pSize) const
 {
 	if(type != BdfTypes::ARRAY_DOUBLE) {
 		*v = new double[0];
@@ -1396,7 +1437,7 @@ void BdfObject::getDoubleArray(double** v, int* pSize)
 	}
 }
 
-void BdfObject::getFloatArray(float** v, int* pSize)
+void BdfObject::getFloatArray(float** v, int* pSize) const
 {
 	if(type != BdfTypes::ARRAY_FLOAT) {
 		*v = new float[0];
@@ -1416,60 +1457,32 @@ void BdfObject::getFloatArray(float** v, int* pSize)
 
 // Objects
 
-std::string BdfObject::getString()
-{
-	std::string* v;
-
+std::optional<std::string> BdfObject::getString() const noexcept {
 	if(type == BdfTypes::STRING) {
-		v = (std::string*)object;
+		return std::string(*(std::string*)object);
+	} else {
+		return std::nullopt;
 	}
-	
-	else
-	{
-		freeAll();
-		v = new std::string();
-	}
-
-	type = BdfTypes::STRING;
-	object = v;
-	return *v;
 }
 
-BdfList* BdfObject::getList()
-{
-	BdfList* v;
-
+BdfList* BdfObject::getList() const noexcept {
+	BdfList* v = nullptr;
+	
 	if(type == BdfTypes::LIST) {
 		v = (BdfList*)object;
 	}
 	
-	else
-	{
-		freeAll();
-		v = new BdfList(lookupTable);
-	}
-
-	type = BdfTypes::LIST;
-	object = v;
 	return v;
 }
 
-BdfNamedList* BdfObject::getNamedList()
+BdfNamedList* BdfObject::getNamedList() const noexcept
 {
-	BdfNamedList* v;
-
+	BdfNamedList* v = nullptr;
+	
 	if(type == BdfTypes::NAMED_LIST) {
 		v = (BdfNamedList*)object;
 	}
 	
-	else
-	{
-		freeAll();
-		v = new BdfNamedList(lookupTable);
-	}
-
-	type = BdfTypes::NAMED_LIST;
-	object = v;
 	return v;
 }
 
@@ -1477,7 +1490,7 @@ BdfNamedList* BdfObject::getNamedList()
 
 // Primitives
 
-BdfObject* BdfObject::setInteger(int32_t v)
+BdfObject* BdfObject::setInteger(int32_t v) noexcept
 {
 	freeAll();
 
@@ -1488,7 +1501,7 @@ BdfObject* BdfObject::setInteger(int32_t v)
 	return this;
 }
 
-BdfObject* BdfObject::setLong(int64_t v)
+BdfObject* BdfObject::setLong(int64_t v) noexcept
 {
 	freeAll();
 
@@ -1499,7 +1512,7 @@ BdfObject* BdfObject::setLong(int64_t v)
 	return this;
 }
 
-BdfObject* BdfObject::setShort(int16_t v)
+BdfObject* BdfObject::setShort(int16_t v) noexcept
 {
 	freeAll();
 
@@ -1510,7 +1523,7 @@ BdfObject* BdfObject::setShort(int16_t v)
 	return this;
 }
 
-BdfObject* BdfObject::setBoolean(bool v)
+BdfObject* BdfObject::setBoolean(bool v) noexcept
 {
 	freeAll();
 
@@ -1520,7 +1533,7 @@ BdfObject* BdfObject::setBoolean(bool v)
 	return this;
 }
 
-BdfObject* BdfObject::setDouble(double v)
+BdfObject* BdfObject::setDouble(double v) noexcept
 {
 	freeAll();
 
@@ -1531,7 +1544,7 @@ BdfObject* BdfObject::setDouble(double v)
 	return this;
 }
 
-BdfObject* BdfObject::setFloat(float v)
+BdfObject* BdfObject::setFloat(float v) noexcept
 {
 	freeAll();
 
@@ -1542,8 +1555,8 @@ BdfObject* BdfObject::setFloat(float v)
 	return this;
 }
 
-BdfObject* BdfObject::setByte(char v)
-{
+BdfObject* BdfObject::setByte(char v) noexcept
+{ 
 	freeAll();
 
 	s = sizeof(v);
@@ -1659,12 +1672,22 @@ BdfObject* BdfObject::setFloatArray(const float* v, int size)
 
 // Objects
 
-BdfObject* BdfObject::setString(std::string v)
+BdfObject* BdfObject::setString(const std::string &v)
 {
 	freeAll();
 
 	type = BdfTypes::STRING;
 	object = new std::string(v);
+
+	return this;
+}
+
+BdfObject* BdfObject::setString(std::string &&v)
+{
+	freeAll();
+
+	type = BdfTypes::STRING;
+	object = new std::string(std::move(v));
 
 	return this;
 }
@@ -1687,4 +1710,124 @@ BdfObject* BdfObject::setNamedList(BdfNamedList* v)
 	object = v;
 
 	return this;
+}
+
+std::partial_ordering BdfObject::operator<=>(const BdfObject& rhs) const noexcept {
+	// Bail early if the two are not of the same type.
+	if (this->getType() == rhs.getType()) {
+		std::partial_ordering arrayResult = std::partial_ordering::unordered;
+		int lhsSize, rhsSize;
+		
+		// Just access our own type from now on.
+		switch(this->getType()) {
+			case BdfTypes::UNDEFINED:
+				return std::partial_ordering::equivalent;
+			case BdfTypes::BOOLEAN:
+				return (this->getBoolean() <=> rhs.getBoolean());
+			case BdfTypes::BYTE:
+				return (this->getByte() <=> rhs.getByte());
+			case BdfTypes::SHORT:
+				return (this->getShort() <=> rhs.getShort());
+			case BdfTypes::INTEGER:
+				return (this->getInteger() <=> rhs.getInteger());
+			case BdfTypes::LONG:
+				return (this->getLong() <=> rhs.getLong());
+			case BdfTypes::STRING:
+				return (this->getString() <=> rhs.getString());
+			case BdfTypes::LIST:
+			    return (*this->getList() <=> *rhs.getList());
+			case BdfTypes::NAMED_LIST:
+			    return (*this->getNamedList() <=> *rhs.getNamedList());
+			case BdfTypes::ARRAY_BOOLEAN:
+				bool* lhsBoolArray;
+				bool* rhsBoolArray;
+				
+				this->getBooleanArray(&lhsBoolArray, &lhsSize);
+				rhs.getBooleanArray(&rhsBoolArray, &rhsSize);
+				
+				arrayResult = BdfObject::comparePrimitiveArrays<bool>(&lhsBoolArray, &rhsBoolArray, lhsSize, rhsSize);
+				
+				delete[] lhsBoolArray;
+				delete[] rhsBoolArray;
+				
+				return arrayResult;
+			case BdfTypes::ARRAY_BYTE:
+				char* lhsByteArray;
+				char* rhsByteArray;
+				
+				this->getByteArray(&lhsByteArray, &lhsSize);
+				rhs.getByteArray(&rhsByteArray, &rhsSize);
+				
+				arrayResult = BdfObject::comparePrimitiveArrays<char>(&lhsByteArray, &rhsByteArray, lhsSize, rhsSize);
+				
+				delete[] lhsByteArray;
+				delete[] rhsByteArray;
+				
+				return arrayResult;
+			case BdfTypes::ARRAY_SHORT:
+				int16_t* lhsShortArray;
+				int16_t* rhsShortArray;
+				
+				this->getShortArray(&lhsShortArray, &lhsSize);
+				rhs.getShortArray(&rhsShortArray, &rhsSize);
+				
+				arrayResult = BdfObject::comparePrimitiveArrays<short>(&lhsShortArray, &rhsShortArray, lhsSize, rhsSize);
+				
+				delete[] lhsShortArray;
+				delete[] rhsShortArray;
+				
+				return arrayResult;
+			case BdfTypes::ARRAY_INTEGER:
+				int32_t* lhsIntegerArray;
+				int32_t* rhsIntegerArray;
+				
+				this->getIntegerArray(&lhsIntegerArray, &lhsSize);
+				rhs.getIntegerArray(&rhsIntegerArray, &rhsSize);
+				
+				arrayResult = BdfObject::comparePrimitiveArrays<int32_t>(&lhsIntegerArray, &rhsIntegerArray, lhsSize, rhsSize);
+				
+				delete[] lhsIntegerArray;
+				delete[] rhsIntegerArray;
+				
+				return arrayResult;
+			case BdfTypes::ARRAY_LONG:
+				int64_t* lhsLongArray;
+				int64_t* rhsLongArray;
+				
+				this->getLongArray(&lhsLongArray, &lhsSize);
+				rhs.getLongArray(&rhsLongArray, &rhsSize);
+				
+				arrayResult = BdfObject::comparePrimitiveArrays<int64_t>(&lhsLongArray, &rhsLongArray, lhsSize, rhsSize);
+				
+				delete[] lhsIntegerArray;
+				delete[] rhsIntegerArray;
+				
+				return arrayResult;
+		}
+	}
+	
+	return std::partial_ordering::unordered;
+}
+
+bool BdfObject::operator==(const BdfObject& rhs) const noexcept {
+	return ((*this <=> rhs) == std::partial_ordering::equivalent);
+}
+
+template<typename T> std::partial_ordering BdfObject::comparePrimitiveArrays(T** lhs, T** rhs, size_t lhsSize, size_t rhsSize) noexcept {
+	size_t sizeToCheck = std::min(lhsSize, rhsSize);
+	std::partial_ordering iComparisonResult = std::partial_ordering::unordered;
+	
+	for (size_t i = 0; i < sizeToCheck; i++) {
+		iComparisonResult = (lhs[i] <=> rhs[i]);
+		
+		if (iComparisonResult != std::partial_ordering::equivalent) {
+			return iComparisonResult;
+		}
+	}
+	
+	return (lhsSize <=> rhsSize);
+}
+
+BdfObject::operator bool() const noexcept {
+	return (this->getType() != BdfTypes::UNDEFINED);
 }
