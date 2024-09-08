@@ -924,17 +924,6 @@ void BdfObject::getLocationUses(int* locations)
 	}
 }
 
-std::string calcIndent(BdfIndent indent, int it)
-{
-	std::string t = "";
-
-	for(int i=0;i<=it;i++) {
-		t += indent.indent;
-	}
-
-	return t;
-}
-
 void decimalToStream(std::ostream &out, double v)
 {
 	if(std::isnan(v)) {
@@ -965,7 +954,7 @@ void decimalToStream(std::ostream &out, float v)
 	}
 }
 
-void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it)
+void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it)
 {
 	switch (type)
 	{
