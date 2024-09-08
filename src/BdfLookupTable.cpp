@@ -191,3 +191,7 @@ void BdfLookupTable::serializeGetLocations(int* locations)
 int BdfLookupTable::size() {
 	return keys_size;
 }
+
+void BdfLookupTable::changeReader(BdfReader* pReader) noexcept {
+	this->reader = pReader;
+}

@@ -9,13 +9,16 @@
 
 using namespace Bdf;
 
-const std::string ERRORS[5] = {
+const std::string ERRORS[6] = {
 	"Syntax error",
 	"End of file",
 	"Unescaped comment",
 	"Unescaped string",
 	"Number out of range",
+	"Size tag mismatch"
 };
+
+BdfError::BdfError(const int code): type(code) {}
 
 BdfError::BdfError(const int code, BdfStringReader reader, int length)
 {
@@ -87,33 +90,33 @@ BdfError::BdfError(const int code, BdfStringReader reader, int length)
 BdfError::BdfError(const int code, BdfStringReader reader) : BdfError(code, reader, 1) {
 }
 
-std::string BdfError::getErrorShort() {
+std::string BdfError::getErrorShort() const noexcept {
 	return error_short;
 }
 
-std::string BdfError::getError() {
+std::string BdfError::getError() const noexcept {
 	return message;
 }
 
-int BdfError::getType() {
+int BdfError::getType() const noexcept {
 	return type;
 }
 
-// Get the line number at which the error occured.
-int BdfError::getLine() {
+// Get the line number at which the error occured, or -1 if unknown.
+int BdfError::getLine() const noexcept {
 	return this->line;
 }
 
-// Get the character number at which the error occured.
-int BdfError::getAt() {
+// Get the character number at which the error occured, or -1 if unknown.
+int BdfError::getAt() const noexcept {
 	return this->at;
 }
 
-// Get the context at which the error occured.
-std::string BdfError::getContext() {
+// Get the context at which the error occured, or blank if unknown.
+std::string BdfError::getContext() const noexcept {
 	return this->context;
 }
 
-const char* BdfError::what() const throw() {
+const char* BdfError::what() const noexcept {
 	return message.c_str();
 }
