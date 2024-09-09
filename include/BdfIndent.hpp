@@ -25,6 +25,7 @@ namespace Bdf
 		 * @param breaker the string that will be used to line break at the end of the line.
 		 */
 		BdfIndent(std::string indent, std::string breaker);
+	};
 }
 
 #endif
