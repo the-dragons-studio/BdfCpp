@@ -25,7 +25,12 @@ namespace Bdf
 		static const int ERROR_SYNTAX = 0;
 		
 		/**
-		 * Indicates that an attempt to read beyond the end of file was made.
+		 * Indicates that a premature end of file was found.
+                 * @note: Versions before 2.0.0 could not actually throw this error. That's
+                 *        because this "error" was used to indicate that parsing was finished,
+		 *        and a finished BdfReaderHuman object could be presented. This was rewritten
+                 *        in 2.0.0, and the error was instead repurposed to indicate *premature*
+		 *        end of file.
 		 * @note This error can only occur when parsing a human-readable file.
 	     */
 		static const int ERROR_END_OF_FILE = 1;
