@@ -38,21 +38,21 @@ namespace Bdf
 		 * Indicates that an attempt to read beyond the end of file was made.
 		 * @note This error can only occur when parsing a human-readable file.
 		 * @since 1.0
-	   */
+	     */
 		static const int ERROR_END_OF_FILE = 1;
 		
 		/**
 		 * Indicates that a multiline comment was not escaped.
 		 * @note This error can only occur when parsing a human-readable file.
 		 * @since 1.0
-	   */
+	     */
 		static const int ERROR_UNESCAPED_COMMENT = 2;
 		
 		/**
 		 * Indicates that a string was not escaped.
 		 * @note This error can only occur when parsing a human-readable file.
 		 * @since 1.0
-     */
+	     */
 		static const int ERROR_UNESCAPED_STRING = 3;
 		
 		/**
@@ -60,13 +60,13 @@ namespace Bdf
 		 * For example, "bad": 128B.
 		 * @note This error can only occur when parsing a human-readable file.
 		 * @since 1.0
-     */
+	     */
 		static const int ERROR_OUT_OF_RANGE = 4;
 		
 		/**
 		 * Indicates that the size tag found at the start of a binary file does not match the memory actually required to parse it.
-		 * @note This error can only occur when parsing a binary file.
-     * @since 1.4.0
+		 * @note This error code is reserved for use with 2.0.0 and cannot be thrown by this version.
+		 * @since 1.4.0
 		 */
 		static const int ERROR_SIZE_TAG_MISMATCH = 5;
 	    
@@ -74,7 +74,7 @@ namespace Bdf
 		 * Creates a BdfError consisting of the error code code.
 		 * No other explanatory information will be available (all will be set to default).
 		 * @since 1.4.0
-	   */
+	     */
 		explicit BdfError(const int code);
 		
 		/**
