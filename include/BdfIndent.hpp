@@ -31,7 +31,7 @@ namespace Bdf
                  * @param n the number of times to repeat the indent string.
                  * @since 2.0.0
                  */
-                std::string calcIndent(int n);
+                std::string calcIndent(int n) const;
 	};
 }
 
