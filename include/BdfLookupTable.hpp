@@ -35,6 +35,7 @@ namespace Bdf
 	public:
 		BdfLookupTable(BdfReader* reader);
 		BdfLookupTable(BdfReader* reader, const char* data, int size);
+		BdfLookupTable(const BdfLookupTable &that) = delete;
 		virtual ~BdfLookupTable();
 		unsigned int getLocation(std::string id);
 		std::string getName(unsigned int id);
@@ -43,6 +44,7 @@ namespace Bdf
 		void serializeGetLocations(int* locations);
 		bool hasKeyLocation(unsigned int key);
 		int size();
+		void changeReader(BdfReader* pReader) noexcept;
 	};
 }
 
