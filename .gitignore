@@ -3,3 +3,8 @@ CMakeCache.txt
 CMakeFiles/*
 cmake_install.cmake
 include/timestamp.h
+CMakeDoxyfile.in
+CMakeDoxygenDefaults.cmake
+timestamp.cmake
+Makefile
+Makefile
