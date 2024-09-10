@@ -930,7 +930,7 @@ void BdfObject::getLocationUses(int* locations) const
 
 std::string calcIndent(const BdfIndent &indent, int it)
 {
-	std::string t = "";
+	std::string t;
 
 	for(int i=0;i<=it;i++) {
 		t += indent.indent;
