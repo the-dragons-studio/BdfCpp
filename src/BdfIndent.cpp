@@ -1,8 +1,8 @@
 
 #include "../include/BdfIndent.hpp"
 
-#include <stdexcept>
+#include <utility>
 
 using namespace Bdf;
 
-BdfIndent::BdfIndent(std::string pIndent, std::string pBreaker): indent(pIndent), breaker(pBreaker) {}
+BdfIndent::BdfIndent(std::string pIndent, std::string pBreaker): indent(std::move(pIndent)), breaker(std::move(pBreaker)) {}
