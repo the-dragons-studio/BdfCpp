@@ -148,7 +148,7 @@ BdfObject* BdfReader::resetObject()
 	return bdf;
 }
 
-std::string BdfReader::serializeHumanReadable(const BdfIndent &indent)
+std::string BdfReader::serializeHumanReadable(BdfIndent indent)
 {
 	std::stringstream stream;
 
@@ -166,7 +166,7 @@ void BdfReader::serializeHumanReadable(std::ostream &stream) {
 	stream << "\n";
 }
 
-void BdfReader::serializeHumanReadable(std::ostream &stream, const BdfIndent &indent) {
+void BdfReader::serializeHumanReadable(std::ostream &stream, BdfIndent indent) {
 	bdf->serializeHumanReadable(stream, indent, 0);
 	stream << "\n";
 }
