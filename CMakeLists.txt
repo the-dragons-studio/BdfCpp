@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.27)
-project(BdfCpp VERSION 1.4.3)
+project(BdfCpp VERSION 1.4.4)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
