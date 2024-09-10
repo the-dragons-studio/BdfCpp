@@ -1,11 +1,11 @@
 
 #include "../include/BdfIndent.hpp"
 
-#include <stdexcept>
+#include <utility>
 
 using namespace Bdf;
 
-BdfIndent::BdfIndent(std::string pIndent, std::string pBreaker): indent(pIndent), breaker(pBreaker) {}
+BdfIndent::BdfIndent(std::string pIndent, std::string pBreaker): indent(std::move(pIndent)), breaker(std::move(pBreaker)) {}
 
 // Moved from BdfObject::calcIndent() to be more useful to other classes that need it.
 // @todo: Try to make constexpr?
