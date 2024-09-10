@@ -1,14 +1,5 @@
-*.o
-*.so*
-*.dll
-.swo
-.*.swp
-*.bdf
-libbdf*
-tools/bdfconvert
-tools/bdfedit
-examples/helloworld
-examples/fibonacci
+build/*
 CMakeCache.txt
 CMakeFiles/*
+cmake_install.cmake
 include/timestamp.h
