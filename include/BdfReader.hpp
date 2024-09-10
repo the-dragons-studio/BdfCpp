@@ -132,7 +132,7 @@ namespace Bdf
 		 * to human-readable string data using the indenter provided at indent.
    		 * @since 1.0
 		 */
-		std::string serializeHumanReadable(const BdfIndent &indent);
+		std::string serializeHumanReadable(BdfIndent indent);
 		
 		/**
 		 * Serialises human-readable BDF data and returns it as a string.
@@ -157,7 +157,7 @@ namespace Bdf
 	         * @param indent settings used for indenting the human-readable BDF data.
    		 * @since 1.0
 		 */
-		void serializeHumanReadable(std::ostream &stream, const BdfIndent &indent);  
+		void serializeHumanReadable(std::ostream &stream, BdfIndent indent);  
 	};
 }
 
