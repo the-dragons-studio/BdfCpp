@@ -8,3 +8,4 @@ CMakeDoxygenDefaults.cmake
 timestamp.cmake
 Makefile
 Makefile
+libbdf_x86_64-w64-mingw32.zip

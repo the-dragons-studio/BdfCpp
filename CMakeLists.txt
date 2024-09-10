@@ -66,8 +66,14 @@ if(BUILD_DOC)
 	endif(Doxygen_FOUND)
 endif()
 
+add_custom_target(
+    copy_include
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/build/include
+)
+
 add_library(bdf src/BdfError.cpp src/BdfHelpers.cpp src/BdfIndent.cpp src/BdfList.cpp src/BdfLookupTable.cpp src/BdfNamedList.cpp src/BdfObject.cpp src/BdfReader.cpp src/BdfReaderHuman.cpp src/BdfStringReader.cpp src/version.cpp)
 add_dependencies(bdf timestamp)
+add_dependencies(bdf copy_include)
 if (DOXYGEN_READY)
 	add_dependencies(bdf doxygen)
 endif(DOXYGEN_READY)
