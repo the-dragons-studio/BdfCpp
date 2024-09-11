@@ -20,66 +20,66 @@ BdfReader::BdfReader() {
 	initEmpty();
 }
 
-BdfReader::BdfReader(const char* data, int size)
-{
-	if(size == 0) {
-		initEmpty();
-		return;
-	}
+BdfReader::BdfReader(const char* data, int size) {
+	try {
+		if(size == 0) {
+			throw BdfError(BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH);
+		}
 
-	// Get the size of the bdf size tag and the lookup table size tag
-	char lookupTable_size_tag;
-	char lookupTable_size_bytes = 0;
-	char bdf_size_tag;
-	char bdf_size_bytes = 0;
+		// Get the size of the bdf size tag and the lookup table size tag
+		char lookupTable_size_tag;
+		char lookupTable_size_bytes = 0;
+		char bdf_size_tag;
+		char bdf_size_bytes = 0;
 
-	BdfObject::getFlagData(data, NULL, &bdf_size_tag, &lookupTable_size_tag);
-	lookupTable_size_bytes = BdfObject::getSizeBytes(lookupTable_size_tag);
-	bdf_size_bytes = BdfObject::getSizeBytes(bdf_size_tag);	
+		BdfObject::getFlagData(data, NULL, &bdf_size_tag, &lookupTable_size_tag);
+		lookupTable_size_bytes = BdfObject::getSizeBytes(lookupTable_size_tag);
+		bdf_size_bytes = BdfObject::getSizeBytes(bdf_size_tag);	
 	
-	// Check if there is enough space
-	if(1 + lookupTable_size_bytes + bdf_size_bytes > size) {
-		initEmpty();
-		return;
-	}
+		// Check if there is enough space
+		if(1 + lookupTable_size_bytes + bdf_size_bytes > size) {
+			throw BdfError(BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH);
+		}
 	
-	// Get the rest of the data
-	int bdf_size = BdfObject::getSize(data);
+		// Get the rest of the data
+		int bdf_size = BdfObject::getSize(data);
 	
-	// Check if there is enough space in the buffer
-	if(bdf_size <= 0 || bdf_size + lookupTable_size_bytes > size) {
-		initEmpty();
-		return;
-	}
+		// Check if there is enough space in the buffer
+		if(bdf_size <= 0 || bdf_size + lookupTable_size_bytes > size) {
+			hrow BdfError(BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH);
+		}
 	
-	const char* data_bdf = data;
-	data += bdf_size;
+		const char* data_bdf = data;
+		data += bdf_size;
 
-	// Get the size of the lookup table
-	int lookupTable_size = 0;
+		// Get the size of the lookup table
+		int lookupTable_size = 0;
 
-	switch(lookupTable_size_tag)
-	{
-		case 0:
-			lookupTable_size = get_netsi(data);
-			break;
-		case 1:
-			lookupTable_size = get_netus(data);
-			break;
-		case 2:
-			lookupTable_size = data[0] & 255;
-			break;
-	}
+		switch(lookupTable_size_tag) {
+			case 0:
+				lookupTable_size = get_netsi(data);
+				break;
+			case 1:
+				lookupTable_size = get_netus(data);
+				break;
+			case 2:
+				lookupTable_size = data[0] & 255;
+				break;
+		}
 	
-	// Check if there is enough space in the buffer
-	if(bdf_size + lookupTable_size_bytes + lookupTable_size > size) {
-		initEmpty();
-		return;
-	}
+		// Check if there is enough space in the buffer
+		if(bdf_size + lookupTable_size_bytes + lookupTable_size > size) {
+			throw BdfError(BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH);
+		}
 	
-	// Load the lookup table and the objects from the buffer
-	lookupTable = new BdfLookupTable(this, data + lookupTable_size_bytes, lookupTable_size);
-	bdf = new BdfObject(lookupTable, data_bdf, bdf_size);
+		// Load the lookup table and the objects from the buffer
+		lookupTable = new BdfLookupTable(this, data + lookupTable_size_bytes, lookupTable_size);
+		bdf = new BdfObject(lookupTable, data_bdf, bdf_size);
+		
+		return; // To avoid the finally block ruining everything
+	} finally {
+		this->initEmpty();
+	}
 }
 
 BdfReader::~BdfReader() {
