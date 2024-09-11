@@ -127,6 +127,7 @@ namespace Bdf
   		 * @deprecated Use BdfError::BdfError(const BdfError::ErrorType& type) instead.
 		 * @since 1.4.0
      	 */
+		[[deprecated("Use Bdf::BdfError::BdfError(ErrorType code) instead.")]]
 		explicit BdfError(const int code);
 
 		/**
@@ -135,7 +136,15 @@ namespace Bdf
 		 * @since 1.0
 		 * @internal
 		 */
-		BdfError(const int code, BdfStringReader reader, int length, std::stacktrace trace = std::stacktrace::current());
+		[[deprecated("Use Bdf::BdfError::BdfError(ErrorType code, const BdfStringReader& reader, size_t length) instead.")]]
+		BdfError(const int code, BdfStringReader reader, int length);
+
+		/**
+		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
+		 * reader to get line and context information. Up to length bytes will be read.
+		 * @internal
+		 */
+		BdfError(ErrorType code, BdfStringReader reader, size_t length);
 		
 		/**
 		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
@@ -143,7 +152,14 @@ namespace Bdf
 		 * @since 1.0
 		 * @internal
 		 */
-		BdfError(const int code, BdfStringReader reader, std::stacktrace trace = std::stacktrace::current());
+		[[deprecated("Use Bdf::BdfError::BdfError(ErrorType code, const BdfStringReader& reader) instead.")]]
+		BdfError(const int code, BdfStringReader reader);
+
+		/**
+		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
+		 * reader to get line and context information. Up to length bytes will be read.
+		 */
+		BdfError(ErrorType type, const BdfStringReader& reader);
 		
 		/**
 		 * Gets a pre-formatted error message.
@@ -168,7 +184,10 @@ namespace Bdf
 		 * @return an integer corresponding to the type of error.
 		 * @since 1.0
 		 */
+		[[deprecated("Use Bdf::BdfError::getErrorType() instead.")]]
 		int getType() const noexcept;
+
+		ErrorType getErrorType const noexcept();
 		
 		/**
 		 * Gets the line at which the error occured.
