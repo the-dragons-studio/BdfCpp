@@ -19,51 +19,101 @@ namespace Bdf
 	
 	public:
 		/**
-		 * Indicates that a syntax error was detected.
-		 * @note This error can only occur when parsing a human-readable file.
-	     */
-		static const int ERROR_SYNTAX = 0;
+		 * Enumeration type representing the type of error.
+   		 * @since 2.0.0
+		 */
+		enum ErrorType: uint8_t {
+			/**
+			 * Indicates that a syntax error was detected.
+		 	 * @note This error can only occur when parsing a human-readable file.
+	    		 */
+			SYNTAX,
+			
+			/**
+			 * Indicates that a premature end of file was found. For example, the library
+    			 * was trying to read an integer but did not find the datatype character before the end of file.
+                	 * @note: Versions before 2.0.0 could not actually throw this error. That's
+                	 *        because this "error" was used to indicate that parsing was finished,
+			 *        and a finished BdfReaderHuman object could be presented. This was rewritten
+                	 *        in 2.0.0, and the error was instead repurposed to indicate *premature*
+			 *        end of file.
+			 * @note This error can only occur when parsing a human-readable file.
+	        	 */
+			END_OF_FILE, 
+			
+			/**
+			 * Indicates that a multiline comment was not escaped before the end of file was found.
+		 	 * @note This error can only occur when parsing a human-readable file.
+	     		 */
+			UNESCAPED_COMMENT_BEFORE_EOF,
+
+			/**
+			 * Indicates that a multiline comment was not escaped before the end of file was found.
+		 	 * @note This error can only occur when parsing a human-readable file.
+	     		 */
+			UNESCAPED_STRING_BEFORE_EOF,
+
+			/**
+   			 * Indicates that an illegal backslash escape code was encountered.
+       			 * @note This error can only occur when parsing a human-readable file.
+       			 */
+			ILLEGAL_STRING_BACKSLASH_ESCAPE,
+
+			/**
+			 * Indicates that an attempt to unserialise data that is out of range of the requested datatype was made.
+		 	 * For example, "bad": 128B.
+		 	 * @note This error can only occur when parsing a human-readable file.
+	     		 */
+			NUMERICAL_OUT_OF_RANGE,
+
+			/**
+			 * Indicates that the size tag found at the start of a binary file does not match the memory actually required to parse it.
+		 	 * @note This error can only occur when parsing a binary file.
+			 */
+			BINARY_SIZE_TAG_MISMATCH,
+
+
+		};
 		
 		/**
-		 * Indicates that a premature end of file was found.
-                 * @note: Versions before 2.0.0 could not actually throw this error. That's
-                 *        because this "error" was used to indicate that parsing was finished,
-		 *        and a finished BdfReaderHuman object could be presented. This was rewritten
-                 *        in 2.0.0, and the error was instead repurposed to indicate *premature*
-		 *        end of file.
-		 * @note This error can only occur when parsing a human-readable file.
-	     */
+  		 * @deprecated Use BdfError::ErrorType::SYNTAX instead.
+     		 */
+		static const int ERROR_SYNTAX = 0;
+
+		/**
+  		 * @deprecated Use BdfError::ErrorType::END_OF_FILE instead.
+     		 */
 		static const int ERROR_END_OF_FILE = 1;
 		
 		/**
-		 * Indicates that a multiline comment was not escaped.
-		 * @note This error can only occur when parsing a human-readable file.
-	     */
+  		 * @deprecated Use BdfError::ErrorType::UNESCAPED_COMMENT_BEFORE_EOF instead.
+     		 */
 		static const int ERROR_UNESCAPED_COMMENT = 2;
 		
 		/**
-		 * Indicates that a string was not escaped.
-		 * @note This error can only occur when parsing a human-readable file.
-	     */
+  		 * @deprecated Use BdfError::ErrorType::UNESCAPED_STRING_BEFORE_EOF instead.
+     		 */
 		static const int ERROR_UNESCAPED_STRING = 3;
 		
 		/**
-		 * Indicates that an attempt to unserialise data that is out of range of the requested datatype was made.
-		 * For example, "bad": 128B.
-		 * @note This error can only occur when parsing a human-readable file.
-	     */
+  		 * @deprecated Use BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE instead.
+     		 */
 		static const int ERROR_OUT_OF_RANGE = 4;
 		
 		/**
-		 * Indicates that the size tag found at the start of a binary file does not match the memory actually required to parse it.
-		 * @note This error can only occur when parsing a binary file.
-		 */
+  		 * @deprecated Use BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH instead.
+     		 */
 		static const int ERROR_SIZE_TAG_MISMATCH = 5;
 	    
 		/**
 		 * Creates a BdfError consisting of the error code code.
 		 * No other explanatory information will be available (all will be set to default).
-	     */
+	         */
+		explicit BdfError(const BdfError::ErrorType& type);
+
+		/**
+  		 * @deprecated Use BdfError::BdfError(const BdfError::ErrorType& type) instead.
+     		 */
 		explicit BdfError(const int code);
 		
 		/**
