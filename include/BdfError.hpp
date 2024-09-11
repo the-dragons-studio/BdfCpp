@@ -71,8 +71,6 @@ namespace Bdf
 		 	 * @note This error can only occur when parsing a binary file.
 			 */
 			BINARY_SIZE_TAG_MISMATCH,
-
-
 		};
 		
 		/**
@@ -114,6 +112,7 @@ namespace Bdf
 		/**
   		 * @deprecated Use BdfError::BdfError(const BdfError::ErrorType& type) instead.
      		 */
+		[[deprecated("Use Bdf::BdfError::BdfError(ErrorType code) instead.")]]
 		explicit BdfError(const int code);
 		
 		/**
@@ -121,13 +120,28 @@ namespace Bdf
 		 * reader to get line and context information. Up to length bytes will be read.
 		 * @internal
 		 */
+		[[deprecated("Use Bdf::BdfError::BdfError(ErrorType code, const BdfStringReader& reader, size_t length) instead.")]]
 		BdfError(const int code, BdfStringReader reader, int length);
+
+		/**
+		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
+		 * reader to get line and context information. Up to length bytes will be read.
+		 * @internal
+		 */
+		BdfError(ErrorType code, BdfStringReader reader, size_t length);
 		
 		/**
 		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
 		 * reader to get line and context information. Up to length bytes will be read.
 		 */
+		[[deprecated("Use Bdf::BdfError::BdfError(ErrorType code, const BdfStringReader& reader) instead.")]]
 		BdfError(const int code, BdfStringReader reader);
+
+		/**
+		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
+		 * reader to get line and context information. Up to length bytes will be read.
+		 */
+		BdfError(ErrorType type, const BdfStringReader& reader);
 		
 		/**
 		 * Gets a pre-formatted error message.
@@ -148,7 +162,10 @@ namespace Bdf
 		 * An English-language string can be obtained by: BdfError::ERRORS[this->getType()].
 		 * @return an integer corresponding to the type of error.
 		 */
+		[[deprecated("Use Bdf::BdfError::getErrorType() instead.")]]
 		int getType() const noexcept;
+
+		ErrorType getErrorType const noexcept();
 		
 		/**
 		 * Gets the line at which the error occured.
