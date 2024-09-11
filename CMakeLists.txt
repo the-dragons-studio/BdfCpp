@@ -2,15 +2,18 @@ cmake_minimum_required(VERSION 3.27)
 project(BdfCpp VERSION 1.4.4)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "build/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "build/lib")
+set(DOXYGEN_READY OFF) # Controls whether Doxygen is ready to build.
 
-set(DOXYGEN_READY OFF)
+# Try to build Doxygen.
+option(BUILD_BDFEDIT "Build the bdfedit executable, has no effect on non-Linux platforms" OFF)
+option(BUILD_DOC "Build documentation" ON)
+option(BUILD_SHARED_LIBS "Build as a shared library instead of static library" ON)
 
-# build time in UTC ISO 8601
+# Make build time in UTC ISO 8601 accessible to the library.
 FILE (WRITE ${CMAKE_BINARY_DIR}/timestamp.cmake "STRING(TIMESTAMP TIMEZ UTC)\n")
 FILE (APPEND ${CMAKE_BINARY_DIR}/timestamp.cmake "FILE(WRITE include/timestamp.h \"#ifndef TIMESTAMP_H\\n\")\n")
 FILE (APPEND ${CMAKE_BINARY_DIR}/timestamp.cmake "FILE(APPEND include/timestamp.h \"#define TIMESTAMP_H\\n\\n\")\n")
@@ -20,10 +23,7 @@ add_custom_target(
     timestamp
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/timestamp.cmake
     add_dependencies ${CMAKE_BINARY_DIR}/timestamp.cmake)
-
-# Try to build Doxygen.
-option(BUILD_DOC "Build documentation" ON)
-
+    
 # "examples/fibonacci" executable
 add_executable(fibonacci examples/fibonacci.cpp)
 add_dependencies(fibonacci bdf)
@@ -46,12 +46,13 @@ target_link_libraries(bdfconvert bdf)
 
 # "tools/bdfedit" executable
 # @note Only supported on Linux. 2.0.0 will replace the current implementation with a cross-platform rewrite.
-if(linux)
+if(BUILD_BDFEDIT AND linux)
 	add_executable(bdfedit tools/bdfedit.cpp)
 	add_dependencies(bdfedit bdf)
 	target_link_libraries(bdfedit bdf -lboost_iostreams)
 endif()
 
+# Build documentation if requested.
 if(BUILD_DOC) 
 	find_package(Doxygen)
 	if(Doxygen_FOUND)
