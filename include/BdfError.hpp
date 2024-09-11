@@ -128,7 +128,7 @@ namespace Bdf
 		 * reader to get line and context information. Up to length bytes will be read.
 		 * @internal
 		 */
-		BdfError(ErrorType code, BdfStringReader reader, size_t length);
+		BdfError(ErrorType code, const BdfStringReader& reader, size_t length);
 		
 		/**
 		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
