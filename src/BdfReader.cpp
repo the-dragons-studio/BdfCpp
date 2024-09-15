@@ -46,7 +46,7 @@ BdfReader::BdfReader(const char* data, int size) {
 	
 		// Check if there is enough space in the buffer
 		if(bdf_size <= 0 || bdf_size + lookupTable_size_bytes > size) {
-			hrow BdfError(BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH);
+			throw BdfError(BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH);
 		}
 	
 		const char* data_bdf = data;
