@@ -14,7 +14,7 @@ BdfReaderHuman::BdfReaderHuman(std::wstring data)
 {
 	// Make a BdfStringReader from the given data.
 	BdfStringReader sr(data.c_str(), data.size());
-	BdfObject* bdfNew;
+	BdfObject* bdfNew = nullptr;
 	// Skip ahead to the first non-comment character.
 	try {
 		while(!sr.ignoreBlanks()) {
