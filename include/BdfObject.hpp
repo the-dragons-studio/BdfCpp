@@ -10,8 +10,8 @@ namespace Bdf
 {
 	/**
   	 * Class that represents a standard BDF node, or object.
-    	 * They can be cast to values, if they are of the correct type. Alternatively, you can set their type and data.
-         * @since 1.0
+     * They can be cast to values, if they are of the correct type. Alternatively, you can set their type and data.
+     * @since 1.0
 	 */
 	class BdfObject
 	{
@@ -89,48 +89,48 @@ namespace Bdf
 
 		/**
   		 * @internal
-     		 */
+     	 */
 		void getLocationUses(int* locations) const;
 
 		/**
   		 * @internal
-     		 */
+     	 */
 		int serializeSeeker(int* locations) const;
 
 		/**
   		 * @internal
-     		 */
+     	 */
 		int serialize(char* data, int* locations, unsigned char flags) const;
 
 		/**
   		 * @internal
-     		 */
+         */
 		void serializeHumanReadable(std::ostream &stream, BdfIndent indent, int upto);
 
 		/**
   		 * @internal
-     		 */
+     	 */
 		static void getFlagData(const char* data, char* type, char* size_bytes, char* parent_flags);
 
 		/**
   		 * @internal
-     		 */
+     	 */
 		static char getSizeBytes(char size_bytes);
 
 		/**
   		 * @internal
-     		 */
+     	 */
 		static int getSize(const char* data);
 
 		/**
   		 * Gets the location of the key specified at key.
-     		 * @internal
+     	 * @internal
 		 */
 		int getKeyLocation(std::string key) const;
 
 		/**
   		 * Gets the name of the key located at key.
-     		 * @internal
+     	 * @internal
 		 */
 		std::string getKeyName(int key) const;
 		
@@ -156,18 +156,18 @@ namespace Bdf
 
 		/**
   		 * Automatically chooses the most appropriate integer size for the integer at v.
-     		 * @param v the integer to write to the object.
+     	 * @param v the integer to write to the object.
 		 * @return the BdfObject, now with v written.
    		 * @since 1.0
-      		 */
+      	 */
 		BdfObject* setAutoInt(int64_t v);
 
 		/**
   		 * Return any integer type stored in the object.
-     		 * @return the integer stored if the object is any integer type, or 0 if not an integer.
+     	 * @return the integer stored if the object is any integer type, or 0 if not an integer.
 		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
-      		 */
+      	 */
 		int64_t getAutoInt() const;
 	
 		// Get
@@ -175,7 +175,7 @@ namespace Bdf
 		// Primitives
 		/**
   		 * Return an integer if one is stored in this.
-     		 * @return the integer stored if the object is any integer type, or 0 if not an integer.
+     	 * @return the integer stored if the object is any integer type, or 0 if not an integer.
 		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
       		 */
@@ -183,50 +183,50 @@ namespace Bdf
 
 		/**
   		 * Return a boolean if one is stored in this.
-     		 * @return the boolean stored if the object is any integer type, or 0 if not an integer.
+     	 * @return the boolean stored if the object is any integer type, or 0 if not an integer.
 		 * @deprecated Instead of relying on false as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
-      		 */
+      	 */
 		bool getBoolean() const noexcept;
 
 		/**
   		 * Return a long if one is stored in this.
-     		 * @return the long stored if the object is any integer type, or 0 if not an integer.
+     	 * @return the long stored if the object is any integer type, or 0 if not an integer.
 		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
-      		 */
+      	 */
 	 	int64_t getLong() const noexcept;
 
 		/**
   		 * Return a short if one is stored in this.
-     		 * @return the short stored if the object is any integer type, or 0 if not an integer.
+     	 * @return the short stored if the object is any integer type, or 0 if not an integer.
 		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
-      		 */
+      	 */
 	 	int16_t getShort() const noexcept;
 
 		/**
   		 * Return a byte if one is stored in this.
-     		 * @return the byte stored if the object is any integer type, or 0 if not an integer.
+     	 * @return the byte stored if the object is any integer type, or 0 if not an integer.
 		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
-      		 */
+      	 */
 	 	char getByte() const noexcept;
 
 		/**
   		 * Return a double if one is stored in this.
-     		 * @return the double stored if the object is any integer type, or 0 if not an integer.
+     	 * @return the double stored if the object is any integer type, or 0 if not an integer.
 		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
-      		 */
+      	 */
 		double getDouble() const noexcept;
 
 		/**
   		 * Return a float if one is stored in this.
-     		 * @return the float stored if the object is any integer type, or 0 if not an integer.
+     	 * @return the float stored if the object is any integer type, or 0 if not an integer.
 		 * @deprecated Instead of relying on 0 as a sentinel value, this method will return an std::optional in 2.0.0.
    		 * @since 1.0
-      		 */
+      	 */
 		float getFloat() const noexcept;
 	
 		// Arrays
@@ -306,7 +306,7 @@ namespace Bdf
    		 * original will be lost.
 		 * @return a string that represents the one in the object if already a string, blank if a new one had to be created.
 		 * @warning Calling getString() in order to force this object to become a string is deprecated. From 2.0.0, this method will return
-                 *          std::nullopt if the object is not already a string.
+         *          std::nullopt if the object is not already a string.
 		 */
 		std::string getString();
 		
@@ -315,7 +315,7 @@ namespace Bdf
    		 * original will be lost.
 		 * @return a pointer to a BdfList; the current one associated with this object if already a list, or a brand new one if converted.
 		 * @warning Calling getList() in order to force this object to become a list is deprecated. From 2.0.0, this method will return
-                 *          nullptr if the object is not already a list.
+         *          nullptr if the object is not already a list.
 		 */
 		BdfList* getList();
 		
@@ -324,7 +324,7 @@ namespace Bdf
    		 * original will be lost.
 		 * @return a pointer to a BdfNamedList; the current one associated with this object if already a named list, or a brand new one if converted.
 		 * @warning Calling getNamedList() in order to force this object to become a named list is deprecated. From 2.0.0, this method will return
-                 *          nullptr if the object is not already a list.
+         *          nullptr if the object is not already a list.
 		 */
 		BdfNamedList* getNamedList();
 	
