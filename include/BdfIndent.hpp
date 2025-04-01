@@ -9,7 +9,7 @@ namespace Bdf
 	/**
 	 * Class used to configure indenting and line breaking of serialising human-readable BDF files.
   	 * @since 1.0
-         * @newable
+     * @newable
 	 */
 	class BdfIndent
 	{
@@ -20,7 +20,7 @@ namespace Bdf
 		
 		/**
 		 * Creates an indenter which can be passed to various serialising methods to customise
-                 * how they will be indented.
+         * how they will be indented.
 		 * @param indent the string that will be used to indent (for example, in a BdfNamedList).
 		 * @param breaker the string that will be used to line break at the end of the line.
 		 */
