@@ -25,12 +25,10 @@ BdfStringReader BdfStringReader::getPointer(int offset) {
 	return other;
 }
 
-void BdfStringReader::ignoreBlanks()
+bool BdfStringReader::ignoreBlanks()
 {
-	for(;;)
-	{
-		checkRange();
-		
+	while(this->inRange())
+	{	
 		wchar_t c = upto[0];
 
 		// Comments
@@ -44,7 +42,7 @@ void BdfStringReader::ignoreBlanks()
 				for(;;)
 				{
 					if(!inRange()) {
-						break;
+						return true;
 					}
 
 					upto += 1;
@@ -59,33 +57,36 @@ void BdfStringReader::ignoreBlanks()
 			// Multi-line comment
 			else if(c2 == '*')
 			{
-				for(;;)
-				{
-					if(!inRange()) {
+				do {
+					// Check that we haven't hit end of file yet
+					if(!this->inRange()) {
 						throw BdfError(BdfError::ERROR_UNESCAPED_COMMENT, *this);
 					}
 
 					upto += 1;
 					c = upto[0];
-
-					if(c == '*' && upto < end && upto[1] == '/') {
-						upto += 1;
-						break;
-					}
-				}
+				
+				// Continue only if we've found the other end of the escaped comment
+				} while (c == '*' && this->inRange() && upto[1] == '/');
+				
+				// Increase upto by another 1 to accomodate the escaping /
+				upto += 1;
 			}
 
 			else {
-				return;
+				return false;
 			}
 		}
 
 		else if(!(c == '\n' || c == '\t' || c == ' ')) {
-			return;
+			return false;
 		}
 
 		upto += 1;
 	}
+	
+	// If we got here, we ran out of file to check; return true to indicate this
+	return true;
 }
 
 std::string BdfStringReader::getQuotedString()
@@ -182,13 +183,6 @@ std::string BdfStringReader::getQuotedString()
 	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
 
 	return cv.to_bytes(str);
-}
-
-void BdfStringReader::checkRange()
-{
-	if(upto >= end) {
-		throw BdfError(BdfError::ERROR_END_OF_FILE, *this);
-	}
 }
 
 bool BdfStringReader::inRange() {

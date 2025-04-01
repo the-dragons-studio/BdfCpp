@@ -12,31 +12,24 @@ using namespace BdfHelpers;
 
 BdfReaderHuman::BdfReaderHuman(std::wstring data)
 {
+	// Make a BdfStringReader from the given data.
 	BdfStringReader sr(data.c_str(), data.size());
-	sr.ignoreBlanks();
-
-	BdfObject* bdfNew = new BdfObject(lookupTable, &sr);
-
-	try {
-		sr.ignoreBlanks();
-	}
-
-	catch(BdfError &e)
-	{
-		if(e.getType() != BdfError::ERROR_END_OF_FILE)
-		{
+	BdfObject* bdfNew;
+	// Skip ahead to the first non-comment character.
+	while(!sr.ignoreBlanks()) {
+		// If this is our first time in the loop, bdfNew will be null. Create it using a new BdfObject.
+		if (!bdfNew) {
+			bdfNew = new BdfObject(lookupTable, &sr);
+		// Otherwise that means we already attempted to create the file yet haven't hit end of file yet, which
+		// probably means something has gone wrong. Throw a BdfError and delete the attempted object.
+		} else {
 			delete bdfNew;
-			throw;
+			throw BdfError(BdfError::ERROR_SYNTAX, sr);
 		}
-
-		delete bdf;
-		bdf = bdfNew;
-
-		return;
 	}
 
-	delete bdfNew;
-	throw BdfError(BdfError::ERROR_SYNTAX, sr);
+	// Make our BdfObject the new one.
+	this->bdf = bdfNew;
 }
 
 BdfReaderHuman::BdfReaderHuman(std::string data) : BdfReaderHuman(

@@ -19,10 +19,13 @@ namespace Bdf
 		void increment();
 		void increment(int amount);
 		int length();
-		void ignoreBlanks();
+		/**
+		 * Stops at the first character that isn't a comment.
+		 * @return true if the end of the file was reached, false otherwise
+		 */
+		bool ignoreBlanks();
 		std::string getQuotedString();
 		bool isNext(std::wstring check);
-		void checkRange();
 		bool inRange();
 	};
 }
