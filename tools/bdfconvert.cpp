@@ -1,5 +1,6 @@
 
 #include "../include/Bdf.hpp"
+#include "../include/version.hpp"
 #include <iterator>
 #include <iostream>
 #include <string>
@@ -9,8 +10,8 @@ std::string command = "bdfconvert";
 
 void help()
 {
-	std::cerr << command << " -m [binary/human] -p\n";
-	std::cerr << "Convert data from stdin to its binary/human representation\n";
+	std::cerr << command << " -m [binary/human] --pretty\n";
+	std::cerr << "Convert data from stdin to its binary/human representation.\nbdfconvert: based on BdfCpp " << Bdf::getLibraryVersion();
 }
 
 int main(int argc, char** argv)
