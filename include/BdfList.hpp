@@ -111,7 +111,7 @@ namespace Bdf
 		 * Get the item located at the start of the list.
    		 * @return the item at the start of the list.
    		 * @deprecated since 1.4.0, will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
-                 *             In 2.0.0, use BdfObject* getStart() instead.
+         *             In 2.0.0, use BdfObject* getStart() instead.
 		 * @since 1.4.0
 		 */
 		Item* getStart() const noexcept;
@@ -120,7 +120,7 @@ namespace Bdf
 		 * Get the item located at the end of the list.
    		 * @return the item at the end of the list.
    		 * @deprecated since 1.4.0, will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
-                 *             In 2.0.0, use BdfObject* getEnd() instead.
+         *             In 2.0.0, use BdfObject* getEnd() instead.
 		 * @since 1.4.0
 		 */
 		Item* getEnd() const noexcept;
@@ -129,9 +129,9 @@ namespace Bdf
 		 * Inserts a new object after the item given in item.
    		 * @param item the item at which the object will be inserted next to.
 		 * @param o the BdfObject to add to the list.
-                 * @return the BdfList, now with o added to the list.
-                 * @deprecated since 1.4.0, will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
-                 *             Use insertNext(int index, BdfObject* object) instead.
+         * @return the BdfList, now with o added to the list.
+         * @deprecated since 1.4.0, will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
+         *             Use insertNext(int index, BdfObject* object) instead.
 		 * @since 1.4.0
 		 */
 		#if __cplusplus >= 201402L
@@ -195,7 +195,7 @@ namespace Bdf
    		 * @param Item the item to remove from the list.
 		 * @return the BdfList, now with item removed.
    		 * @deprecated since 1.4.0, will be marked private in 2.0.0 onwards, as direct access to BdfList's linked list will no longer be allowed.
-                 *             Use remove(BdfObject* object) or remove(int id) instead.
+         *             Use remove(BdfObject* object) or remove(int id) instead.
    		 * @since 1.4.0
 		 */
 		#if __cplusplus >= 201402L
@@ -214,7 +214,7 @@ namespace Bdf
 		/**
 		 * Replace the BdfObject located at id with object.
    		 * @param id the index whose object will be replaced.
-      		 * @param object the object to replace with.
+         * @param object the object to replace with.
 		 * @return the BdfList, now with the BdfObject located at id removed.
 		 * @throw std::out_of_range if id is larger than this->size().
    		 * @since 1.0
