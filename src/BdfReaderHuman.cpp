@@ -16,16 +16,21 @@ BdfReaderHuman::BdfReaderHuman(std::wstring data)
 	BdfStringReader sr(data.c_str(), data.size());
 	BdfObject* bdfNew;
 	// Skip ahead to the first non-comment character.
-	while(!sr.ignoreBlanks()) {
-		// If this is our first time in the loop, bdfNew will be null. Create it using a new BdfObject.
-		if (!bdfNew) {
-			bdfNew = new BdfObject(lookupTable, &sr);
-		// Otherwise that means we already attempted to create the file yet haven't hit end of file yet, which
-		// probably means something has gone wrong. Throw a BdfError and delete the attempted object.
-		} else {
-			delete bdfNew;
-			throw BdfError(BdfError::ERROR_SYNTAX, sr);
+	try {
+		while(!sr.ignoreBlanks()) {
+			// If this is our first time in the loop, bdfNew will be null. Create it using a new BdfObject.
+			if (!bdfNew) {
+				bdfNew = new BdfObject(lookupTable, &sr);
+			// Otherwise that means we already attempted to create the file yet haven't hit end of file yet, which
+			// probably means something has gone wrong. Throw a BdfError and delete the attempted object.
+			} else {
+				throw BdfError(BdfError::ERROR_SYNTAX, sr);
+			}
 		}
+	// In case we run into an exception, make sure bdfNew is deallocated.
+	} catch (...) {
+		delete bdfNew;
+		throw;
 	}
 
 	// Make our BdfObject the new one.
