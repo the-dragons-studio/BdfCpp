@@ -11,16 +11,16 @@ using namespace BdfHelpers;
 
 BdfList::BdfList(BdfLookupTable* lookupTable, const char* data, int size)
 {
-	this->start = NULL;
-	this->end = NULL;
-	this->endptr = &this->start;
+	this->startItem = nullptr;
+	this->endItem = nullptr;
+	this->endptr = &this->startItem;
 		
 	int i = 0;
 
 	while(i < size)
 	{
 		char object_size_tag;
-		BdfObject::getFlagData(data, NULL, &object_size_tag, NULL);
+		BdfObject::getFlagData(data, nullptr, &object_size_tag, nullptr);
 
 		char object_size_bytes = BdfObject::getSizeBytes(object_size_tag);
 		
@@ -43,15 +43,15 @@ BdfList::BdfList(BdfLookupTable* lookupTable, const char* data, int size)
 	}
 }
 
-BdfList::BdfList(BdfLookupTable* lookupTable) : BdfList(lookupTable, NULL, 0) {
+BdfList::BdfList(BdfLookupTable* lookupTable) : BdfList(lookupTable, nullptr, 0) {
 
 }
 
 BdfList::BdfList(BdfLookupTable* lookupTable, BdfStringReader* sr)
 {
-	this->start = NULL;
-	this->end = NULL;
-	this->endptr = &this->start;
+	this->startItem = nullptr;
+	this->endItem = nullptr;
+	this->endptr = &this->startItem;
 		
 	sr->upto += 1;
 
@@ -102,44 +102,7 @@ BdfList::~BdfList()
 	clear();
 }
 
-int BdfList::size()
-{
-	int size = 0;
-	Item* upto = this->start;
-
-	while(upto != NULL)
-	{
-		size++;
-		upto = upto->next;
-	}
-
-	return size;
-}
-
-BdfList::Item* BdfList::getAtIndex(int index)
-{
-	Item* upto = this->start;
-
-	if(index < 0)
-	{
-		throw std::out_of_range("index " + std::to_string(index) + " is out of range");
-	}
-
-	while(index != 0)
-	{
-		index--;
-		upto = upto->next;
-
-		if(upto == NULL)
-		{
-			throw std::out_of_range("index " + std::to_string(index) + " is out of range");
-		}
-	}
-
-	return upto;
-}
-
-BdfObject* BdfList::get(int index)
+BdfObject* BdfList::get(int index) const
 {
 	return getAtIndex(index)->object;
 }
@@ -154,19 +117,33 @@ BdfList* BdfList::set(int index, BdfObject* o)
 	return this;
 }
 
-BdfList::Item* BdfList::getStart()
+BdfList::Item* BdfList::getStartItem() const noexcept
 {
-	return this->start;
+	return this->startItem;
 }
 
-BdfList::Item* BdfList::getEnd()
+BdfList::Item* BdfList::getEndItem() const noexcept
 {
-	return this->end;
+	return this->endItem;
+}
+
+BdfObject* BdfList::getStart() noexcept {
+	if (this->startItem == nullptr) {
+		return nullptr;
+	}
+	return this->startItem->object;
+}
+
+BdfObject* BdfList::getEnd() noexcept {
+	if (this->endItem == nullptr) {
+		return nullptr;
+	}
+	return this->endItem->object;
 }
 
 BdfList* BdfList::insertNext(Item* item, BdfObject* object)
 {
-	if(item->next == NULL)
+	if(item->next == nullptr)
 	{
 		add(object);
 	}
@@ -186,19 +163,37 @@ BdfList* BdfList::insertNext(Item* item, BdfObject* object)
 	return this;
 }
 
+BdfList* BdfList::insertNext(uint64_t index, BdfObject* o) {
+	return this->insertNext(this->getAtIndex(index), o);
+}
+
+BdfList* BdfList::insertNext(BdfObject* needle, BdfObject* o, bool fallbackToAdd) {
+	BdfList::ConstIterator it = this->find(needle);
+	
+	if (it) {
+		this->insertNext(it.p.p, o);
+	} else if (fallbackToAdd) {
+		this->add(o);
+	} else {
+		throw std::out_of_range("Could not insert in BdfList because the requested object was not found.");
+	}
+	
+	return this;
+}
+
 BdfList* BdfList::insertLast(Item* item, BdfObject* object)
 {
 	Item* item_new = new Item();
 
 	item_new->object = object;
 
-	if(item->last == NULL)
+	if(item->last == nullptr)
 	{
-		item_new->last = NULL;
+		item_new->last = nullptr;
 		item_new->next = item;
 
 		item->last = item_new;
-		this->start = item_new;
+		this->startItem = item_new;
 	}
 
 	else
@@ -213,25 +208,43 @@ BdfList* BdfList::insertLast(Item* item, BdfObject* object)
 	return this;
 }
 
-BdfList* BdfList::remove(Item* item)
+BdfList* BdfList::insertLast(uint64_t index, BdfObject* o) {
+	return this->insertLast(this->getAtIndex(index), o);
+}
+
+BdfList* BdfList::insertLast(BdfObject* needle, BdfObject* o, bool fallbackToAdd) {
+	BdfList::ConstIterator it = this->find(needle);
+	
+	if (it) {
+		this->insertLast(it.p.p, o);
+	} else if (fallbackToAdd) {
+		this->add(o);
+	} else {
+		throw std::out_of_range("Could not insert in BdfList because the requested object was not found.");
+	}
+	
+	return this;
+}
+
+BdfList* BdfList::remove(Item* item) noexcept
 {
-	if(item->next == NULL && item->last == NULL)
+	if(item->next == nullptr && item->last == nullptr)
 	{
-		this->start = NULL;
-		this->end = NULL;
-		this->endptr = &this->start;
+		this->startItem = nullptr;
+		this->endItem = nullptr;
+		this->endptr = &this->startItem;
 	}
 
-	else if(item->last == NULL)
+	else if(item->last == nullptr)
 	{
-		item->next->last = NULL;
-		this->start = item->next;
+		item->next->last = nullptr;
+		this->startItem = item->next;
 	}
 
-	else if(item->next == NULL)
+	else if(item->next == nullptr)
 	{
-		item->last->next = NULL;
-		this->end = item->last;
+		item->last->next = nullptr;
+		this->endItem = item->last;
 		this->endptr = &item->last->next;
 	}
 
@@ -249,16 +262,16 @@ BdfList* BdfList::remove(Item* item)
 	return this;
 }
 
-BdfList* BdfList::remove(BdfObject* item)
+BdfList* BdfList::remove(BdfObject* item) noexcept
 {
-	Item* cur = this->start;
+	Item* cur = this->startItem;
 
-	while(cur != NULL && cur->object != item)
+	while(cur != nullptr && cur->object != item)
 	{
 		cur = cur->next;
 	}
 
-	if(cur != NULL)
+	if(cur != nullptr)
 	{
 		remove(cur);
 	}
@@ -271,12 +284,12 @@ BdfList* BdfList::add(BdfObject* o)
 	Item* item = new Item();
 	
 	item->object = o;
-	item->last = this->end;
-	item->next = NULL;
+	item->last = this->endItem;
+	item->next = nullptr;
 
 	*this->endptr = item;
 	this->endptr = &item->next;
-	this->end = item;
+	this->endItem = item;
 		
 	return this;
 }
@@ -286,41 +299,45 @@ BdfList* BdfList::remove(int index)
 	return remove(getAtIndex(index));
 }
 
-BdfList* BdfList::clear()
-{
-	Item* upto = this->start;
-	Item* next;
-
-	while(upto != NULL)
-	{
-		next = upto->next;
-
-		delete upto->object;
-		delete upto;
-
-		upto = next;
+BdfList* BdfList::clear() noexcept {
+	// Use iterators to clear the list.
+	// 1. Get an ItemIterator to the end.
+	// 2. Delete our current Item's object.
+	// 3. Delete our current Item's next element (deleting nullptr is okay!).
+	// 4. Decrement the iterator.
+	BdfList::ItemIterator it = BdfList::ItemIterator(this->getEndItem());
+	
+	while (it) {
+		delete (*it)->object;
+		delete (*it)->next;
+		--it;
 	}
-
+	
+	delete this->startItem;
+	
+	this->startItem = nullptr;
+	this->endItem = nullptr;
+	
 	return this;
 }
 
-void BdfList::getLocationUses(int* locations)
+void BdfList::getLocationUses(int* locations) const
 {
-	Item* upto = this->start;
+	Item* upto = this->startItem;
 
-	while(upto != NULL)
+	while(upto != nullptr)
 	{
 		upto->object->getLocationUses(locations);
 		upto = upto->next;
 	}
 }
 
-int BdfList::serializeSeeker(int* locations)
+int BdfList::serializeSeeker(int* locations) const
 {
-	Item* upto = this->start;
+	Item* upto = this->startItem;
 	int size = 0;
 
-	while(upto != NULL)
+	while(upto != nullptr)
 	{
 		size += upto->object->serializeSeeker(locations);
 		upto = upto->next;
@@ -329,12 +346,12 @@ int BdfList::serializeSeeker(int* locations)
 	return size;
 }
 
-int BdfList::serialize(char *data, int* locations)
+int BdfList::serialize(char *data, int* locations) const
 {
-	Item* upto = this->start;
+	Item* upto = this->startItem;
 	int pos = 0;
 
-	while(upto != NULL)
+	while(upto != nullptr)
 	{
 		pos += upto->object->serialize(data + pos, locations, 0);
 		upto = upto->next;
@@ -343,17 +360,21 @@ int BdfList::serialize(char *data, int* locations)
 	return pos;
 }
 
-void BdfList::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it) {
+void BdfList::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it)
+{
+	if(this->startItem == nullptr)
+	{
+		out << "[]";
+		
+		return;
+	}
+
+	out << "[";
+
 	// Get an iterator (only need const)
 	BdfList::ConstIterator iterator = this->cbegin();
 
-	if (!iterator) {
-        	out << "[]";
-		return;
-	} else {
-		std::string indenterCalculated = indent.calcIndent(it);
-		out << "[";
-		
+	if(iterator) {
 		do {
 			// For the second and onward iterations, print a comma separator. 
 			if (iterator != this->cbegin()) {
@@ -361,17 +382,293 @@ void BdfList::serializeHumanReadable(std::ostream &out, const BdfIndent &indent,
 			}
 
 			// Print a breaker and indenter.
-			out << indent.breaker << indenterCalculated;
+			out << indent.breaker << indent.calcIndent(it);
 
 			// Get the iterator's BdfObject's serialisation.
 			iterator->serializeHumanReadable(out, indent, it + 1);
 			
 			// Iterate. We'll only proceed back to the comma if this doesn't equal the end.
 			++iterator;
-		} while (iterator != this->cend());
+		} while (iterator != this->cend());					
+	}
 
-		out << indent.breaker << indenterCalculated << "]";
-	} 	
+ 	out << indent.breaker << indent.calcIndent(it) << "]";
 }
 
+uint64_t BdfList::size() const noexcept {
+	return std::distance(this->ibegin(), this->iend());
+}
 
+BdfList* BdfList::reserve(uint64_t size) {
+	uint64_t currentSize = this->size();
+	
+	// 1. currentSize = 5, size = 8
+	// 2. currentSize < size (5 < 8)
+	// 3. this->add(nullptr)
+	// 4. i + 1 = 6
+	// 3. this->add(nullptr)
+	// 4. i + 1 = 7
+	// 3. this->add(nullptr)
+	// 4. i + 1 = 8
+	// 8 !< 8
+	// return this.
+	if (currentSize < size) {	
+		for (uint64_t i = currentSize; i < size; i++) {
+			this->add(new BdfObject(this->lookupTable));
+		}
+	}
+	
+	return this;
+}
+
+BdfList* BdfList::shrinkUndefinedObjects() {
+	BdfList::ItemIterator it(this->endItem);
+	
+	while (!*(it->object)) {
+		delete it->object;
+		--it;
+		delete (*it)->next;
+		(*it)->next = nullptr;
+	}
+	
+	return this;
+}
+
+BdfList::ConstIterator BdfList::find(BdfObject* needle) const noexcept {
+	// Search the entire BdfList until we find it.
+	BdfList::ConstIterator first = this->cbegin();
+	BdfList::ConstIterator last = this->cend();
+	
+	while (first != last) {
+		if (**first == *needle) {
+			return first;
+		}
+		++first;
+	}
+	
+	return last;
+}
+
+std::optional<uint64_t> BdfList::findIndex(BdfObject* needle) const noexcept {
+	// Search the entire BdfList until we find it.
+	uint64_t itNo;
+	BdfList::ConstIterator first = this->cbegin();
+	BdfList::ConstIterator last = this->cend();
+	
+	for (itNo = 0; first != last; ++first, ++itNo) {
+		if (**first == *needle) {
+			return itNo;
+		}
+		
+	}
+	
+	return std::nullopt;
+}
+
+std::partial_ordering BdfList::operator<=>(const BdfList& rhs) const noexcept {
+	BdfList::ConstIterator lhsIt = this->cbegin();
+	BdfList::ConstIterator rhsIt = rhs.cbegin();
+	std::partial_ordering itComparisonResult = std::partial_ordering::unordered;
+	
+	while (lhsIt && rhsIt) {
+		itComparisonResult = (**lhsIt <=> **rhsIt);
+		if (itComparisonResult != std::partial_ordering::equivalent) {
+			return itComparisonResult;
+		}
+		
+		++lhsIt;
+		++rhsIt;
+	}
+	
+	return (lhsIt <=> rhsIt);
+}
+
+bool BdfList::operator==(const BdfList& rhs) const noexcept {
+	return ((*this <=> rhs) == std::partial_ordering::equivalent);
+}
+
+BdfList::Iterator BdfList::begin() noexcept {
+	return Iterator(this->ibegin());
+}
+
+BdfList::Iterator BdfList::end() noexcept {
+	return Iterator(this->iend());
+}
+
+BdfList::ConstIterator BdfList::cbegin() const noexcept {
+	return ConstIterator(this->ibegin());
+}
+
+BdfList::ConstIterator BdfList::cend() const noexcept {
+	return ConstIterator(this->iend());
+}
+
+BdfList::ItemIterator BdfList::ibegin() const noexcept {
+	return ItemIterator(this->startItem);
+}
+
+BdfList::ItemIterator BdfList::iend() const noexcept {
+	return ItemIterator(nullptr);
+}
+
+BdfList::ItemIterator::ItemIterator(): p(nullptr) {}
+
+BdfList::ItemIterator::ItemIterator(Item *p): p(p) {}
+
+BdfList::Item* BdfList::ItemIterator::operator*() const noexcept {
+	return p;
+}
+
+BdfList::Item* BdfList::ItemIterator::operator->() const noexcept {
+	return p;
+}
+
+BdfList::ItemIterator& BdfList::ItemIterator::operator++() {
+	if (this->isValid()) {
+		this->p = this->p->next;
+	}
+	return *this;
+}
+
+BdfList::ItemIterator BdfList::ItemIterator::operator++(int) {
+	ItemIterator tmp = *this;
+	++tmp;
+	return tmp;
+}
+
+BdfList::ItemIterator& BdfList::ItemIterator::operator--() {
+	if (this->isValid()) {
+		this->p = this->p->last;
+	}
+	return *this;
+}
+
+BdfList::ItemIterator BdfList::ItemIterator::operator--(int) {
+	ItemIterator tmp = *this;
+	--tmp;
+	return tmp;
+}
+
+bool BdfList::ItemIterator::isValid() const noexcept {
+	return (this->p != nullptr);
+}
+
+BdfList::ItemIterator::operator bool() const noexcept {
+	return this->isValid();
+}
+
+BdfList::ConstIterator::ConstIterator() {}
+
+BdfList::ConstIterator::ConstIterator(const BdfList::ItemIterator &p): p(p) {}
+
+const BdfObject* BdfList::ConstIterator::operator*() const noexcept {
+	if (this->isValid()) {
+		return this->p->object;
+	} else {
+		return nullptr;
+	}
+}
+
+const BdfObject* BdfList::ConstIterator::operator->() const noexcept {
+	if (this->isValid()) {
+		return this->p->object;
+	} else {
+		return nullptr;
+	}
+}
+
+BdfList::ConstIterator& BdfList::ConstIterator::operator++() {
+	++(this->p);
+	return *this;
+}
+
+BdfList::ConstIterator BdfList::ConstIterator::operator++(int) {
+	ConstIterator tmp = *this;
+	++tmp;
+	return tmp;
+}
+
+BdfList::ConstIterator& BdfList::ConstIterator::operator--() {
+	--(this->p);
+	return *this;
+}
+
+BdfList::ConstIterator BdfList::ConstIterator::operator--(int) {
+	ConstIterator tmp = *this;
+	++tmp;
+	return tmp;
+}
+
+bool BdfList::ConstIterator::isValid() const noexcept {
+	return (this->p.isValid() && this->p->object != nullptr);
+}
+
+BdfList::BdfList::ConstIterator::operator bool() const noexcept {
+	return this->isValid();
+}
+
+BdfList::Iterator::Iterator() {}
+
+BdfList::Iterator::Iterator(const ItemIterator& p): p(p) {}
+
+BdfObject* BdfList::Iterator::operator*() const noexcept {
+	if (this->isValid()) {
+		return this->p->object;
+	} else {
+		return nullptr;
+	}
+}
+
+BdfObject* BdfList::Iterator::operator->() const noexcept {
+	if (this->isValid()) {
+		return this->p->object;
+	} else {
+		return nullptr;
+	}
+}
+
+BdfList::Iterator& BdfList::Iterator::operator++() {
+	++(this->p);
+	return *this;
+}
+
+BdfList::Iterator BdfList::Iterator::operator++(int) {
+	Iterator tmp(std::move(*this));
+	++tmp;
+	return tmp;
+}
+
+BdfList::Iterator& BdfList::Iterator::operator--() {
+	--(this->p);
+	return *this;
+}
+
+BdfList::Iterator BdfList::Iterator::operator--(int) {
+	Iterator tmp(std::move(*this));
+	--tmp;
+	return tmp;
+}
+
+bool BdfList::Iterator::isValid() const noexcept {
+	return (this->p.isValid() && this->p->object != nullptr);
+}
+
+BdfList::Iterator::operator bool() const noexcept {
+	return this->isValid();
+}
+
+BdfList::Iterator::operator ConstIterator() const noexcept {
+	return BdfList::ConstIterator(this->p);
+}
+
+BdfList::Item* BdfList::getAtIndex(uint64_t index) const {
+	uint64_t itNo = 0;
+	BdfList::ItemIterator end = this->iend();
+	for (BdfList::ItemIterator it = this->ibegin(); it != end; ++it, ++itNo) {
+		if (itNo == index) {
+			return *it;
+		}
+	}
+	
+	throw std::out_of_range("Index " + std::to_string(index) + " is out of range");
+}
