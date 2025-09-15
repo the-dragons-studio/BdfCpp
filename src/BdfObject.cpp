@@ -215,41 +215,19 @@ BdfObject::BdfObject(BdfLookupTable* pLookupTable, BdfStringReader* sr)
 	bool isPrimitiveArray = false;
 	char type = 0;
 
-	if(sr->isNext(L"int")) {
-		type = BdfTypes::ARRAY_INTEGER;
-		isPrimitiveArray = true;
-	}
-
-	else if(sr->isNext(L"long")) {
-		type = BdfTypes::ARRAY_LONG;
-		isPrimitiveArray = true;
-	}
-
-	else if(sr->isNext(L"byte")) {
-		type = BdfTypes::ARRAY_BYTE;
-		isPrimitiveArray = true;
-	}
-
-	else if(sr->isNext(L"short")) {
-		type = BdfTypes::ARRAY_SHORT;
-		isPrimitiveArray = true;
-	}
-
-	else if(sr->isNext(L"bool")) {
-		type = BdfTypes::ARRAY_BOOLEAN;
-		isPrimitiveArray = true;
-	}
-
-	else if(sr->isNext(L"double")) {
-		type = BdfTypes::ARRAY_DOUBLE;
-		isPrimitiveArray = true;
-		isDecimalArray = true;
-	}
-
-	else if(sr->isNext(L"float")) {
-		type = BdfTypes::ARRAY_FLOAT;
-		isPrimitiveArray = true;
-		isDecimalArray = true;
+	// We create a vector of types to sort through.
+	// If sr->isNext hits for the pair LHS, we assign the type in RHS.
+	constexpr std::vector<std::map<std::wstring, char>> primitiveArrayTypes { { L"int", BdfTypes::ARRAY_INTEGER }, { L"long", BdfTypes::ARRAY_LONG }, { L"byte", , BdfTypes::ARRAY_BYTE }, { L"short", BdfTypes::ARRAY_SHORT}, { L"bool", BdfTypes::ARRAY_BOOLEAN }, { L"double", BdfTypes::ARRAY_DOUBLE }, { L"float", BdfTypes::ARRAY_FLOAT } };
+	
+	for (primitiveArrayTypes : i) {
+		if (sr->isNext(i.get())) {
+			type = i.get();
+			isPrimitiveArray = true;
+			
+			if (type == BdfTypes::ARRAY_DOUBLE || type == BdfTypes::ARRAY_FLOAT) {
+				isDecimalArray = true;
+			}
+		}
 	}
 
 	// Deserialize a primitive array
