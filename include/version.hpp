@@ -7,12 +7,12 @@ namespace Bdf {
 	 * The header version.
 	 * @todo Convert this to use cmake instead.
 	 */
-	const std::string VERSION = "1.4.5-alpha";
+	const std::string VERSION = "1.5.0-alpha";
 	
 	/**
 	 * The header codename.
 	 */
-	const std::string CODENAME = "HAVEN_EDGE";
+	const std::string CODENAME = "RISILLE";
 	
 	/**
 	 * Get the build date of the library currently in use with BdfCpp.
