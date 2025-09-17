@@ -29,12 +29,44 @@ namespace Bdf
 	
 		virtual ~BdfObject();
 	
-		char getType();
-		void getLocationUses(int* locations);
-		int serializeSeeker(int* locations);
-		int serialize(char* data, int* locations, unsigned char flags);
-		void serializeHumanReadable(std::ostream &stream, BdfIndent indent, int upto);
-	
+		/**
+		 * Gets the type of object this currently is.
+		 * The returned value can be compared against a type listed in BdfTypes.
+		 * @return a char representing the type of BdfObject.
+		 */
+		char getType() const noexcept;
+
+		/**
+		 * Returns true if the BdfObject has valid data, i.e. any type other than BdfTypes::UNDEFINED.
+		 * Equivalent to the comparison (example->getType() != BdfTypes::UNDEFINED).
+		 * @return true if this->type() is anything other than BdfTypes::UNDEFINED, false if this->
+		 * getType() == BdfTypes::UNDEFINED.
+		 */
+		explicit operator bool() const noexcept;
+
+		/**
+  		 * @internal
+     	 */
+		void getLocationUses(int* locations) const;
+
+		/**
+  		 * @internal
+     	 */
+		int serializeSeeker(int* locations) const;
+
+		/**
+  		 * @internal
+     	 */
+		int serialize(char* data, int* locations, unsigned char flags) const;
+
+		/**
+  		 * @internal
+         */
+		void serializeHumanReadable(std::ostream &stream, const BdfIndent &indent, int upto);
+
+		/**
+  		 * @internal
+     	 */
 		static void getFlagData(const char* data, char* type, char* size_bytes, char* parent_flags);
 		static char getSizeBytes(char size_bytes);
 		static int getSize(const char* data);

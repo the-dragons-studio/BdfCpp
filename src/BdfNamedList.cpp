@@ -369,7 +369,7 @@ int BdfNamedList::serialize(char* data, int* locations)
 	return pos;
 }
 
-void BdfNamedList::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it)
+void BdfNamedList::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it) const
 {
 	if(this->start == NULL)
 	{

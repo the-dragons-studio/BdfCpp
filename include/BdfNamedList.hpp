@@ -33,18 +33,58 @@ namespace Bdf
 		BdfLookupTable* lookupTable;
 
 	public:
-		BdfNamedList(BdfLookupTable* lookupTable);
-		BdfNamedList(BdfLookupTable* lookupTable, const char* data, int size);
-		BdfNamedList(BdfLookupTable* lookupTable, BdfStringReader* sr);
-	
-		virtual ~BdfNamedList();
-	
-		void getLocationUses(int* locations);
-		int serializeSeeker(int* locations);
-		int serialize(char *data, int* locations);
-		void serializeHumanReadable(std::ostream &stream, BdfIndent indent, int upto);
-
-		BdfNamedList* clear();	
+	    /**
+		 * Deleted (no copy constructor).
+	     */
+		BdfNamedList(const BdfNamedList&) = delete;
+		
+		/**
+		 * Destroys the BdfNamedList.
+		 * @since 1.0
+		 */
+		virtual ~BdfNamedList() noexcept;
+		
+		/**
+		 * @internal
+		 * @since 1.0
+		 */	
+		void getLocationUses(int* locations) const noexcept;
+		
+		/**
+		 * @internal
+		 * @since 1.0
+		 */	
+		int serializeSeeker(int* locations) const;
+		
+		/**
+		 * Serialises the named list to data using locations
+		 * @internal
+		 * @since 1.0
+		 */	
+		int serialize(char *data, int* locations) const;
+		
+		/**
+		 * Serialises the named list to &stream.
+		 * @internal
+		 * @since 1.0
+		 */	
+		void serializeHumanReadable(std::ostream &stream, const BdfIndent &indent, int upto) const;
+		
+		/**
+		 * Removes all elements in the BdfNamedList.
+		 * @return the BdfNamedList, now with all elements removed.
+		 * @since 1.4.0
+		 */
+		BdfNamedList* clear() noexcept;
+		
+		/**
+		 * Gets the item located at key. If it does not exist, creates it.
+		 * @param key the key to search for in the list.
+		 * @return a pointer to the object located at key.
+		 * @warning Relying on this method's ability to create keys that don't exist is deprecated. From 2.0.0 onwards, this method
+		 *          will throw an std::out_of_range exception in that case instead.
+		 * @since 1.0
+		 */	
 		BdfObject* get(int key);
 		BdfObject* get(std::string key);
 		BdfNamedList* set(std::string key, BdfObject* value);
