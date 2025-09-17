@@ -27,7 +27,7 @@ namespace Bdf
       	 *          This constructor will be marked explicit from 2.0.0 onwards.
 		 * @since 1.0
 		 */
-		BdfReaderHuman(std::string data);
+		BdfReaderHuman(const std::string &data);
 		
 		/**
 		 * Initialises a BdfReaderHuman object by parsing data as human-readable BDF data.
@@ -37,7 +37,7 @@ namespace Bdf
          *          This constructor will be marked explicit from 2.0.0 onwards.
 		 * @since 1.0
 		 */
-		BdfReaderHuman(std::wstring data);
+		BdfReaderHuman(const std::wstring &data);
 	};
 }
 
