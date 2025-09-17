@@ -929,17 +929,6 @@ void BdfObject::getLocationUses(int* locations) const
 	}
 }
 
-std::string calcIndent(const BdfIndent &indent, int it)
-{
-	std::string t;
-
-	for(int i=0;i<=it;i++) {
-		t += indent.indent;
-	}
-
-	return t;
-}
-
 void decimalToStream(std::ostream &out, double v)
 {
 	if(std::isnan(v)) {
@@ -1046,11 +1035,11 @@ void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int 
 			getIntegerArray(&v, &size);
 
 			for(int i=0;i<size;i++) {
-				out << indent.breaker << calcIndent(indent, it) << v[i] << "I";
+				out << indent.breaker << indent.calcIndent(it) << v[i] << "I";
 				if(i != size - 1) out << ", ";
 			}
 
-			out << indent.breaker << calcIndent(indent, it - 1) << ")";
+			out << indent.breaker << indent.calcIndent(it - 1) << ")";
 
 			delete[] v;
 			return;
@@ -1065,11 +1054,11 @@ void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int 
 			getBooleanArray(&v, &size);
 
 			for(int i=0;i<size;i++) {
-				out << indent.breaker << calcIndent(indent, it) << (v[i] ? "true" : "false");
+				out << indent.breaker << indent.calcIndent(it) << (v[i] ? "true" : "false");
 				if(i != size - 1) out << ", ";
 			}
 
-			out << indent.breaker << calcIndent(indent, it - 1) + ")";
+			out << indent.breaker << indent.calcIndent(it - 1) + ")";
 
 			delete[] v;
 			return;
@@ -1084,11 +1073,11 @@ void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int 
 			getLongArray(&v, &size);
 
 			for(int i=0;i<size;i++) {
-				out << indent.breaker << calcIndent(indent, it) << v[i] << "L";
+				out << indent.breaker << indent.calcIndent(it) << v[i] << "L";
 				if(i != size - 1) out << ", ";
 			}
 
-			out << indent.breaker << calcIndent(indent, it - 1) << ")";
+			out << indent.breaker << indent.calcIndent(it - 1) << ")";
 
 			delete[] v;
 			return;
@@ -1103,11 +1092,11 @@ void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int 
 			getShortArray(&v, &size);
 
 			for(int i=0;i<size;i++) {
-				out << indent.breaker << calcIndent(indent, it) << v[i] << "S";
+				out << indent.breaker << indent.calcIndent(it) << v[i] << "S";
 				if(i != size - 1) out << ", ";
 			}
 
-			out << indent.breaker << calcIndent(indent, it - 1) << ")";
+			out << indent.breaker << indent.calcIndent(it - 1) << ")";
 
 			delete[] v;
 			return;
@@ -1122,11 +1111,11 @@ void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int 
 			getByteArray(&v, &size);
 
 			for(int i=0;i<size;i++) {
-				out << indent.breaker << calcIndent(indent, it) << (int)v[i] << "B";
+				out << indent.breaker << indent.calcIndent(it) << (int)v[i] << "B";
 				if(i != size - 1) out << ", ";
 			}
 
-			out << indent.breaker << calcIndent(indent, it - 1) << ")";
+			out << indent.breaker << indent.calcIndent(it - 1) << ")";
 
 			delete[] v;
 			return;
@@ -1142,7 +1131,7 @@ void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int 
 
 			for(int i=0;i<size;i++)
 			{
-				out << indent.breaker << calcIndent(indent, it);
+				out << indent.breaker << indent.calcIndent(it);
 				
 				decimalToStream(out, v[i]);
 				
@@ -1151,7 +1140,7 @@ void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int 
 				if(i != size - 1) out << ", ";
 			}
 
-			out << indent.breaker << calcIndent(indent, it - 1) << ")";
+			out << indent.breaker << indent.calcIndent(it - 1) << ")";
 
 			delete[] v;
 			return;
@@ -1167,7 +1156,7 @@ void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int 
 
 			for(int i=0;i<size;i++)
 			{
-				out << indent.breaker << calcIndent(indent, it);
+				out << indent.breaker << indent.calcIndent(it);
 				
 				decimalToStream(out, v[i]);
 				
@@ -1176,7 +1165,7 @@ void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int 
 				if(i != size - 1) out << ", ";
 			}
 
-			out << indent.breaker << calcIndent(indent, it - 1) << ")";
+			out << indent.breaker << indent.calcIndent(it - 1) << ")";
 
 			delete[] v;
 			return;
