@@ -195,7 +195,7 @@ bool BdfStringReader::inRange() {
 	return upto < end;
 }
 
-bool BdfStringReader::isNext(std::wstring check)
+bool BdfStringReader::isNext(const std::wstring &check)
 {
 	if(check.size() + upto > end) {
 		return false;

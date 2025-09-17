@@ -25,7 +25,7 @@ namespace Bdf
 		int length();
 		void ignoreBlanks();
 		std::string getQuotedString();
-		bool isNext(std::wstring check);
+		bool isNext(const std::wstring &check);
 		void checkRange();
 		bool inRange();
 	};
