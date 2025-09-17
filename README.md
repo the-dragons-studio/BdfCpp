@@ -18,8 +18,8 @@ format. It was made to be free, fast, compact, and seamlessly
 convertable between its human readable and binary representations.
 
 This repository is a fork from the original <a href="https://github.com/jsrobson10/BdfCpp">BdfCpp created
-by jsrobson</a>. Compared to the original, this fork is aiming to offer better documentation (via Doxygen integration), 
-an easier build process and optional support for in-library compression via BdfReaderXz and BdfReaderGz. 
+by jsrobson</a>. Compared to the original, this fork is aiming to offer better documentation (via Doxygen integration)
+as well as an easier build process.
 
 This fork also formally uses <a href="https://semver.org/">Semantic Versioning</a>; this version intends to provide full backwards compatibility (albeit not without some deprecations) to all versions of the jsrobson10 version.
 
