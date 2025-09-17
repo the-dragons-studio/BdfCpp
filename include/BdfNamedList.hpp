@@ -100,7 +100,7 @@ namespace Bdf
 		 * @internal
 		 * @since 1.0
 		 */	
-		void serializeHumanReadable(std::ostream &stream, BdfIndent indent, int upto) const;
+		void serializeHumanReadable(std::ostream &stream, const BdfIndent &indent, int upto) const;
 		
 		/**
 		 * Removes all elements in the BdfNamedList.

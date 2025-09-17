@@ -105,7 +105,7 @@ namespace Bdf
 		/**
   		 * @internal
          */
-		void serializeHumanReadable(std::ostream &stream, BdfIndent indent, int upto);
+		void serializeHumanReadable(std::ostream &stream, const BdfIndent &indent, int upto);
 
 		/**
   		 * @internal

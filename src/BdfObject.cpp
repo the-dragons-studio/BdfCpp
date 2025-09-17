@@ -959,7 +959,7 @@ void decimalToStream(std::ostream &out, float v)
 	}
 }
 
-void BdfObject::serializeHumanReadable(std::ostream &out, BdfIndent indent, int it)
+void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it)
 {
 	switch (type)
 	{
