@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sstream>
 #include <math.h>
+#include <utility>
 
 using namespace Bdf;
 using namespace BdfHelpers;
@@ -1679,7 +1680,7 @@ BdfObject* BdfObject::setString(std::string v)
 	freeAll();
 
 	type = BdfTypes::STRING;
-	object = new std::string(v);
+	object = new std::string(std::move(v));
 
 	return this;
 }
