@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.27)
-project(BdfCpp VERSION 1.4.4)
+project(BdfCpp VERSION 1.4.6)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
@@ -80,3 +80,4 @@ if (DOXYGEN_READY)
 endif(DOXYGEN_READY)
 # target_link_libraries(bdf )
 install(TARGETS bdf)
+
