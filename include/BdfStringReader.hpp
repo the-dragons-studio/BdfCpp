@@ -29,7 +29,7 @@ namespace Bdf
 		 */
 		bool ignoreBlanks();
 		std::string getQuotedString();
-		bool isNext(std::wstring check);
+		bool isNext(const std::wstring &check);
 		bool inRange();
 	};
 }
