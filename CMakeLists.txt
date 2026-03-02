@@ -23,10 +23,10 @@ add_custom_target(
 
 # Try to build Doxygen.
 option(BUILD_DOC "Build documentation" ON)
-
-add_executable(helloworld examples/helloworld.cpp)
-add_dependencies(helloworld bdf)
-target_link_libraries(helloworld -lbdf)
+# Build example and test executables
+option(BUILD_EXAMPLES "Build example and test executables" OFF)
+# Build tools
+option(BUILD_TOOLS "Build tool executables" ON)
 
 if(BUILD_DOC) 
 	find_package(Doxygen)
@@ -55,3 +55,36 @@ if (DOXYGEN_READY)
 endif(DOXYGEN_READY)
 # target_link_libraries(bdf )
 install(TARGETS bdf)
+
+# If the user requests, build other executables
+if(BUILD_EXAMPLES)
+	# fibonacci
+	add_executable(fibonacci examples/fibonacci.cpp)
+	add_dependencies(fibonacci bdf)
+	target_link_libraries(fibonacci bdf)
+
+	# helloworld
+	add_executable(helloworld examples/helloworld.cpp)
+	add_dependencies(helloworld bdf)
+	target_link_libraries(helloworld bdf)
+	
+	# tests
+	add_executable(tests examples/tests.cpp)
+	add_dependencies(tests bdf)
+	target_link_libraries(tests bdf)
+	
+endif(BUILD_EXAMPLES)
+
+if(BUILD_TOOLS)
+	# bdfconvert
+	add_executable(bdfconvert tools/bdfconvert.cpp)
+	add_dependencies(bdfconvert bdf)
+	target_link_libraries(bdfconvert bdf)
+	
+	# bdfedit, but only on Linux OSes
+	if(linux)
+		add_executable(bdfedit tools/bdfedit.cpp)
+		add_dependencies(bdfedit bdf)
+		target_link_libraries(bdfedit bdf -lboost_iostreams)
+	endif(linux)
+endif(BUILD_TOOLS)
