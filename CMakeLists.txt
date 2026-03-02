@@ -8,9 +8,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "build/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "build/lib")
 set(DOXYGEN_READY OFF) # Controls whether Doxygen is ready to build.
 
-# Try to build Doxygen.
-option(BUILD_BDFEDIT "Build the bdfedit executable, has no effect on non-Linux platforms" OFF)
-option(BUILD_DOC "Build documentation" ON)
 option(BUILD_SHARED_LIBS "Build as a shared library instead of static library" ON)
 
 # Make build time in UTC ISO 8601 accessible to the library.
@@ -24,33 +21,13 @@ add_custom_target(
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/timestamp.cmake
     add_dependencies ${CMAKE_BINARY_DIR}/timestamp.cmake)
     
-# "examples/fibonacci" executable
-add_executable(fibonacci examples/fibonacci.cpp)
-add_dependencies(fibonacci bdf)
-target_link_libraries(fibonacci bdf)
 
-# "examples/helloworld" executable
-add_executable(helloworld examples/helloworld.cpp)
-add_dependencies(helloworld bdf)
-target_link_libraries(helloworld bdf)
-
-# "examples/tests" executable
-add_executable(tests examples/tests.cpp)
-add_dependencies(tests bdf)
-target_link_libraries(tests bdf)
-
-# "examples/bdfconvert" executable
-add_executable(bdfconvert tools/bdfconvert.cpp)
-add_dependencies(bdfconvert bdf)
-target_link_libraries(bdfconvert bdf)
-
-# "tools/bdfedit" executable
-# @note Only supported on Linux. 2.0.0 will replace the current implementation with a cross-platform rewrite.
-if(BUILD_BDFEDIT AND linux)
-	add_executable(bdfedit tools/bdfedit.cpp)
-	add_dependencies(bdfedit bdf)
-	target_link_libraries(bdfedit bdf -lboost_iostreams)
-endif()
+# Try to build Doxygen.
+option(BUILD_DOC "Build documentation" ON)
+# Build example and test executables
+option(BUILD_EXAMPLES "Build example and test executables" OFF)
+# Build tools
+option(BUILD_TOOLS "Build tool executables" ON)
 
 # Build documentation if requested.
 if(BUILD_DOC) 
@@ -81,3 +58,35 @@ endif(DOXYGEN_READY)
 # target_link_libraries(bdf )
 install(TARGETS bdf)
 
+# If the user requests, build other executables
+if(BUILD_EXAMPLES)
+	# fibonacci
+	add_executable(fibonacci examples/fibonacci.cpp)
+	add_dependencies(fibonacci bdf)
+	target_link_libraries(fibonacci bdf)
+
+	# helloworld
+	add_executable(helloworld examples/helloworld.cpp)
+	add_dependencies(helloworld bdf)
+	target_link_libraries(helloworld bdf)
+	
+	# tests
+	add_executable(tests examples/tests.cpp)
+	add_dependencies(tests bdf)
+	target_link_libraries(tests bdf)
+	
+endif(BUILD_EXAMPLES)
+
+if(BUILD_TOOLS)
+	# bdfconvert
+	add_executable(bdfconvert tools/bdfconvert.cpp)
+	add_dependencies(bdfconvert bdf)
+	target_link_libraries(bdfconvert bdf)
+	
+	# bdfedit, but only on Linux OSes
+	if(linux)
+		add_executable(bdfedit tools/bdfedit.cpp)
+		add_dependencies(bdfedit bdf)
+		target_link_libraries(bdfedit bdf -lboost_iostreams)
+	endif(linux)
+endif(BUILD_TOOLS)
