@@ -1,7 +1,7 @@
 
 #include <iostream>
 
-#include <bdf/Bdf.hpp>
+#include "../include/Bdf.hpp"
 
 int testNumber = 0;
 
