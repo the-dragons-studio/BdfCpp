@@ -3,6 +3,8 @@
 #define BDFERROR_HPP_
 
 #include "BdfStringReader.hpp"
+
+#include <cstdint>
 #include <string>
 
 namespace Bdf
