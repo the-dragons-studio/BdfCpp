@@ -7,10 +7,18 @@
 #include <filesystem>
 #include <iterator>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <sstream>
 
 std::string command = "bdfconvert";
+
+std::string inputMode, outputMode;
+std::filesystem::path inputFile, outputFile, indent, breaker;
+bool keepGoing = false;
+bool dryRunOnly = false;
+bool pretty = false;
+bool minified = false;
 
 void getCliArgsOrShowHelp(int argc, char** argv) {
 	try {
@@ -27,10 +35,10 @@ void getCliArgsOrShowHelp(int argc, char** argv) {
 		TCLAP::ValueArg<std::string> outputModeArg("o", "output-mode", "Select the type of BDF data that you would like to output.\nIf set to 'auto', bdfconvert will output human-readable data if sending to standard output, OR if the input was binary. It will output binary data if the input was human-readable, AND you have specified an output file to write to.", false, "auto", &outputModeArgConstraint, cmd);
 		
 		// -f, --input-file
-		TCLAP::ValueArg<std::filesystem::path> inputFileArg("f", "input-file", "If you need to read BDF data from a file, specify its path here. Leave this argument unspecified to read from standard input instead.", false, std::filesystem::path(), "filename", cmd);
+		TCLAP::ValueArg<std::string> inputFileArg("f", "input-file", "If you need to read BDF data from a file, specify its path here. Leave this argument unspecified to read from standard input instead.", false, std::string(), "filename", cmd);
 		
 		// -w, --output-file
-		TCLAP::ValueArg<std::filesystem::path> outputFileArg("w", "output-file", "If you need to write BDF data to a file, specify its path here. Leave this argument unspecified to write to standard output instead.", false, std::filesystem::path(), "filename", cmd);
+		TCLAP::ValueArg<std::string> outputFileArg("w", "output-file", "If you need to write BDF data to a file, specify its path here. Leave this argument unspecified to write to standard output instead.", false, std::string(), "filename", cmd);
 		
 		// -m, --minified
 		TCLAP::SwitchArg minifiedArg("n", "minified", "If bdfconvert outputs human-readable BDF data, optimise it to consume as little characters as possible.", false);
@@ -43,30 +51,131 @@ void getCliArgsOrShowHelp(int argc, char** argv) {
         humanReadableOutputType.add(minifiedArg).add(prettyArg);
 		cmd.add(humanReadableOutputType);
 		
-		// -v, --validate
-		TCLAP::SwitchArg dryRunOnlyArg("d", "dry-run-only", "Only read BDF input data, but do not write to any output, even if you specify one. Useful for validation purposes; if bdfconvert runs silently, the BDF input is without error.", cmd, false);
+		// -k, --keep-going
+		// TCLAP::SwitchArg dryRunOnlyArg("k", "keep-going", "Attempt to recover from errors. May result in empty BDF data being used if no sense of valid data could be determined at all. Useful when used with --dry-run-only to validate and report all errors in BDF data.", cmd, false);
+		
+		// -d, --dry-run-only
+		TCLAP::SwitchArg dryRunOnlyArg("v", "validate", "Only read BDF input data, but do not write to any output, even if you specify one. Useful for validation purposes; if bdfconvert runs silently, the BDF input is without error.", cmd, false);
 		
 		// Parse the argv array.
 		cmd.parse( argc, argv );
+		
+		dryRunOnly = dryRunOnlyArg.getValue();
+		// keepGoing = keepGoingArg.getValue();
+		pretty = prettyArg.getValue();
+		minified = minifiedArg.getValue();
+		
+		inputMode = inputModeArg.getValue();
+		outputMode = outputModeArg.getValue();
+		inputFile = inputFileArg.getValue();
+		outputFile = outputFileArg.getValue();
 	} catch (TCLAP::ArgException &e) {
-		std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
+		std::cerr << "Error: " << e.error() << " for arg " << e.argId() << std::endl;
 	}
 }
 
-std::string getBdfInputFromString(std::ifstream &stream) {
-	// Prepare the stringstream
-	std::stringstream ss;
-	
-	char buffer[1024];
-	int size;
-	/*
-	// Read data as much as we can.
-	while((size = std::fread(buffer, 1, 1024, stream)) > 0) {
-		ss.write(buffer, size);
+bool stringHasNonPrintableChars(const std::string &toCheck) {
+	return true;// !std::all_of( toCheck.begin(), toCheck.end(), []( char c ));
+}
+
+Bdf::BdfReader *tryBinaryReader(const std::stringstream &inputData) {
+	Bdf::BdfReader *reader = nullptr;
+	try {
+		Bdf::BdfReader *reader = new Bdf::BdfReader(inputData.str().c_str(), inputData.str().size());
+		
+		// Make sure we have a valid reader.
+		if (reader->getObject()->getType() == Bdf::BdfTypes::UNDEFINED) {
+			delete reader;
+		} else {
+			inputMode = "binary";
+		}
+	} catch (Bdf::BdfError &e) {
+
+		delete reader;
+		
+		// Size tag mismatches could theoretically be triggered by human-readable BDF data being interpreted as binary
+		// if our characters line up just the right way. No need to rethrow those if we're using auto inputMode.
+		if (inputMode != "auto") {
+			throw;
+		}
 	}
-	*/
 	
-	return ss.str();
+	return reader;
+}
+
+Bdf::BdfReader *tryHumanReader(const std::stringstream &inputData) {
+	Bdf::BdfReader *reader = nullptr;
+	try {
+		reader = new Bdf::BdfReaderHuman(inputData.str());
+		
+		inputMode = "human";
+	} catch (Bdf::BdfError &e) {
+		delete reader;
+		throw;
+	} catch (...) {
+		delete reader;
+		
+		if (inputMode != "auto") {
+			throw;
+		}
+	}
+	
+	return reader;
+}
+
+Bdf::BdfReader* getBdfInputReader(const std::stringstream &inputData) {
+	Bdf::BdfReader *reader = nullptr;
+	bool triedBinaryReader = false;
+	bool triedHumanReader = false;
+	bool checkedForNonPrintableCharacters = false;
+	
+	if (inputMode == "auto") {
+		while (reader == nullptr) {
+			// We need to try determining if we have a binary or human-readable file.
+			
+			// 1. If we detect unprintable characters, start with binary.
+			// 2. If that doesn't work, or if we don't detect unprintable characters, try human-readable.
+			// 3. Otherwise try binary if we haven't already tried that.
+			// 4. If none of the above steps are able to get us a valid reader, throw an exception.
+			
+			if (!checkedForNonPrintableCharacters) {
+				checkedForNonPrintableCharacters = true;
+				
+				if (stringHasNonPrintableChars(inputData.str())) {
+					triedBinaryReader = true;
+					reader = tryBinaryReader(inputData);
+				}
+			} else if (!triedHumanReader) {
+				triedHumanReader = true;
+				reader = tryHumanReader(inputData);
+			} else if (!triedBinaryReader) {
+				triedBinaryReader = true;
+				reader = tryBinaryReader(inputData);
+			} else {
+				throw std::runtime_error("Could not automatically determine the type of input BDF data. Check that it is valid, and try passing -i human|binary to manually set the input data type.");
+			}
+		}
+	} else if (inputMode == "human") {
+		reader = tryHumanReader(inputData);
+	} else if (inputMode =="binary") {
+		reader = tryBinaryReader(inputData);
+	}
+	
+	return reader;
+}
+
+std::stringstream getBdfInputData(std::istream &istream) {
+	std::stringstream dataStream;
+	// We can't rely on the native BdfReaderHuman filesystem::path constructor as we also need to handle stdin
+	// with the same code. So write our own.
+    while(!istream.eof()) {
+        std::string line;
+        std::getline(istream, line);
+		dataStream << line;
+    }
+	
+	// Return our complete stream
+	return dataStream;
 }
 
 int main(int argc, char** argv)
@@ -77,80 +186,77 @@ int main(int argc, char** argv)
 	std::string mode = "";
 	std::string indent = "";
 	std::string breaker = "";
+	Bdf::BdfReader *reader = nullptr;
+	std::stringstream inputData;
 
-	for(int i=1;i<argc;i++)
-	{
-		std::string arg = argv[i];
-
-		if((arg == "-m" || arg == "--mode") && i + 1 < argc) {
-			mode = argv[i+1];
-			i += 1;
+	try {
+		// Get an input stream.
+		// Use stdin if a valid path is not given.
+		if (inputFile.empty()) {
+			inputData = getBdfInputData(std::cin);
+		} else {
+			if (!std::filesystem::exists(inputFile)) {
+				throw std::runtime_error("An input file was specified but it does not exist.");
+			}
+			std::ifstream ifstr(inputFile);
+			inputData = getBdfInputData(ifstr);
 		}
 
-		else if(arg == "-p" || arg == "--pretty") {
-			breaker = "\n";
-			indent = "\t";
-			i += 1;
-		}
-
-		else {
-			// help();
-			return 1;
+		// Prepare our reader.
+		Bdf::BdfReader *reader = getBdfInputReader(inputData);
+	} catch (Bdf::BdfError &e) {
+		std::cerr << "A parse error occured while parsing the input BDF data." << std::endl;
+		std::cerr << "Description: " << e.getErrorShort() << std::endl;
+		std::cerr << "Line       : " << e.getLine() << std::endl;
+		std::cerr << "At         : " << e.getAt() << std::endl;
+		std::cerr << "Context    : " << e.getContext() << std::endl;
+		
+		if (!keepGoing) {
+			exit(1);
 		}
 	}
-
-	// Try different ways to read the data.
-	// It could be human readable or binary.
-
-	Bdf::BdfReader* reader = new Bdf::BdfReader;
-
-	if(reader->getObject()->getType() == Bdf::BdfTypes::UNDEFINED)
-	{
-		try
-		{
-			delete reader;
-
-			// reader = new Bdf::BdfReaderHuman(data_in);
-
-			if(mode == "") {
-				mode = "binary";
-			}
-		}
-
-		catch(Bdf::BdfError &e)
-		{
+	
+	try {
+		// We might end up with a nullptr BdfReader if one of the above steps failed,
+		// especially if --keep-going was set.
+		if (reader == nullptr) {
 			reader = new Bdf::BdfReader();
-
-			if(mode == "") {
-				mode = "human";
+		}
+		
+		// If outputMode is auto, determine it automatically.
+		if (outputMode == "auto") {
+			// Are we using stdout or is the input binary?
+			if (outputFile.empty() || inputMode == "binary") {
+				outputMode = "human";
+			} else {
+				outputMode = "binary";
 			}
 		}
-	}
+		
+		// Fallthrough
+		if(mode == "binary") {
+			char* data;
+			int data_size;
+			reader->serialize(&data, &data_size);
 
-	else if(mode == "") {
-		mode = "human";
-	}
+			for(int i=0;i<data_size;i+=1024) {
+				std::cout.write(data + i, std::min(1024, data_size - i));
+			}
 
-	if(mode == "binary")
-	{
-		char* data;
-		int data_size;
-		reader->serialize(&data, &data_size);
-
-		for(int i=0;i<data_size;i+=1024) {
-			std::cout.write(data + i, std::min(1024, data_size - i));
-		}
-
-		delete[] data;
-	}
-
-	else if(mode == "human") {
-		reader->serializeHumanReadable(std::cout, Bdf::BdfIndent(indent, breaker));
-	}
-
-	else {
-		// help();
-		return 1;
+			delete[] data;
+		} else if(outputMode == "human") {
+			if (outputFile.empty()) {
+				reader->serializeHumanReadable(std::cout, Bdf::BdfIndent(indent, breaker));
+			} else {
+				std::ofstream ofstr(inputFile);
+				reader->serializeHumanReadable(ofstr);
+			}
+		}		
+	} catch (std::exception &e) {
+		std::cerr << "An error occured while writing the output BDF data." << std::endl;
+		std::cerr << e.what();
+		
+		exit(2);
 	}
 
 	delete reader;
