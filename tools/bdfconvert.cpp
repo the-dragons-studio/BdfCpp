@@ -16,7 +16,7 @@ std::string command = "bdfconvert";
 std::string inputMode, outputMode;
 std::filesystem::path inputFile, outputFile, indent, breaker;
 bool keepGoing = false;
-bool dryRunOnly = false;
+bool validate = false;
 bool pretty = false;
 bool minified = false;
 
@@ -54,16 +54,16 @@ void getCliArgsOrShowHelp(int argc, char** argv) {
 		// -k, --keep-going
 		// TCLAP::SwitchArg dryRunOnlyArg("k", "keep-going", "Attempt to recover from errors. May result in empty BDF data being used if no sense of valid data could be determined at all. Useful when used with --dry-run-only to validate and report all errors in BDF data.", cmd, false);
 		
-		// -d, --dry-run-only
-		TCLAP::SwitchArg dryRunOnlyArg("v", "validate", "Only read BDF input data, but do not write to any output, even if you specify one. Useful for validation purposes; if bdfconvert runs silently, the BDF input is without error.", cmd, false);
+		// -v, --validate
+		TCLAP::SwitchArg validateArg("V", "validate", "Only read the input and check it for errors, but do not attempt to convert it to any output. If no error message is generated, bdfconvert has successfully validated your BDF data is without error.", cmd, false);
 		
 		// Parse the argv array.
 		cmd.parse( argc, argv );
 		
-		dryRunOnly = dryRunOnlyArg.getValue();
 		// keepGoing = keepGoingArg.getValue();
 		pretty = prettyArg.getValue();
 		minified = minifiedArg.getValue();
+		validate = validateArg.getValue();
 		
 		inputMode = inputModeArg.getValue();
 		outputMode = outputModeArg.getValue();
@@ -178,6 +178,14 @@ std::stringstream getBdfInputData(std::istream &istream) {
 	return dataStream;
 }
 
+Bdf::BdfIndent getIndenter() {
+	if (pretty) {
+		return Bdf::BdfIndent("\t", "\n");
+	} else {
+		return Bdf::BdfIndent("", "");
+	}
+}
+
 int main(int argc, char** argv)
 {
 	// Get command line arguments, or show help if necessary 
@@ -203,7 +211,7 @@ int main(int argc, char** argv)
 		}
 
 		// Prepare our reader.
-		Bdf::BdfReader *reader = getBdfInputReader(inputData);
+		reader = getBdfInputReader(inputData);
 	} catch (Bdf::BdfError &e) {
 		std::cerr << "A parse error occured while parsing the input BDF data." << std::endl;
 		std::cerr << "Description: " << e.getErrorShort() << std::endl;
@@ -212,11 +220,16 @@ int main(int argc, char** argv)
 		std::cerr << "Context    : " << e.getContext() << std::endl;
 		
 		if (!keepGoing) {
-			exit(1);
+			exit(2);
 		}
 	}
 	
 	try {
+		// Exit immediately if in validate mode.
+		if (validate) {
+			exit(0);
+		}
+		
 		// We might end up with a nullptr BdfReader if one of the above steps failed,
 		// especially if --keep-going was set.
 		if (reader == nullptr) {
@@ -246,17 +259,17 @@ int main(int argc, char** argv)
 			delete[] data;
 		} else if(outputMode == "human") {
 			if (outputFile.empty()) {
-				reader->serializeHumanReadable(std::cout, Bdf::BdfIndent(indent, breaker));
+				reader->serializeHumanReadable(std::cout, getIndenter());
 			} else {
 				std::ofstream ofstr(inputFile);
-				reader->serializeHumanReadable(ofstr);
+				reader->serializeHumanReadable(ofstr, getIndenter());
 			}
 		}		
 	} catch (std::exception &e) {
 		std::cerr << "An error occured while writing the output BDF data." << std::endl;
 		std::cerr << e.what();
 		
-		exit(2);
+		exit(3);
 	}
 
 	delete reader;
