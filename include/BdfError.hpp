@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <string>
+#include <stacktrace>
 
 namespace Bdf
 {	
@@ -23,6 +24,7 @@ namespace Bdf
 	private:
 		std::string error_short;
 		std::string message;
+		std::stacktrace trace;
 		int type = -1;
 		int line = -1;
 		int at = -1;
@@ -77,7 +79,7 @@ namespace Bdf
 		 * No other explanatory information will be available (all will be set to default).
 		 * @since 1.4.0
 	     */
-		explicit BdfError(const int code);
+		explicit BdfError(const int code, std::stacktrace trace = std::stacktrace::current());
 		
 		/**
 		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
@@ -85,7 +87,7 @@ namespace Bdf
 		 * @since 1.0
 		 * @internal
 		 */
-		BdfError(const int code, BdfStringReader reader, int length);
+		BdfError(const int code, BdfStringReader reader, int length, std::stacktrace trace = std::stacktrace::current());
 		
 		/**
 		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
@@ -93,7 +95,7 @@ namespace Bdf
 		 * @since 1.0
 		 * @internal
 		 */
-		BdfError(const int code, BdfStringReader reader);
+		BdfError(const int code, BdfStringReader reader, std::stacktrace trace = std::stacktrace::current());
 		
 		/**
 		 * Gets a pre-formatted error message.
@@ -149,6 +151,8 @@ namespace Bdf
 		 * @since 1.0
 		 */
 		virtual const char* what() const noexcept;
+		
+		std::stacktrace getTrace() const noexcept;
 	};
 }
 

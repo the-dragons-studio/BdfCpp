@@ -17,7 +17,7 @@ const std::string ERRORS[5] = {
 	"Number out of range",
 };
 
-BdfError::BdfError(const int code, BdfStringReader reader, int length): type(code)
+BdfError::BdfError(const int code, BdfStringReader reader, int length, std::stacktrace trace): type(code), trace(trace)
 {
 	const wchar_t* start_of_line = reader.start;
 	int line = 0;
@@ -82,7 +82,7 @@ BdfError::BdfError(const int code, BdfStringReader reader, int length): type(cod
 	message += "\n" + context;
 }
 
-BdfError::BdfError(const int code, BdfStringReader reader) : BdfError(code, reader, 1) {
+BdfError::BdfError(const int code, BdfStringReader reader, std::stacktrace trace) : BdfError(code, reader, 1, trace) {
 }
 
 std::string BdfError::getErrorShort() const noexcept {
@@ -110,6 +110,10 @@ int BdfError::getAt() const noexcept {
 // Get the context at which the error occured.
 std::string BdfError::getContext() const noexcept {
 	return this->context;
+}
+
+std::stacktrace BdfError::getTrace() const noexcept {
+	return this->trace;
 }
 
 const char* BdfError::what() const noexcept {
