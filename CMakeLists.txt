@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 project(BdfCpp VERSION 1.5.0)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build/bin")
@@ -55,7 +55,7 @@ add_dependencies(bdf copy_include)
 if (DOXYGEN_READY)
 	add_dependencies(bdf doxygen)
 endif(DOXYGEN_READY)
-# target_link_libraries(bdf )
+target_link_libraries(bdf stdc++exp)
 install(TARGETS bdf)
 
 # If the user requests, build other executables
@@ -73,7 +73,7 @@ if(BUILD_EXAMPLES)
 	# tests
 	add_executable(tests examples/tests.cpp)
 	add_dependencies(tests bdf)
-	target_link_libraries(tests bdf)
+	target_link_libraries(tests bdf stdc++exp)
 	
 endif(BUILD_EXAMPLES)
 
