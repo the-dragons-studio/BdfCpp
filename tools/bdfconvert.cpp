@@ -10,6 +10,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <stacktrace>
 
 std::string command = "bdfconvert";
 
@@ -19,6 +20,7 @@ bool keepGoing = false;
 bool validate = false;
 bool pretty = false;
 bool minified = false;
+bool debug = false;
 
 void getCliArgsOrShowHelp(int argc, char** argv) {
 	try {
@@ -30,9 +32,9 @@ void getCliArgsOrShowHelp(int argc, char** argv) {
 		TCLAP::ValueArg<std::string> inputModeArg("i", "input-mode", "Select the type of BDF data that you would like to input.\nIf set to 'auto', bdfconvert will try different methods to read your input BDF data until it finds one that works.", false, "auto", &inputModeArgConstraint, cmd);
 		
 		// -o, --output-mode
-		std::vector<std::string> outputModeArgVector{"binary", "human", "auto"};
+		std::vector<std::string> outputModeArgVector{"binary", "human", "inverse", "auto"};
 		TCLAP::ValuesConstraint<std::string> outputModeArgConstraint(outputModeArgVector);
-		TCLAP::ValueArg<std::string> outputModeArg("o", "output-mode", "Select the type of BDF data that you would like to output.\nIf set to 'auto', bdfconvert will output human-readable data if sending to standard output, OR if the input was binary. It will output binary data if the input was human-readable, AND you have specified an output file to write to.", false, "auto", &outputModeArgConstraint, cmd);
+		TCLAP::ValueArg<std::string> outputModeArg("o", "output-mode", "Select the type of BDF data that you would like to output.\nIf set to 'auto', bdfconvert will output human-readable data if sending to standard output, OR if the input was binary. It will output binary data if the input was human-readable, AND you have specified an output file to write to.\nIf set to 'inverse', bdfconvert will output binary data if the BDF input was human-readable. It will output human-readable data if the input was binary. Unlike 'auto', the use of standard output will not influence the selected output type.", false, "auto", &outputModeArgConstraint, cmd);
 		
 		// -f, --input-file
 		TCLAP::ValueArg<std::string> inputFileArg("f", "input-file", "If you need to read BDF data from a file, specify its path here. Leave this argument unspecified to read from standard input instead.", false, std::string(), "filename", cmd);
@@ -57,6 +59,9 @@ void getCliArgsOrShowHelp(int argc, char** argv) {
 		// -v, --validate
 		TCLAP::SwitchArg validateArg("V", "validate", "Only read the input and check it for errors, but do not attempt to convert it to any output. If no error message is generated, bdfconvert has successfully validated your BDF data is without error.", cmd, false);
 		
+		// -g, --debug
+		TCLAP::SwitchArg debugArg("g", "debug", "Print out advanced debug information if errors occur.", cmd, false);
+		
 		// Parse the argv array.
 		cmd.parse( argc, argv );
 		
@@ -69,13 +74,14 @@ void getCliArgsOrShowHelp(int argc, char** argv) {
 		outputMode = outputModeArg.getValue();
 		inputFile = inputFileArg.getValue();
 		outputFile = outputFileArg.getValue();
+		debug = debugArg.getValue();
 	} catch (TCLAP::ArgException &e) {
 		std::cerr << "Error: " << e.error() << " for arg " << e.argId() << std::endl;
 	}
 }
 
 bool stringHasNonPrintableChars(const std::string &toCheck) {
-	return true;// !std::all_of( toCheck.begin(), toCheck.end(), []( char c ));
+	return !std::all_of( toCheck.begin(), toCheck.end(), []( char c ) { return !std::isgraph( c ); } );
 }
 
 Bdf::BdfReader *tryBinaryReader(const std::stringstream &inputData) {
@@ -87,6 +93,7 @@ Bdf::BdfReader *tryBinaryReader(const std::stringstream &inputData) {
 		if (reader->getObject()->getType() == Bdf::BdfTypes::UNDEFINED) {
 			delete reader;
 		} else {
+			// Set our input mode now that we've determined we have a valid file.
 			inputMode = "binary";
 		}
 	} catch (Bdf::BdfError &e) {
@@ -218,6 +225,9 @@ int main(int argc, char** argv)
 		std::cerr << "Line       : " << e.getLine() << std::endl;
 		std::cerr << "At         : " << e.getAt() << std::endl;
 		std::cerr << "Context    : " << e.getContext() << std::endl;
+		if (debug) {
+			std::cerr << "Stack trace: " << std::endl << e.getTrace() << std::endl;
+		}
 		
 		if (!keepGoing) {
 			exit(2);
@@ -236,10 +246,10 @@ int main(int argc, char** argv)
 			reader = new Bdf::BdfReader();
 		}
 		
-		// If outputMode is auto, determine it automatically.
-		if (outputMode == "auto") {
+		// If outputMode is auto or inverse, determine it automatically.
+		if (outputMode == "auto" || outputMode == "inverse") {
 			// Are we using stdout or is the input binary?
-			if (outputFile.empty() || inputMode == "binary") {
+			if (inputMode == "binary" || (outputMode == "auto" && outputFile.empty())) {
 				outputMode = "human";
 			} else {
 				outputMode = "binary";
@@ -247,13 +257,20 @@ int main(int argc, char** argv)
 		}
 		
 		// Fallthrough
-		if(mode == "binary") {
+		if(outputMode == "binary") {
 			char* data;
 			int data_size;
 			reader->serialize(&data, &data_size);
 
-			for(int i=0;i<data_size;i+=1024) {
-				std::cout.write(data + i, std::min(1024, data_size - i));
+			if (outputFile.empty()) {
+				for(int i=0;i<data_size;i+=1024) {
+					std::cout.write(data + i, std::min(1024, data_size - i));
+				}
+			} else {
+				std::ofstream ofstr(outputFile);
+				for(int i=0;i<data_size;i+=1024) {
+					ofstr.write(data + i, std::min(1024, data_size - i));
+				}
 			}
 
 			delete[] data;
