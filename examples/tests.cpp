@@ -1,23 +1,30 @@
 
 #include <iostream>
+#include <stacktrace>
 
 #include "../include/Bdf.hpp"
 
 int testNumber = 0;
 
-void test(bool result)
+void test(bool result, std::stacktrace trace = std::stacktrace::current(), size_t traceIncrToMain = 0)
 {
 	testNumber++;
+	
+	auto traceEntryIt = trace.begin();
+	
+	for (size_t i = 0; i < traceIncrToMain && traceEntryIt != trace.end(); ++i) {
+		++traceEntryIt;
+	}
 
 	if(result)
 	{
-		std::cout << "Test " << testNumber << " passed\n";
+		std::cout << "Test " << testNumber << " (" << *traceEntryIt << ") passed\n";
 	}
 
 	else
 	{
-		std::cout << "Test " << testNumber << " failed\n";
-		throw std::runtime_error("breakpoint");
+		std::cout << "Test " << testNumber << " (" << *traceEntryIt << ") failed\n";
+		throw std::runtime_error("breakpoint\n" + std::to_string(trace));
 	}
 }
 
