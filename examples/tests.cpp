@@ -118,6 +118,28 @@ int main()
 	nl->remove("test");
 
 	test(!nl->exists("test"));
+	
+	// The following tests for BdfIndent also come in static_assert form.
+	// A failure here will most likely stop compilation as well as the runtime test.
+	// It also diagnoses whether constexpr methods are working correctly, as they will
+	// cause compile errors if constexpr breaks.
+	
+	// Check that default-initialising BdfIndent will cause empty indent and breaker.
+	static_assert(Bdf::BdfIndent().indent.empty());
+	test(Bdf::BdfIndent().indent.empty());
+	
+	static_assert(Bdf::BdfIndent().breaker.empty());
+	test(Bdf::BdfIndent().breaker.empty());
+	
+	// Check that BdfIndent::calcIndent indents once, twice and thrice when passed 0, 1 and 2.
+	static_assert(Bdf::BdfIndent("\t", "\n").calcIndent(0) == "");
+	test(Bdf::BdfIndent("\t", "\n").calcIndent(0) == "");
+	
+	static_assert(Bdf::BdfIndent("\t", "\n").calcIndent(1) == "\t");
+	test(Bdf::BdfIndent("\t", "\n").calcIndent(1) == "\t");
+	
+	static_assert(Bdf::BdfIndent("\t", "\n").calcIndent(2) == "\t\t");
+	test(Bdf::BdfIndent("\t", "\n").calcIndent(2) == "\t\t");
 
 	return 0;
 }
