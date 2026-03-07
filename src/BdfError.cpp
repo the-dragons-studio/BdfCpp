@@ -85,6 +85,8 @@ BdfError::BdfError(const int code, BdfStringReader reader, int length, std::stac
 BdfError::BdfError(const int code, BdfStringReader reader, std::stacktrace trace) : BdfError(code, reader, 1, trace) {
 }
 
+BdfError::BdfError(const int code, std::stacktrace trace): type(code), trace(trace) {}
+
 std::string BdfError::getErrorShort() const noexcept {
 	return error_short;
 }
