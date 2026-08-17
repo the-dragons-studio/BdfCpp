@@ -91,6 +91,7 @@ std::string BdfError::getErrorEnglishDescription(std::optional<BdfError::ErrorTy
 		case BdfError::ErrorType::ILLEGAL_STRING_BACKSLASH_ESCAPE: return "Illegal string backslash escape code";
 		case BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE: return "Number out of range of the given datatype";
 		case BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH: return "Size tag found in binary data does not match actual data size";
+		case BdfError::ErrorType::BINARY_LOOKUPTABLE_SIZE_ALLOCATION_FAILED: return "Failed to allocate enough size to read binary BDF data, it may be corrupt";
     }
 	
 	return "Unknown error";
