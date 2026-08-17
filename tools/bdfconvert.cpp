@@ -120,7 +120,20 @@ Bdf::BdfReader *tryHumanReader(const std::stringstream &inputData) {
 		inputMode = "human";
 	} catch (Bdf::BdfError &e) {
 		delete reader;
-		throw;
+		
+		// Ignore the error in auto mode if and only if:
+		// 1. it is a syntax error
+		// 2. the line count is defined as 3 or fewer
+		// 3. the at count is defined as 50 or fewer
+		if (inputMode == "auto" &&
+			e.getErrorType() == Bdf::BdfError::ErrorType::SYNTAX &&
+			e.getLineOptional().value_or(999) <= 3 &&
+			e.getAtOptional().value_or(999) <= 50
+		) {
+			return nullptr;			
+		} else {
+			throw;
+		}
 	} catch (...) {
 		delete reader;
 		
