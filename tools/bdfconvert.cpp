@@ -102,7 +102,9 @@ Bdf::BdfReader *tryBinaryReader(const std::stringstream &inputData) {
 		
 		// Size tag mismatches could theoretically be triggered by human-readable BDF data being interpreted as binary
 		// if our characters line up just the right way. No need to rethrow those if we're using auto inputMode.
-		if (inputMode != "auto") {
+		if (inputMode == "auto" && e.getErrorType() == Bdf::BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH) {
+			return nullptr;
+		} else {
 			throw;
 		}
 	}
