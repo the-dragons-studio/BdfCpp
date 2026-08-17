@@ -106,31 +106,37 @@ namespace Bdf
 		/**
   		 * @deprecated Use BdfError::ErrorType::SYNTAX instead.
      	 */
+		[[deprecated("Use BdfError::ErrorType::SYNTAX instead.")]]
 		static const int ERROR_SYNTAX = 0;
 
 		/**
   		 * @deprecated Use BdfError::ErrorType::END_OF_FILE instead.
      	 */
+		[[deprecated("Use BdfError::ErrorType::UNEXPECTED_END_OF_FILE instead.")]]
 		static const int ERROR_END_OF_FILE = 1;
 		
 		/**
   		 * @deprecated Use BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF instead.
      	 */
-		static const int ERROR_UNCLOSED_COMMENT = 2;
+		[[deprecated("Use BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF instead.")]]
+		static const int ERROR_UNESCAPED_COMMENT = 2;
 		
 		/**
   		 * @deprecated Use BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF instead.
      	 */
-		static const int ERROR_UNCLOSED_STRING = 3;
+		[[deprecated("Use BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF instead.")]]
+		static const int ERROR_UNESCAPED_STRING = 3;
 		
 		/**
   		 * @deprecated Use BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE instead.
      	 */
+		[[deprecated("Use BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE instead.")]]
 		static const int ERROR_OUT_OF_RANGE = 4;
 		
 		/**
   		 * @deprecated Use BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH instead.
      	 */
+		[[deprecated("Use BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH instead.")]]
 		static const int ERROR_SIZE_TAG_MISMATCH = 5;
 	    
 		/**
