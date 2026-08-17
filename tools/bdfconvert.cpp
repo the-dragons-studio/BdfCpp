@@ -221,9 +221,13 @@ int main(int argc, char** argv)
 		reader = getBdfInputReader(inputData);
 	} catch (Bdf::BdfError &e) {
 		std::cerr << "A parse error occured while parsing the input BDF data." << std::endl;
-		std::cerr << "Description: " << e.getErrorShort() << std::endl;
-		std::cerr << "Line       : " << e.getLine() << std::endl;
-		std::cerr << "At         : " << e.getAt() << std::endl;
+		std::cerr << "Description: " << e.getErrorEnglishDescription() << std::endl;
+		if (e.getLineOptional().has_value()) {
+			std::cerr << "Line       : " << e.getLineOptional().value() << std::endl;
+		}
+		if (e.getAtOptional().has_value()) {
+			std::cerr << "At         : " << e.getAtOptional().value() << std::endl;
+		}
 		std::cerr << "Context    : " << e.getContext() << std::endl;
 		if (debug) {
 			std::cerr << "Stack trace: " << std::endl << e.getTrace() << std::endl;
