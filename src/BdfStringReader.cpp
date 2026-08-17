@@ -60,7 +60,7 @@ bool BdfStringReader::ignoreBlanks()
 				do {
 					// Check that we haven't hit end of file yet
 					if(!this->inRange()) {
-						throw BdfError(BdfError::ERROR_UNESCAPED_COMMENT, *this);
+						throw BdfError(BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF, *this);
 					}
 
 					upto += 1;
@@ -101,7 +101,7 @@ std::string BdfStringReader::getQuotedString()
 	for(;;)
 	{
 		if(!inRange()) {
-			throw BdfError(BdfError::ERROR_UNESCAPED_STRING, *this);
+			throw BdfError(BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF, *this);
 		}
 		
 		wchar_t c = upto[0];
@@ -133,7 +133,7 @@ std::string BdfStringReader::getQuotedString()
 				case 'u': // \u0000
 				{
 					if(upto + 5 >= end) {
-						throw BdfError(BdfError::ERROR_UNESCAPED_STRING, getPointer(1));
+						throw BdfError(BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF, getPointer(1));
 					}
 
 					wchar_t unicode = 0;
@@ -152,7 +152,7 @@ std::string BdfStringReader::getQuotedString()
 						}
 
 						else {
-							throw BdfError(BdfError::ERROR_SYNTAX, getPointer(4 - j));
+							throw BdfError(BdfError::ErrorType::SYNTAX, getPointer(4 - j));
 						}
 
 						m *= 16;

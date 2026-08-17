@@ -21,21 +21,12 @@ namespace Bdf
 	 */
 	class BdfError : public std::exception
 	{
-	private:
-		std::string error_short;
-		std::string message;
-		std::stacktrace trace;
-		int type = -1;
-		int line = -1;
-		int at = -1;
-		std::string context = "";
-	
 	public:
 		/**
 		 * Enumeration type representing the type of error.
    		 * @since 1.5.0
 		 */
-		enum ErrorType: uint8_t {
+		enum class ErrorType {
 			/**
 			 * Indicates that a syntax error was detected.
 		 	 * @note This error can only occur when parsing a human-readable file.
@@ -52,19 +43,19 @@ namespace Bdf
 			 *        end of file.
 			 * @note This error can only occur when parsing a human-readable file.
 			 */
-			END_OF_FILE, 
+			UNEXPECTED_END_OF_FILE, 
 			
 			/**
 			 * Indicates that a multiline comment was not escaped before the end of file was found.
 		 	 * @note This error can only occur when parsing a human-readable file.
 	         */
-			UNESCAPED_COMMENT_BEFORE_EOF,
+			UNCLOSED_COMMENT_BEFORE_EOF,
 
 			/**
 			 * Indicates that a multiline comment was not escaped before the end of file was found.
 		 	 * @note This error can only occur when parsing a human-readable file.
 	         */
-			UNESCAPED_STRING_BEFORE_EOF,
+			UNCLOSED_STRING_BEFORE_EOF,
 
 			/**
    			 * Indicates that an illegal backslash escape code was encountered.
@@ -84,8 +75,34 @@ namespace Bdf
 		 	 * @note This error can only occur when parsing a binary file.
 			 */
 			BINARY_SIZE_TAG_MISMATCH,
+			
+			/**
+			 * Indicates that allocation of sufficient size for the BdfLookupTable has failed. Most likely due to a corrupt binary BDF data.
+			 * @note This error can only occur when parsing a binary file.
+			 */
+			BINARY_LOOKUPTABLE_SIZE_ALLOCATION_FAILED
 		};
 		
+	
+	private:
+		std::string error_short;
+		std::string message;
+		std::stacktrace trace;
+		BdfError::ErrorType type;
+		std::optional<size_t> line = std::nullopt;
+		std::optional<size_t> at = std::nullopt;
+		std::string context;
+		
+		/**
+		 * Returns an ErrorType enum given a "classic" error code.
+		 * @note Do not mark this function as C++ deprecated. Instead mark the wrapper overloads that call this method.
+		 * @unstable
+		 * @deprecated
+		 * @since 1.5.0
+		 */
+		BdfError::ErrorType getErrorTypeFromClassicCode(int code);
+	
+	public:
 		/**
   		 * @deprecated Use BdfError::ErrorType::SYNTAX instead.
      	 */
@@ -97,14 +114,14 @@ namespace Bdf
 		static const int ERROR_END_OF_FILE = 1;
 		
 		/**
-  		 * @deprecated Use BdfError::ErrorType::UNESCAPED_COMMENT_BEFORE_EOF instead.
+  		 * @deprecated Use BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF instead.
      	 */
-		static const int ERROR_UNESCAPED_COMMENT = 2;
+		static const int ERROR_UNCLOSED_COMMENT = 2;
 		
 		/**
-  		 * @deprecated Use BdfError::ErrorType::UNESCAPED_STRING_BEFORE_EOF instead.
+  		 * @deprecated Use BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF instead.
      	 */
-		static const int ERROR_UNESCAPED_STRING = 3;
+		static const int ERROR_UNCLOSED_STRING = 3;
 		
 		/**
   		 * @deprecated Use BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE instead.
@@ -121,10 +138,10 @@ namespace Bdf
 		 * No other explanatory information will be available (all will be set to default).
 		 * @since 1.5.0
 	     */
-		explicit BdfError(const BdfError::ErrorType& type, std::stacktrace trace = std::stacktrace::current());
+		explicit BdfError(BdfError::ErrorType type, std::stacktrace trace = std::stacktrace::current());
 
 		/**
-  		 * @deprecated Use BdfError::BdfError(const BdfError::ErrorType& type) instead.
+  		 * @deprecated Use BdfError::BdfError(BdfError::ErrorType type) instead.
 		 * @since 1.4.0
      	 */
 		[[deprecated("Use Bdf::BdfError::BdfError(ErrorType code) instead.")]]
@@ -144,7 +161,7 @@ namespace Bdf
 		 * reader to get line and context information. Up to length bytes will be read.
 		 * @internal
 		 */
-		BdfError(ErrorType code, BdfStringReader reader, size_t length);
+		BdfError(BdfError::ErrorType type, BdfStringReader reader, size_t length, std::stacktrace = std::stacktrace::current());
 		
 		/**
 		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
@@ -159,7 +176,7 @@ namespace Bdf
 		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
 		 * reader to get line and context information. Up to length bytes will be read.
 		 */
-		BdfError(ErrorType type, const BdfStringReader& reader);
+		BdfError(ErrorType type, BdfStringReader reader);
 		
 		/**
 		 * Gets a pre-formatted error message.
@@ -186,22 +203,34 @@ namespace Bdf
 		 */
 		[[deprecated("Use Bdf::BdfError::getErrorType() instead.")]]
 		int getType() const noexcept;
+		
+		/**
+		 * Gets a basic English description of the error type.
+		 * Callers may find that the stock descriptions might be unsatisfactory or may want to provide their
+		 * own languages.
+		 * @since 1.5.0
+		 */
+		std::string getErrorEnglishDescription(std::optional<BdfError::ErrorType> type = std::nullopt);
 
-		ErrorType getErrorType const noexcept();
+		BdfError::ErrorType getErrorType() const noexcept;
 		
 		/**
 		 * Gets the line at which the error occured.
 		 * @return an integer representing the line number in the file where the error occured, or -1 if unknown.
 		 * @since 1.4.0
 		 */
-		int getLine() const noexcept;
+		size_t getLine() const noexcept; 
+		 
+		std::optional<size_t> getLineOptional() const noexcept;
 		
 		/**
 		 * Gets the character on the line at getLine() at which the error occured.
 		 * @return an integer representing the character number on the line where the error occured, or -1 if unknown.
 		 * @since 1.4.0
 		 */
-		int getAt() const noexcept;
+		size_t getAt() const noexcept;  
+		
+		std::optional<size_t> getAtOptional() const noexcept;
 		
 		/**
 		 * Gets the context which shows where and how the error occured.

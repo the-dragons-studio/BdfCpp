@@ -39,7 +39,8 @@ BdfReader::BdfReader(const char* data, size_t size)
 	
 	// Check if there is enough space
 	if(1 + lookupTable_size_bytes + bdf_size_bytes > size) {
-		throw Bdf::BdfError(Bdf::BdfError::ERROR_SIZE_TAG_MISMATCH);
+		this->initEmpty();
+		throw Bdf::BdfError(Bdf::BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH);
 		return;
 	}
 	
@@ -48,7 +49,8 @@ BdfReader::BdfReader(const char* data, size_t size)
 	
 	// Check if there is enough space in the buffer
 	if(bdf_size <= 0 || bdf_size + lookupTable_size_bytes > size) {
-		initEmpty();
+		this->initEmpty();
+		throw Bdf::BdfError(Bdf::BdfError::ErrorType::BINARY_LOOKUPTABLE_SIZE_ALLOCATION_FAILED);
 		return;
 	}
 	

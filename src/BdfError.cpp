@@ -17,7 +17,7 @@ const std::string ERRORS[5] = {
 	"Number out of range",
 };
 
-BdfError::BdfError(const int code, BdfStringReader reader, int length, std::stacktrace trace): type(code), trace(trace)
+BdfError::BdfError(BdfError::ErrorType type, BdfStringReader reader, size_t length, std::stacktrace trace): type(type), trace(trace)
 {
 	const wchar_t* start_of_line = reader.start;
 	int line = 0;
@@ -70,7 +70,7 @@ BdfError::BdfError(const int code, BdfStringReader reader, int length, std::stac
 	this->line = line + 1;
 	this->at = at + 1;
 	
-	error_short = ERRORS[code] + " " + std::to_string(this->line) + ":" + std::to_string(this->at);
+	error_short = this->getErrorEnglishDescription() + " " + std::to_string(*this->line) + ":" + std::to_string(*this->at);
 	
 	context = cv.to_bytes(std::wstring(start_of_line, line_size)) + "\n";
 	context += spacer;
@@ -82,10 +82,49 @@ BdfError::BdfError(const int code, BdfStringReader reader, int length, std::stac
 	message += "\n" + context;
 }
 
-BdfError::BdfError(const int code, BdfStringReader reader, std::stacktrace trace) : BdfError(code, reader, 1, trace) {
+std::string BdfError::getErrorEnglishDescription(std::optional<BdfError::ErrorType> type) {
+	switch (type.value_or(this->type)) {
+        case BdfError::ErrorType::SYNTAX: return "Syntax error";
+        case BdfError::ErrorType::UNEXPECTED_END_OF_FILE: return "Unexpected end of file";
+        case BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF: return "Multiline comment was not closed before the end of the file";
+		case BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF: return "String was not closed before the end of the file";
+		case BdfError::ErrorType::ILLEGAL_STRING_BACKSLASH_ESCAPE: return "Illegal string backslash escape code";
+		case BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE: return "Number out of range of the given datatype";
+		case BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH: return "Size tag found in binary data does not match actual data size";
+    }
+	
+	return "Unknown error";
 }
 
-BdfError::BdfError(const int code, std::stacktrace trace): type(code), trace(trace) {}
+BdfError::BdfError(const int code, BdfStringReader reader, int length): BdfError(this->getErrorTypeFromClassicCode(code), reader, length) {
+}
+
+BdfError::BdfError(BdfError::ErrorType type, BdfStringReader reader): BdfError(type, reader, 1) {
+}
+
+BdfError::BdfError(const int code, BdfStringReader reader) : BdfError(this->getErrorTypeFromClassicCode(code), reader, 1) {
+}
+
+BdfError::BdfError(BdfError::ErrorType type, std::stacktrace trace): type(type), trace(trace) {}
+
+BdfError::BdfError(const int code): BdfError(this->getErrorTypeFromClassicCode(code)) {}
+
+BdfError::ErrorType BdfError::getErrorTypeFromClassicCode(int code) {
+	// Define an array with the enums in the exact order that the classic error codes went in.
+	static std::array<BdfError::ErrorType, 5> classicCodeOrderedEnums({
+			BdfError::ErrorType::SYNTAX,
+			BdfError::ErrorType::UNEXPECTED_END_OF_FILE,
+			BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF,
+			BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF,
+			BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE
+	});
+	
+	if (code >= 0 && code < classicCodeOrderedEnums.size()) {
+		return classicCodeOrderedEnums[code];
+	} else {
+		return BdfError::ErrorType::SYNTAX;
+	}
+}
 
 std::string BdfError::getErrorShort() const noexcept {
 	return error_short;
@@ -95,17 +134,26 @@ std::string BdfError::getError() const noexcept {
 	return message;
 }
 
-int BdfError::getType() const noexcept {
-	return type;
+BdfError::ErrorType BdfError::getErrorType() const noexcept {
+	return this->type;
 }
 
 // Get the line number at which the error occured.
-int BdfError::getLine() const noexcept {
+size_t BdfError::getLine() const noexcept {
+	return *this->line;
+}
+
+
+std::optional<size_t> BdfError::getLineOptional() const noexcept {
 	return this->line;
 }
 
 // Get the character number at which the error occured.
-int BdfError::getAt() const noexcept {
+size_t BdfError::getAt() const noexcept {
+	return *this->at;
+}
+
+std::optional<size_t> BdfError::getAtOptional() const noexcept {
 	return this->at;
 }
 
