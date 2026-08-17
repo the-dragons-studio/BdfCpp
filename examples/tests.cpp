@@ -3,13 +3,19 @@
 #include <stacktrace>
 
 #include "../include/Bdf.hpp"
+#include "../include/version.hpp"
 
 int testNumber = 0;
 
+// A test is a boolean expression that results in true when passed.
+// If a test passes, show the test number and a basic stacktrace. Execution continues on to the next test.
+// If a test fails, show: the test number, and trace to the faulting test call. Execution is aborted.
 void test(bool result, std::stacktrace trace = std::stacktrace::current(), size_t traceIncrToMain = 0)
 {
 	testNumber++;
 	
+	// Certain compilers need correction for the number of traces advanced until we get
+	// the trace corresponding to main, which is what we want. Correct for it here.
 	auto traceEntryIt = trace.begin();
 	
 	for (size_t i = 0; i < traceIncrToMain && traceEntryIt != trace.end(); ++i) {
@@ -30,6 +36,9 @@ void test(bool result, std::stacktrace trace = std::stacktrace::current(), size_
 
 int main()
 {
+	// Print out the version of BdfCpp we are testing.
+	std::cout << "Testing BdfCpp version " << Bdf::getLibraryVersion() << std::endl;
+	
 	Bdf::BdfReader reader;
 	Bdf::BdfObject* bdf = reader.getObject();
 	Bdf::BdfList* list = bdf->getList();
