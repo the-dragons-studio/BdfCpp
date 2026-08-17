@@ -112,12 +112,13 @@ BdfError::BdfError(const int code): BdfError(this->getErrorTypeFromClassicCode(c
 
 BdfError::ErrorType BdfError::getErrorTypeFromClassicCode(int code) {
 	// Define an array with the enums in the exact order that the classic error codes went in.
-	static std::array<BdfError::ErrorType, 5> classicCodeOrderedEnums({
+	static std::array<BdfError::ErrorType, 6> classicCodeOrderedEnums({
 			BdfError::ErrorType::SYNTAX,
 			BdfError::ErrorType::UNEXPECTED_END_OF_FILE,
 			BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF,
 			BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF,
-			BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE
+			BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE,
+			BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH
 	});
 	
 	if (code >= 0 && code < classicCodeOrderedEnums.size()) {
