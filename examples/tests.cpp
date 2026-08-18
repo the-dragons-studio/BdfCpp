@@ -141,20 +141,20 @@ int main()
 	// cause compile errors if constexpr breaks.
 	
 	// Check that default-initialising BdfIndent will cause empty indent and breaker.
-	static_assert(Bdf::BdfIndent().indent.empty());
+	static_assert(Bdf::BdfIndent().indent.empty(), "Default-initialised BdfIndent's indenter was unexpectedly not empty");
 	test(Bdf::BdfIndent().indent.empty());
 	
-	static_assert(Bdf::BdfIndent().breaker.empty());
+	static_assert(Bdf::BdfIndent().breaker.empty(), "Default-initialised BdfIndent's breaker was unexpectedly not empty");
 	test(Bdf::BdfIndent().breaker.empty());
 	
-	// Check that BdfIndent::calcIndent indents once, twice and thrice when passed 0, 1 and 2.
-	static_assert(Bdf::BdfIndent("\t", "\n").calcIndent(0) == "");
+	// Check that BdfIndent::calcIndent indents once, twice and thrice when passed 0, 1 and 2 respectively.
+	static_assert(Bdf::BdfIndent("\t", "\n").calcIndent(0) == "", "BdfIndent::calcIndent(0) did not indent 1 time as expected");
 	test(Bdf::BdfIndent("\t", "\n").calcIndent(0) == "");
 	
-	static_assert(Bdf::BdfIndent("\t", "\n").calcIndent(1) == "\t");
+	static_assert(Bdf::BdfIndent("\t", "\n").calcIndent(1) == "\t","BdfIndent::calcIndent(0) did not indent 2 times as expected");
 	test(Bdf::BdfIndent("\t", "\n").calcIndent(1) == "\t");
 	
-	static_assert(Bdf::BdfIndent("\t", "\n").calcIndent(2) == "\t\t");
+	static_assert(Bdf::BdfIndent("\t", "\n").calcIndent(2) == "\t\t", "BdfIndent::calcIndent(0) did not indent 3 times as expected");
 	test(Bdf::BdfIndent("\t", "\n").calcIndent(2) == "\t\t");
 
 	return 0;
