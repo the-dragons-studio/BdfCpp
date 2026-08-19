@@ -32,9 +32,9 @@ void getCliArgsOrShowHelp(int argc, char** argv) {
 		TCLAP::ValueArg<std::string> inputModeArg("i", "input-mode", "Select the type of BDF data that you would like to input.\nIf set to 'auto', bdfconvert will try different methods to read your input BDF data until it finds one that works.", false, "auto", &inputModeArgConstraint, cmd);
 		
 		// -o, --output-mode
-		std::vector<std::string> outputModeArgVector{"binary", "human", "inverse", "auto"};
+		std::vector<std::string> outputModeArgVector{"binary", "human", "inverse", "auto", "null"};
 		TCLAP::ValuesConstraint<std::string> outputModeArgConstraint(outputModeArgVector);
-		TCLAP::ValueArg<std::string> outputModeArg("o", "output-mode", "Select the type of BDF data that you would like to output.\nIf set to 'auto', bdfconvert will output human-readable data if sending to standard output, OR if the input was binary. It will output binary data if the input was human-readable, AND you have specified an output file to write to.\nIf set to 'inverse', bdfconvert will output binary data if the BDF input was human-readable. It will output human-readable data if the input was binary. Unlike 'auto', the use of standard output will not influence the selected output type.", false, "auto", &outputModeArgConstraint, cmd);
+		TCLAP::ValueArg<std::string> outputModeArg("o", "output-mode", "Select the type of BDF data that you would like to output.\n\nIf set to 'auto', bdfconvert will output human-readable data if sending to standard output, OR if the input was binary. It will output binary data if the input was human-readable, AND you have specified an output file to write to.\n\nIf set to 'inverse', bdfconvert will output binary data if the BDF input was human-readable. It will output human-readable data if the input was binary. Unlike 'auto', the use of standard output will not influence the selected output type.\nIf set to 'null', no output will be generated via either standard output or file writing. However, error messages will still be sent to standard error. This output mode is useful for validating BDF files.", false, "auto", &outputModeArgConstraint, cmd);
 		
 		// -f, --input-file
 		TCLAP::ValueArg<std::string> inputFileArg("f", "input-file", "If you need to read BDF data from a file, specify its path here. Leave this argument unspecified to read from standard input instead.", false, std::string(), "filename", cmd);
@@ -200,6 +200,10 @@ std::stringstream getBdfInputData(std::istream &istream) {
 	return dataStream;
 }
 
+bool checkOutputFileDirectory(const std::filesystem::path &outputFile) {
+	
+}
+
 Bdf::BdfIndent getIndenter() {
 	if (pretty) {
 		return Bdf::BdfIndent("\t", "\n");
@@ -260,7 +264,7 @@ int main(int argc, char** argv)
 		}
 		
 		// We might end up with a nullptr BdfReader if one of the above steps failed,
-		// especially if --keep-going was set.
+		// especially if --keep-going was set. Create a new one in that case.
 		if (reader == nullptr) {
 			reader = new Bdf::BdfReader();
 		}
@@ -297,7 +301,9 @@ int main(int argc, char** argv)
 			if (outputFile.empty()) {
 				reader->serializeHumanReadable(std::cout, getIndenter());
 			} else {
-				std::ofstream ofstr(inputFile);
+				// checkOutputFileDirectory(outputFile);
+				
+				std::ofstream ofstr(outputFile);
 				reader->serializeHumanReadable(ofstr, getIndenter());
 			}
 		}		
