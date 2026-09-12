@@ -32,6 +32,28 @@ namespace Bdf
 		 */
 		void freeAll();
 	
+		#if __cplusplus >= 202002L
+		/**
+		 * Compares the two C double pointer arrays of type T given in lhs and rhs.
+		 *
+		 * This function returns:
+		 * - the ordering of the first pair of unequal values, as determined by the inbuilt operator<=> for type T.
+		 * - Else, the result of lhsSize <=> rhsSize.
+		 *
+		 * It is the caller's responsibility to ensure that both arrays are freed after this function runs.
+		 *
+		 * @param lhs a C double pointer array for the left hand side.
+		 * @param rhs a C double pointer array for the right hand side.
+		 * @param lhsSize the maximum size to check in lhs.
+		 * @param rhsSize the maximum size to check in rhs.
+		 * @return std::partial_ordering representing the result of the comparison determined by the above algorithm.
+		 *
+		 * @since 2.0.0
+		 * @internal
+		 */
+		template<typename T> static std::partial_ordering comparePrimitiveArrays(T** lhs, T** rhs, size_t lhsSize, size_t rhsSize) noexcept; 
+		#endif
+		
 	public:
 	
 		/**
@@ -522,6 +544,47 @@ namespace Bdf
    		 * @since 1.4.0
 		 */
 		BdfNamedList* getOrNewNamedList();
+		
+		#if __cplusplus >= 202002L
+		/**
+		 * Attempts to compare two BdfObjects with each other.
+		 *
+		 * This operator returns:
+		 * - std::partial_ordering::unordered if the two BdfObjects are completely different types, or if both
+		 *   BdfObjects are floating point types and one or both is NaN.
+		 * - std::partial_ordering::less if the two BdfObjects are same type, but lhs has less value than rhs.
+		 * - std::partial_ordering::greater if the two BdfObjects are same type, but lhs has greater value than rhs.
+		 * - std::partial_ordering::equivalent if both BdfObjects have the same type and value (just type if BdfTypes::UNDEFINED).
+		 *
+		 * Array types as well as BdfList/BdfNamedList objects return the ordering of the first pair of unequal values,
+		 * consistent with the behaviour of standard library types such as std::map. If all pairings are equal until the end
+		 * of one array is reached, then the result of their sizes is returned. An array type will compare equivalent if both
+		 * conditions compare equivalent.
+		 * E.g. let this be a BdfList consisting of [ 0.5, 0.7, 2.0 ] and rhs [0.5, 0.8, 1.7 ]. Then
+		 * std::partial_ordering::less will be returned, because the first pair of unequivalent values was the pairing at index 1,
+		 * and 0.7 < 0.8. The unequal pairing at index 2's ordering of 2.0 > 1.7 is ignored.
+		 * On the other hand, let this be [ 1, 2, 3, 4, 5 ] and rhs be [ 1, 2, 3, 4 ]. Then std::partial_ordering::greater
+		 * will be returned, because while all pairings within the indexes 0-3 are equivalent, this->getList()->size() = 5 >
+		 * rhs.getList()->size() = 4.
+		 *
+		 * Remember that you need to ensure both BdfObject pointers are dereferenced in all comparisons with * (e.g. "if (*lhs <=> *rhs)").
+		 * Otherwise their pointers will be compared, which will almost never return the intended result.
+		 *
+		 * @since 1.5.0
+		 * @param rhs the right hand side value of the comparison. this is automatically treated as the lhs.
+		 * @return std::partial_ordering that represents the outcome of the comparison.
+		 */
+		std::partial_ordering operator<=>(BdfObject& rhs) noexcept;
+		
+		/**
+		 * Returns true if operator<=> returns std::partial_ordering::equal.
+		 * @since 2.0.0
+		 * @param rhs the right hand side value of the comparison. this is automatically treated as the lhs.
+		 * @return bool that represents the outcome of the equality comparison.
+		 */
+		bool operator==(BdfObject& rhs) noexcept;
+		
+		#endif
 	};
 }
 

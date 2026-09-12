@@ -796,10 +796,6 @@ char BdfObject::getType() const noexcept {
 	return type;
 }
 
-BdfObject::operator bool() const noexcept {
-	return (this->getType() != BdfTypes::UNDEFINED);
-}
-
 int BdfObject::serializeSeeker(int* locations) const
 {
 	int size = getDefaultSize(type);
@@ -1719,4 +1715,124 @@ BdfList* BdfObject::getOrNewList() {
 	}
 	
 	return this->newSetAndGetList();
+}
+
+std::partial_ordering BdfObject::operator<=>(BdfObject& rhs) noexcept {
+	// Bail early if the two are not of the same type.
+	if (this->getType() == rhs.getType()) {
+		std::partial_ordering arrayResult = std::partial_ordering::unordered;
+		int lhsSize, rhsSize;
+		
+		// Just access our own type from now on.
+		switch(this->getType()) {
+			case BdfTypes::UNDEFINED:
+				return std::partial_ordering::equivalent;
+			case BdfTypes::BOOLEAN:
+				return (this->getBoolean() <=> rhs.getBoolean());
+			case BdfTypes::BYTE:
+				return (this->getByte() <=> rhs.getByte());
+			case BdfTypes::SHORT:
+				return (this->getShort() <=> rhs.getShort());
+			case BdfTypes::INTEGER:
+				return (this->getInteger() <=> rhs.getInteger());
+			case BdfTypes::LONG:
+				return (this->getLong() <=> rhs.getLong());
+			case BdfTypes::STRING:
+				return (this->getString() <=> rhs.getString());
+			case BdfTypes::LIST:
+			    return (*this->getList() <=> *rhs.getList());
+			case BdfTypes::NAMED_LIST:
+			    return std::partial_ordering::unordered;// return (*this->getNamedList() <=> *rhs.getNamedList());
+			case BdfTypes::ARRAY_BOOLEAN:
+				bool* lhsBoolArray;
+				bool* rhsBoolArray;
+				
+				this->getBooleanArray(&lhsBoolArray, &lhsSize);
+				rhs.getBooleanArray(&rhsBoolArray, &rhsSize);
+				
+				arrayResult = BdfObject::comparePrimitiveArrays<bool>(&lhsBoolArray, &rhsBoolArray, lhsSize, rhsSize);
+				
+				delete[] lhsBoolArray;
+				delete[] rhsBoolArray;
+				
+				return arrayResult;
+			case BdfTypes::ARRAY_BYTE:
+				char* lhsByteArray;
+				char* rhsByteArray;
+				
+				this->getByteArray(&lhsByteArray, &lhsSize);
+				rhs.getByteArray(&rhsByteArray, &rhsSize);
+				
+				arrayResult = BdfObject::comparePrimitiveArrays<char>(&lhsByteArray, &rhsByteArray, lhsSize, rhsSize);
+				
+				delete[] lhsByteArray;
+				delete[] rhsByteArray;
+				
+				return arrayResult;
+			case BdfTypes::ARRAY_SHORT:
+				int16_t* lhsShortArray;
+				int16_t* rhsShortArray;
+				
+				this->getShortArray(&lhsShortArray, &lhsSize);
+				rhs.getShortArray(&rhsShortArray, &rhsSize);
+				
+				arrayResult = BdfObject::comparePrimitiveArrays<short>(&lhsShortArray, &rhsShortArray, lhsSize, rhsSize);
+				
+				delete[] lhsShortArray;
+				delete[] rhsShortArray;
+				
+				return arrayResult;
+			case BdfTypes::ARRAY_INTEGER:
+				int32_t* lhsIntegerArray;
+				int32_t* rhsIntegerArray;
+				
+				this->getIntegerArray(&lhsIntegerArray, &lhsSize);
+				rhs.getIntegerArray(&rhsIntegerArray, &rhsSize);
+				
+				arrayResult = BdfObject::comparePrimitiveArrays<int32_t>(&lhsIntegerArray, &rhsIntegerArray, lhsSize, rhsSize);
+				
+				delete[] lhsIntegerArray;
+				delete[] rhsIntegerArray;
+				
+				return arrayResult;
+			case BdfTypes::ARRAY_LONG:
+				int64_t* lhsLongArray;
+				int64_t* rhsLongArray;
+				
+				this->getLongArray(&lhsLongArray, &lhsSize);
+				rhs.getLongArray(&rhsLongArray, &rhsSize);
+				
+				arrayResult = BdfObject::comparePrimitiveArrays<int64_t>(&lhsLongArray, &rhsLongArray, lhsSize, rhsSize);
+				
+				delete[] lhsIntegerArray;
+				delete[] rhsIntegerArray;
+				
+				return arrayResult;
+		}
+	}
+	
+	return std::partial_ordering::unordered;
+}
+
+bool BdfObject::operator==(BdfObject& rhs) noexcept {
+	return ((*this <=> rhs) == std::partial_ordering::equivalent);
+}
+
+template<typename T> std::partial_ordering BdfObject::comparePrimitiveArrays(T** lhs, T** rhs, size_t lhsSize, size_t rhsSize) noexcept {
+	size_t sizeToCheck = std::min(lhsSize, rhsSize);
+	std::partial_ordering iComparisonResult = std::partial_ordering::unordered;
+	
+	for (size_t i = 0; i < sizeToCheck; i++) {
+		iComparisonResult = (lhs[i] <=> rhs[i]);
+		
+		if (iComparisonResult != std::partial_ordering::equivalent) {
+			return iComparisonResult;
+		}
+	}
+	
+	return (lhsSize <=> rhsSize);
+}
+
+BdfObject::operator bool() const noexcept {
+	return (this->getType() != BdfTypes::UNDEFINED);
 }
