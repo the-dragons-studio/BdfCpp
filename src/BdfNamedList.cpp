@@ -106,7 +106,7 @@ BdfNamedList::BdfNamedList(BdfLookupTable* pLookupTable, BdfStringReader* sr)
 			}
 	
 			if(c != '"') {
-				throw BdfError(BdfError::ERROR_SYNTAX, *sr);
+				throw BdfError(BdfError::ErrorType::SYNTAX, *sr);
 			}
 	
 			std::string key = sr->getQuotedString();
@@ -114,7 +114,7 @@ BdfNamedList::BdfNamedList(BdfLookupTable* pLookupTable, BdfStringReader* sr)
 			// There should be a colon after this
 			sr->ignoreBlanks();
 			if(sr->upto[0] != ':') {
-				throw BdfError(BdfError::ERROR_SYNTAX, *sr);
+				throw BdfError(BdfError::ErrorType::SYNTAX, *sr);
 			}
 	
 			sr->upto += 1;
@@ -133,7 +133,7 @@ BdfNamedList::BdfNamedList(BdfLookupTable* pLookupTable, BdfStringReader* sr)
 			}
 	
 			if(c != ',') {
-				throw BdfError(BdfError::ERROR_SYNTAX, *sr);
+				throw BdfError(BdfError::ErrorType::SYNTAX, *sr);
 			}
 	
 			sr->upto += 1;

@@ -259,7 +259,7 @@ BdfObject::BdfObject(BdfLookupTable* pLookupTable, BdfStringReader* sr)
 		sr->ignoreBlanks();
 
 		if(sr->upto[0] != '(') {
-			throw BdfError(BdfError::ERROR_SYNTAX, *sr);
+			throw BdfError(BdfError::ErrorType::SYNTAX, *sr);
 		}
 
 		sr->upto += 1;
@@ -290,7 +290,7 @@ BdfObject::BdfObject(BdfLookupTable* pLookupTable, BdfStringReader* sr)
 				for(;;)
 				{
 					if(!sr2.inRange()) {
-						throw BdfError(BdfError::ERROR_END_OF_FILE, sr2.getPointer(-1));
+						throw BdfError(BdfError::ErrorType::UNEXPECTED_END_OF_FILE, sr2.getPointer(-1));
 					}
 						
 					c = sr2.upto[0];

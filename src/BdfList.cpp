@@ -81,7 +81,7 @@ BdfList::BdfList(BdfLookupTable* lookupTable, BdfStringReader* sr)
 			}
 
 			if(c != ',') {
-				throw BdfError(BdfError::ERROR_SYNTAX, *sr);
+				throw BdfError(BdfError::ErrorType::SYNTAX, *sr);
 			}
 
 			sr->upto += 1;
