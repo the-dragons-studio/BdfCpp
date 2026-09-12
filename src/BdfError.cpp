@@ -17,10 +17,8 @@ const std::string ERRORS[5] = {
 	"Number out of range",
 };
 
-BdfError::BdfError(const int code, BdfStringReader reader, int length)
+BdfError::BdfError(const int code, BdfStringReader reader, int length): type(code)
 {
-	type = code;
-		
 	const wchar_t* start_of_line = reader.start;
 	int line = 0;
 	int at = 0;

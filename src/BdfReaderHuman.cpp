@@ -10,7 +10,7 @@
 using namespace Bdf;
 using namespace BdfHelpers;
 
-BdfReaderHuman::BdfReaderHuman(std::wstring data)
+BdfReaderHuman::BdfReaderHuman(const std::wstring &data)
 {
 	// Make a BdfStringReader from the given data.
 	BdfStringReader sr(data.c_str(), data.size());
@@ -37,6 +37,6 @@ BdfReaderHuman::BdfReaderHuman(std::wstring data)
 	this->bdf = bdfNew;
 }
 
-BdfReaderHuman::BdfReaderHuman(std::string data) : BdfReaderHuman(
+BdfReaderHuman::BdfReaderHuman(const std::string &data) : BdfReaderHuman(
 	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(data)) {
 }

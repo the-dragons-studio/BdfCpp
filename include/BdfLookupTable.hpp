@@ -9,6 +9,10 @@
 
 namespace Bdf
 {
+	/**
+	 * @internal
+	 * @since 1.0
+	 */
 	class BdfLookupTable
 	{
 	private:

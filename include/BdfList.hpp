@@ -194,7 +194,7 @@ namespace Bdf
 		 * Serialises the BdfList to &stream.
 		 * @internal
 		 */
-		void serializeHumanReadable(std::ostream &stream, BdfIndent indent, int upto);
+		void serializeHumanReadable(std::ostream &stream, const BdfIndent &indent, int upto);
 		
 		/**
 		 * @internal

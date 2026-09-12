@@ -22,10 +22,33 @@ namespace Bdf
 		void serialize(char** data, int* size);
 		BdfObject* getObject();
 		BdfObject* resetObject();
-		std::string serializeHumanReadable(BdfIndent indent);
+		
+		/**
+		 * Serialises human-readable BDF data and returns it as a string. This overload
+		 * allows you to specify how the data will be formated (using indent and spacing).
+   		 * @param indent settings used for indenting the human-readable BDF data.
+		 * @return a string representing the contents of the BdfObject contained serialised
+		 * to human-readable string data using the indenter provided at indent.
+   		 * @since 1.0
+		 */
+		std::string serializeHumanReadable(const BdfIndent &indent);
+		
+		/**
+		 * Serialises human-readable BDF data and returns it as a string.
+		 * @return a string representing the contents of the BdfObject contained serialised
+		 * to human-readable string data.
+   		 * @since 1.0
+		 */
 		std::string serializeHumanReadable();
-		void serializeHumanReadable(std::ostream &stream);
-		void serializeHumanReadable(std::ostream &stream, BdfIndent indent);  
+		
+		/**
+		 * Streams human-readable BDF data representing the BdfObject contained in the reader
+		 * to &stream, indented using the indenter provided at indent.
+   	         * @param stream an output stream to which human-readable BDF data will be sent.
+	         * @param indent settings used for indenting the human-readable BDF data.
+   		 * @since 1.0
+		 */
+		void serializeHumanReadable(std::ostream &stream, const BdfIndent &indent);  
 	};
 }
 

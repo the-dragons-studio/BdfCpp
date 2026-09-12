@@ -18,14 +18,14 @@ namespace Bdf
 		 * @param data narrow-encoded text representing a human-readable BDF file.
 		 * @throw BdfError if data could not be parsed.
 		 */
-		explicit BdfReaderHuman(std::string data);
-		
+		explicit BdfReaderHuman(const std::string &data);
+
 		/**
 		 * Parses data as a human-readable BDF file.
 		 * @param data wide-encoded text representing a human-readable BDF file.
 		 * @throw BdfError if data could not be parsed.
 		 */
-		explicit BdfReaderHuman(std::wstring data);
+		explicit BdfReaderHuman(const std::wstring *data);
 		
 		/**
 		 * Opens the file located at filename as a BDF file.

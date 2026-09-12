@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.27)
-project(BdfCpp)
-set(CMAKE_CXX_STANDARD 17)
+
+project(BdfCpp VERSION 1.5.0)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
@@ -23,10 +24,10 @@ add_custom_target(
 
 # Try to build Doxygen.
 option(BUILD_DOC "Build documentation" ON)
-
-add_executable(helloworld examples/helloworld.cpp)
-add_dependencies(helloworld bdf)
-target_link_libraries(helloworld -lbdf)
+# Build example and test executables
+option(BUILD_EXAMPLES "Build example and test executables" OFF)
+# Build tools
+option(BUILD_TOOLS "Build tool executables" ON)
 
 if(BUILD_DOC) 
 	find_package(Doxygen)
@@ -53,5 +54,38 @@ add_dependencies(bdf copy_include)
 if (DOXYGEN_READY)
 	add_dependencies(bdf doxygen)
 endif(DOXYGEN_READY)
-# target_link_libraries(bdf )
+target_link_libraries(bdf stdc++exp)
 install(TARGETS bdf)
+
+# If the user requests, build other executables
+if(BUILD_EXAMPLES)
+	# fibonacci
+	add_executable(fibonacci examples/fibonacci.cpp)
+	add_dependencies(fibonacci bdf)
+	target_link_libraries(fibonacci bdf)
+
+	# helloworld
+	add_executable(helloworld examples/helloworld.cpp)
+	add_dependencies(helloworld bdf)
+	target_link_libraries(helloworld bdf)
+	
+	# tests
+	add_executable(tests examples/tests.cpp)
+	add_dependencies(tests bdf)
+	target_link_libraries(tests bdf stdc++exp)
+	
+endif(BUILD_EXAMPLES)
+
+if(BUILD_TOOLS)
+	# bdfconvert
+	add_executable(bdfconvert tools/bdfconvert.cpp)
+	add_dependencies(bdfconvert bdf)
+	target_link_libraries(bdfconvert bdf)
+	
+	# bdfedit, but only on Linux OSes
+	if(linux)
+		add_executable(bdfedit tools/bdfedit.cpp)
+		add_dependencies(bdfedit bdf)
+		target_link_libraries(bdfedit bdf -lboost_iostreams)
+	endif(linux)
+endif(BUILD_TOOLS)
