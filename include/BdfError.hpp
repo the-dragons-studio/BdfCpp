@@ -225,7 +225,8 @@ namespace Bdf
 		 * @return an integer representing the line number in the file where the error occured, or -1 if unknown.
 		 * @since 1.4.0
 		 */
-		size_t getLine() const noexcept; 
+		[[deprecated("Use BdfError::getLineOptional().value() or similar instead.")]]
+		int getLine() const noexcept; 
 		 
 		std::optional<size_t> getLineOptional() const noexcept;
 		
@@ -234,7 +235,9 @@ namespace Bdf
 		 * @return an integer representing the character number on the line where the error occured, or -1 if unknown.
 		 * @since 1.4.0
 		 */
-		size_t getAt() const noexcept;  
+		[[deprecated("Use BdfError::getAtOptional().value() or similar instead.")]]
+		int getAt() const noexcept;  
+		
 		
 		std::optional<size_t> getAtOptional() const noexcept;
 		

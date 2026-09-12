@@ -90,6 +90,7 @@ std::string BdfError::getErrorEnglishDescription(std::optional<BdfError::ErrorTy
 		case BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF: return "String was not closed before the end of the file";
 		case BdfError::ErrorType::ILLEGAL_STRING_BACKSLASH_ESCAPE: return "Illegal string backslash escape code";
 		case BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE: return "Number out of range of the given datatype";
+		case BdfError::ErrorType::DATA_INCOMPATIBLE_WITH_OBJECT: return "This data is not compatible with the requested type of object"
 		case BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH: return "Size tag found in binary data does not match actual data size";
 		case BdfError::ErrorType::BINARY_LOOKUPTABLE_SIZE_ALLOCATION_FAILED: return "Failed to allocate enough size to read binary BDF data, it may be corrupt";
     }
@@ -141,8 +142,8 @@ BdfError::ErrorType BdfError::getErrorType() const noexcept {
 }
 
 // Get the line number at which the error occured.
-size_t BdfError::getLine() const noexcept {
-	return *this->line;
+int BdfError::getLine() const noexcept {
+	return this->line.value_or(-1);
 }
 
 
@@ -151,8 +152,8 @@ std::optional<size_t> BdfError::getLineOptional() const noexcept {
 }
 
 // Get the character number at which the error occured.
-size_t BdfError::getAt() const noexcept {
-	return *this->at;
+int BdfError::getAt() const noexcept {
+	return this->at.value_or(-1);
 }
 
 std::optional<size_t> BdfError::getAtOptional() const noexcept {
