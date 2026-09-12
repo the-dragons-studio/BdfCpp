@@ -237,8 +237,10 @@ BdfNamedList* BdfNamedList::set(int key, BdfObject* v) noexcept
 
 		cur = cur->next;
 	}
-
-	Item* item = new Item(key, v, NULL);
+	
+	// If the requested key does not exist:
+	// Append our new item to the end.
+	Item* item = new Item(key, v, this->end, NULL);
 
 	*this->end = item;
 	this->end = &item->next;
@@ -432,4 +434,8 @@ void BdfNamedList::getLocationUses(int* locations) const noexcept
 		cur->object->getLocationUses(locations);
 		cur = cur->next;
 	}
+}
+
+std::string getNameOfKey(int key) {
+	return this->lookupTable->getName(key);
 }

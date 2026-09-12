@@ -48,6 +48,12 @@ namespace Bdf
 
 	public:
 		/**
+		 * Gets the name of the specified key.
+		 * Placeholder for the alpha release before a final method to get string keys.
+		 * @unstable
+		 */
+		std::string getNameOfKey(int key);
+		/**
 		 * Constructs an empty BdfList which will use the lookup table at lookupTable for further operations.
 		 * @internal
 		 */
