@@ -27,4 +27,6 @@ namespace Bdf {
 			
 		}
 	}
+	
+	BdfCommentCStyle::~BdfCommentCStyle() noexcept = default;
 }
