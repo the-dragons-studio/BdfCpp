@@ -17,7 +17,13 @@ const std::string ERRORS[5] = {
 	"Number out of range",
 };
 
-BdfError::BdfError(BdfError::ErrorType type, BdfStringReader reader, size_t length, std::stacktrace trace): type(type), trace(trace)
+// Delegate with a default stacktrace
+BdfError::BdfError(BdfError::ErrorType type, BdfStringReader reader, size_t length) noexcept:
+	BdfError(type, reader, length, std::stacktrace::current()) {
+}
+
+BdfError::BdfError(BdfError::ErrorType type, BdfStringReader reader, size_t length, std::stacktrace trace) noexcept: 
+	type(type), trace(std::move(trace))
 {
 	const wchar_t* start_of_line = reader.start;
 	int line = 0;
@@ -82,6 +88,33 @@ BdfError::BdfError(BdfError::ErrorType type, BdfStringReader reader, size_t leng
 	message += "\n" + context;
 }
 
+// Delegate with a shim to determine the new ErrorType from the given code, as well as default stacktrace.
+BdfError::BdfError(const int code, BdfStringReader reader, int length) noexcept: BdfError(this->getErrorTypeFromClassicCode(code), reader, length, std::stacktrace::current()) {
+}
+
+// Delegate with a default length and stacktrace.
+BdfError::BdfError(BdfError::ErrorType type, BdfStringReader reader) noexcept: 
+	BdfError(type, reader, 1, std::stacktrace::current()) {
+}
+
+// Delegate with a shim to determine the new ErrorType from the given code, as well as default stacktrace.
+BdfError::BdfError(const int code, BdfStringReader reader) noexcept:
+	BdfError(this->getErrorTypeFromClassicCode(code), reader, 1, std::stacktrace::current()) {
+}
+
+// Delegate with default trace.
+BdfError::BdfError(BdfError::ErrorType type) noexcept:
+	BdfError(type, std::stacktrace::current()) {
+}
+
+// Just initialise the type and trace.
+BdfError::BdfError(BdfError::ErrorType type, std::stacktrace trace) noexcept: type(type), trace(std::move(trace)) {
+}
+
+BdfError::BdfError(const int code) noexcept:
+	BdfError(this->getErrorTypeFromClassicCode(code), std::stacktrace::current()) {
+}
+
 std::string BdfError::getErrorEnglishDescription(std::optional<BdfError::ErrorType> type) {
 	switch (type.value_or(this->type)) {
         case BdfError::ErrorType::SYNTAX: return "Syntax error";
@@ -97,19 +130,6 @@ std::string BdfError::getErrorEnglishDescription(std::optional<BdfError::ErrorTy
 	
 	return "Unknown error";
 }
-
-BdfError::BdfError(const int code, BdfStringReader reader, int length): BdfError(this->getErrorTypeFromClassicCode(code), reader, length) {
-}
-
-BdfError::BdfError(BdfError::ErrorType type, BdfStringReader reader): BdfError(type, reader, 1) {
-}
-
-BdfError::BdfError(const int code, BdfStringReader reader) : BdfError(this->getErrorTypeFromClassicCode(code), reader, 1) {
-}
-
-BdfError::BdfError(BdfError::ErrorType type, std::stacktrace trace): type(type), trace(trace) {}
-
-BdfError::BdfError(const int code): BdfError(this->getErrorTypeFromClassicCode(code)) {}
 
 BdfError::ErrorType BdfError::getErrorTypeFromClassicCode(int code) {
 	// Define an array with the enums in the exact order that the classic error codes went in.

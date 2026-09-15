@@ -6,7 +6,10 @@
 
 #include <cstdint>
 #include <string>
+
+#if __cplusplus >= 202302L
 #include <stacktrace>
+#endif
 
 namespace Bdf
 {	
@@ -36,11 +39,11 @@ namespace Bdf
 			/**
 			 * Indicates that a premature end of file was found. For example, the library
 			 * was trying to read an integer but did not find the datatype character before the end of file.
-             * @note: Versions before 2.0.0 could not actually throw this error. That's
-             *        because this "error" was used to indicate that parsing was finished,
-			 *        and a finished BdfReaderHuman object could be presented. This was rewritten
-             *        in 2.0.0, and the error was instead repurposed to indicate *premature*
-			 *        end of file.
+             * @note Versions before 2.0.0 could not actually throw this error. That's
+             *       because this "error" was used to indicate that parsing was finished,
+			 *       and a finished BdfReaderHuman object could be presented. This was rewritten
+             *       in 2.0.0, and the error was instead repurposed to indicate *premature*
+			 *       end of file.
 			 * @note This error can only occur when parsing a human-readable file.
 			 */
 			UNEXPECTED_END_OF_FILE, 
@@ -92,17 +95,20 @@ namespace Bdf
 	private:
 		std::string error_short;
 		std::string message;
-		std::stacktrace trace;
 		BdfError::ErrorType type;
 		std::optional<size_t> line = std::nullopt;
 		std::optional<size_t> at = std::nullopt;
 		std::string context;
 		
+		#if __cplusplus >= 202302L
+		std::stacktrace trace;
+		#endif
+		
 		/**
 		 * Returns an ErrorType enum given a "classic" error code.
 		 * @note Do not mark this function as C++ deprecated. Instead mark the wrapper overloads that call this method.
-		 * @unstable
-		 * @deprecated
+		 * @internal
+		 * @deprecated since 1.5.0, this method is only here as a transitional method to the new 2.0.0 enum system.
 		 * @since 1.5.0
 		 */
 		BdfError::ErrorType getErrorTypeFromClassicCode(int code);
@@ -111,53 +117,68 @@ namespace Bdf
 		/**
   		 * @deprecated Use BdfError::ErrorType::SYNTAX instead.
      	 */
+		#if __cplusplus >= 201402L
 		[[deprecated("Use BdfError::ErrorType::SYNTAX instead.")]]
+		#endif
 		static const int ERROR_SYNTAX = 0;
 
 		/**
   		 * @deprecated Use BdfError::ErrorType::END_OF_FILE instead.
      	 */
+		#if __cplusplus >= 201402L
 		[[deprecated("Use BdfError::ErrorType::UNEXPECTED_END_OF_FILE instead.")]]
+		#endif
 		static const int ERROR_END_OF_FILE = 1;
 		
 		/**
   		 * @deprecated Use BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF instead.
      	 */
+		#if __cplusplus >= 201402L
 		[[deprecated("Use BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF instead.")]]
+		#endif
 		static const int ERROR_UNESCAPED_COMMENT = 2;
 		
 		/**
   		 * @deprecated Use BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF instead.
      	 */
+		#if __cplusplus >= 201402L
 		[[deprecated("Use BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF instead.")]]
+		#endif
 		static const int ERROR_UNESCAPED_STRING = 3;
 		
 		/**
   		 * @deprecated Use BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE instead.
      	 */
+		#if __cplusplus >= 201402L
 		[[deprecated("Use BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE instead.")]]
+		#endif
 		static const int ERROR_OUT_OF_RANGE = 4;
 		
 		/**
   		 * @deprecated Use BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH instead.
      	 */
+		#if __cplusplus >= 201402L
 		[[deprecated("Use BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH instead.")]]
+		#endif
 		static const int ERROR_SIZE_TAG_MISMATCH = 5;
-	    
+
 		/**
-		 * Creates a BdfError consisting of the error code code.
-		 * No other explanatory information will be available (all will be set to default).
+		 * Creates a BdfError consisting of the error type at type and a default stacktrace, and uses the BdfStringReader at
+		 * reader to get line and context information. Up to length bytes will be read.
+		 * @internal
+		 */
+		BdfError(BdfError::ErrorType type, BdfStringReader reader, size_t length) noexcept;
+	
+		/**
+		 * Creates a BdfError consisting of the error type at type and the stacktrace given at trace, and uses the BdfStringReader at
+		 * reader to get line and context information. Up to length bytes will be read.
 		 * @since 1.5.0
-	     */
-		explicit BdfError(BdfError::ErrorType type, std::stacktrace trace = std::stacktrace::current());
-
-		/**
-  		 * @deprecated Use BdfError::BdfError(BdfError::ErrorType type) instead.
-		 * @since 1.4.0
-     	 */
-		[[deprecated("Use Bdf::BdfError::BdfError(ErrorType code) instead.")]]
-		explicit BdfError(const int code);
-
+		 * @internal
+		 */
+		#if __cplusplus >= 202302L
+		BdfError(BdfError::ErrorType type, BdfStringReader reader, size_t length, std::stacktrace trace) noexcept;
+		#endif
+		
 		/**
 		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
 		 * reader to get line and context information. Up to length bytes will be read.
@@ -165,29 +186,56 @@ namespace Bdf
 		 * @internal
 		 */
 		[[deprecated("Use Bdf::BdfError::BdfError(ErrorType code, const BdfStringReader& reader, size_t length) instead.")]]
-		BdfError(const int code, BdfStringReader reader, int length);
-
+		BdfError(const int code, BdfStringReader reader, int length) noexcept;
+		
 		/**
-		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
+		 * Creates a BdfError consisting of the error type given at type and a default stacktrace, and uses the BdfStringReader at
 		 * reader to get line and context information. Up to length bytes will be read.
+		 * @since 1.5.0
 		 * @internal
 		 */
-		BdfError(BdfError::ErrorType type, BdfStringReader reader, size_t length, std::stacktrace = std::stacktrace::current());
+		BdfError(ErrorType type, BdfStringReader reader) noexcept;
+		
+		/**
+		 * Creates a BdfError consisting of the error type given at type and the stacktrace given at trace, and uses the BdfStringReader at
+		 * reader to get line and context information. Up to length bytes will be read.
+		 * @since 1.5.0
+		 * @internal
+		 */
+		#if __cplusplus >= 202302L
+		BdfError(ErrorType type, BdfStringReader reader, std::stacktrace trace) noexcept;
+		#endif
 		
 		/**
 		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
-		 * reader to get line and context information. Up to length bytes will be read.
+		 * reader to get line and context information.
 		 * @since 1.0
 		 * @internal
 		 */
 		[[deprecated("Use Bdf::BdfError::BdfError(ErrorType code, const BdfStringReader& reader) instead.")]]
-		BdfError(const int code, BdfStringReader reader);
+		BdfError(const int code, BdfStringReader reader) noexcept;
+			    
+		/**
+		 * Creates a BdfError consisting of the error code code and a default stacktrace.
+		 * No other explanatory information will be available (all will be set to default).
+		 * @since 1.5.0
+	     */
+		BdfError(BdfError::ErrorType type) noexcept;
+		
+		/**
+		 * Creates a BdfError consisting of the error type given at type and the stacktrace given at trace.
+		 * @since 1.5.0
+		 */
+		#if __cplusplus >= 202302L
+		BdfError(BdfError::ErrorType type, std::stacktrace trace) noexcept;
+		#endif
 
 		/**
-		 * Creates a BdfError consisting of the error code at code, and uses the BdfStringReader at
-		 * reader to get line and context information. Up to length bytes will be read.
-		 */
-		BdfError(ErrorType type, BdfStringReader reader);
+  		 * @deprecated Use BdfError::BdfError(BdfError::ErrorType type) instead.
+		 * @since 1.4.0
+     	 */
+		[[deprecated("Use Bdf::BdfError::BdfError(ErrorType code) instead.")]]
+		explicit BdfError(const int code) noexcept;
 		
 		/**
 		 * Gets a pre-formatted error message.
@@ -262,7 +310,14 @@ namespace Bdf
 		 */
 		virtual const char* what() const noexcept;
 		
+		/**
+		 * Get the stacktrace associated with this object.
+		 * @return a stacktrace that should point to this object.
+		 * @since 1.5.0
+		 */
+		#if __cplusplus >= 202302L
 		std::stacktrace getTrace() const noexcept;
+		#endif
 	};
 }
 
