@@ -80,7 +80,12 @@ namespace Bdf
 			 * Indicates that allocation of sufficient size for the BdfLookupTable has failed. Most likely due to a corrupt binary BDF data.
 			 * @note This error can only occur when parsing a binary file.
 			 */
-			BINARY_LOOKUPTABLE_SIZE_ALLOCATION_FAILED
+			BINARY_LOOKUPTABLE_SIZE_ALLOCATION_FAILED,
+			
+			/**
+			 * Indicates that the caller tried to set data to an object when that object is not compatible with it.
+			 */
+			DATA_INCOMPATIBLE_WITH_OBJECT
 		};
 		
 	
