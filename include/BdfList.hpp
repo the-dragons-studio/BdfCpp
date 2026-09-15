@@ -133,14 +133,6 @@ namespace Bdf
 		Item* endItem;
 		Item** endptr;
 		BdfLookupTable* lookupTable;
-				
-		/**
-		 * Pops the item given at item; unlike remove(), the object's pointer is released and returned.
-		 * @return the BdfObject that lived at item.
-		 * @internal
-		 * @since 1.4.0
-		 */
-		BdfObject* pop(uint64_t index) noexcept;
 		
 	public:
 		class Iterator;
@@ -325,7 +317,6 @@ namespace Bdf
 		 */
 		BdfList* remove(int id);
 		
-						
 		/**
 		 * Remove the Item given in item.
 		 * @return the BdfList, now with the BdfObject located at id removed.
@@ -340,6 +331,13 @@ namespace Bdf
 		 * @since 1.0
 		 */
 		BdfList* remove(BdfObject* object) noexcept;
+		
+		/**
+		 * Pops the item given at item; unlike remove(), the object's pointer is released and returned.
+		 * @return the BdfObject that lived at item.
+		 * @since 1.4.0
+		 */
+		BdfObject* pop(uint64_t index) noexcept;
 		
 		/**
 		 * Replace the BdfObject located at id with object.
@@ -387,11 +385,21 @@ namespace Bdf
 		BdfList* shrinkUndefinedObjects();
 		
 		/**
-		 * Clean up all undefined objects from the list.
+		 * Clean up all undefined objects from the list. All items which only contain an undefined object
+		 * will be removed.
 		 * After calling, all indicies may change. It's recommended to discard all indicies obtained
 		 * prior to calling this method.
 		 */
 		BdfList* cleanupUndefinedObjects();
+		
+		/**
+		 * Clean up all comment objects from the list.
+		 * Used by BdfList::serialize() to ensure that the BdfList is free of comments in binary mode,
+		 * but can also be called manually.
+		 * After calling, all indicies and iterators may change. It is recommended to discard all indicies
+         * and iterators obtained prior to calling this method.
+		 */
+		BdfList* cleanupCommentObjects() noexcept;
 		
 		/**
 		 * Find the specified BdfObject in the list.
