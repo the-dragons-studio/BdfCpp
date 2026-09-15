@@ -49,7 +49,20 @@ add_custom_target(
 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/build/include
 )
 
-add_library(bdf src/BdfError.cpp src/BdfHelpers.cpp src/BdfIndent.cpp src/BdfList.cpp src/BdfLookupTable.cpp src/BdfNamedList.cpp src/BdfObject.cpp src/BdfReader.cpp src/BdfReaderHuman.cpp src/BdfStringReader.cpp src/version.cpp)
+add_library(bdf
+	src/BdfCommentCppStyle.cpp
+	src/BdfCommentCStyle.cpp
+	src/BdfError.cpp
+	src/BdfHelpers.cpp
+	src/BdfIndent.cpp
+	src/BdfList.cpp
+	src/BdfLookupTable.cpp
+	src/BdfNamedList.cpp
+	src/BdfObject.cpp
+	src/BdfReader.cpp
+	src/BdfReaderHuman.cpp
+	src/BdfStringReader.cpp
+	src/version.cpp)
 add_dependencies(bdf timestamp)
 add_dependencies(bdf copy_include)
 if (DOXYGEN_READY)

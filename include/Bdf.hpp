@@ -4,6 +4,8 @@
 
 namespace Bdf
 {
+	class BdfCommentCppStyle;
+	class BdfCommentCStyle;
 	class BdfList;
 	class BdfIndent;
 	class BdfLookupTable;
@@ -17,6 +19,8 @@ namespace Bdf
 	
 }
 
+#include "BdfCommentCppStyle.hpp"
+#include "BdfCommentCStyle.hpp"
 #include "BdfLookupTable.hpp"
 #include "BdfList.hpp"
 #include "BdfIndent.hpp"
