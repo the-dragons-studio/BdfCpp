@@ -117,24 +117,34 @@ BdfList* BdfList::set(int index, BdfObject* o)
 	return this;
 }
 
-BdfList::Item* BdfList::getStartItem() const noexcept
+BdfList::Item* BdfList::getStart() noexcept
 {
 	return this->startItem;
 }
 
-BdfList::Item* BdfList::getEndItem() const noexcept
+BdfList::Item* BdfList::getEnd() noexcept
 {
 	return this->endItem;
 }
 
-BdfObject* BdfList::getStart() noexcept {
+BdfList::Item* BdfList::getStartItem() noexcept
+{
+	return this->startItem;
+}
+
+BdfList::Item* BdfList::getEndItem() noexcept
+{
+	return this->endItem;
+}
+
+BdfObject* BdfList::getStartObject() noexcept {
 	if (this->startItem == nullptr) {
 		return nullptr;
 	}
 	return this->startItem->object;
 }
 
-BdfObject* BdfList::getEnd() noexcept {
+BdfObject* BdfList::getEndObject() noexcept {
 	if (this->endItem == nullptr) {
 		return nullptr;
 	}

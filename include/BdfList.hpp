@@ -33,6 +33,7 @@ namespace Bdf
 		 */
 		class Item
 		{
+			friend class BdfList;
 		public:
 
 			BdfObject* object;
@@ -132,25 +133,6 @@ namespace Bdf
 		BdfLookupTable* lookupTable;
 				
 		/**
-		 * Inserts a new object after the item given in item.
-		 * @internal
-		 */
-		BdfList* insertNext(Item* item, BdfObject* object);
-		
-		/**
-		 * Inserts a new object before the item given in item.
-		 * @internal
-		 */
-		BdfList* insertLast(Item* item, BdfObject* object);
-				
-		/**
-		 * Remove the Item given in item.
-		 * @return the BdfList, now with the BdfObject located at id removed.
-		 * @internal
-		 */
-		BdfList* remove(Item* item) noexcept;
-				
-		/**
 		 * Pops the item given at item; unlike remove(), the object's pointer is released and returned.
 		 * @return the BdfObject that lived at item.
 		 * @internal
@@ -236,6 +218,12 @@ namespace Bdf
 		 */
 		BdfList* insertNext(BdfObject* needle, BdfObject* o, bool fallbackToAdd = false);
 		
+		/**				
+		 * Inserts a new object after the item given in item.
+		 * @internal
+		 */
+		BdfList* insertNext(Item* item, BdfObject* object);
+		
 		/**
 		 * Adds the BdfObject at o before the item at index.
 		 * @param index the index at which the object will be inserted next to.
@@ -255,27 +243,68 @@ namespace Bdf
 		BdfList* insertLast(BdfObject* needle, BdfObject* o, bool fallbackToAdd = false);
 		
 		/**
+		 * Inserts a new object before the item given in item.
+		 * @internal
+		 */
+		BdfList* insertLast(Item* item, BdfObject* object);
+		
+		/**
 		 * Clear all items in the list. this->size() == 0 after calling.
 		 * @return the BdfList, now emptied of all objects.
 		 */
 		BdfList* clear() noexcept;
 		
-		BdfObject* getStart() noexcept;
-		const BdfObject* getStart() const noexcept;
-		BdfObject* getEnd() noexcept;
-		const BdfObject* getEnd() const noexcept;
+		/**
+		 * Get the item located at the start of the list.
+   		 * @return the item at the start of the list.
+   		 * @deprecated since 1.4.0, as direct access to BdfList's linked list will no longer be allowed.
+		 * 			   Use BdfList::getStartObject() instead to access the object directly, or BdfList::begin() to get an iterator.
+         *             In 2.0.0, this method's return type will change to BdfObject*.
+		 * @since 1.4.0
+		 */
+		#if __cplusplus >= 201402L
+		[[deprecated("Deprecated as direct access to BdfList's linked list will no longer be allowed.\n Use BdfList::getStartObject() instead to access the object directly, or BdfList::begin() to get an iterator.")]]
+		#endif
+		Item* getStart() noexcept;
+		
+		/**
+		 * Get the BdfObject located at the start of the list.
+   		 * @return the BdfObject at the start of the list.
+		 * @since 1.5.0
+		 */
+		BdfObject* getStartObject() noexcept;
+		
+		/**
+		 * Get the item located at the start of the list.
+   		 * @return the item at the start of the list.
+   		 * @deprecated since 1.4.0, as direct access to BdfList's linked list will no longer be allowed.
+		 * 			   Use BdfList::getEndObject() instead.
+         *             In 2.0.0, this method's return type will change to BdfObject*.
+		 * @since 1.4.0
+		 */
+		#if __cplusplus >= 201402L
+		[[deprecated("Deprecated as direct access to BdfList's linked list will no longer be allowed.\n Use BdfList::getEndObject() instead.")]]
+		#endif 
+		Item* getEnd() noexcept;
+		
+		/**
+		 * Get the BdfObject located at the end of the list.
+   		 * @return the BdfObject at the end of the list.
+		 * @since 1.5.0
+		 */
+		BdfObject* getEndObject() noexcept;
 		
 		/**
 		 * Get the item located at the start of the list.
 		 * @internal
 		 */
-		Item* getStartItem() const noexcept;
+		Item* getStartItem() noexcept;
 		
 		/**
 		 * Get the item located at the end of the list.
 		 * @internal
 		 */
-		Item* getEndItem() const noexcept;
+		Item* getEndItem() noexcept;
 		
 		/**
 		 * Gets a pointer to the BdfObject located at id.
@@ -293,6 +322,14 @@ namespace Bdf
 		 * @note This function is potentially throwing, unlike the overload that takes a BdfObject.
 		 */
 		BdfList* remove(int id);
+		
+						
+		/**
+		 * Remove the Item given in item.
+		 * @return the BdfList, now with the BdfObject located at id removed.
+		 * @internal
+		 */
+		BdfList* remove(Item* item) noexcept;
 		
 		/**
 		 * Finds the BdfObject given in object, then removes it from the BdfList.
