@@ -137,13 +137,6 @@ namespace Bdf
 
 	public:
 		/**
-		 * Gets the name of the specified key.
-		 * Placeholder for the alpha release before a final method to get string keys.
-		 * @unstable
-		 */
-		std::string getNameOfKey(int key);
-		
-		/**
 		 * Constructs an empty BdfList which will use the lookup table at lookupTable for further operations.
 		 * @internal
 		 */
@@ -211,6 +204,7 @@ namespace Bdf
 		 * @return a pointer to the object located at key.
 		 * @warning Relying on this method's ability to create keys that don't exist is deprecated. From 2.0.0 onwards, this method
 		 *          will throw an std::out_of_range exception in that case instead.
+		 *          If this functionality is desired, use coerce() instead.
 		 * @since 1.0
 		 */	
 		BdfObject* get(int key);
@@ -312,15 +306,22 @@ namespace Bdf
 		
 		/**
 		 * Finds the name of the object that one can then retrieve the BdfObject from BdfNamedList::get() by.
-		 * If none exists (either because the object does not exist in the BdfNamedList, or the needle is nulltpr,
+		 * If no such name exists (either because the object does not exist in the BdfNamedList, or the needle is nullptr),
 		 * return std::nullopt.
 		 * @since 1.5.0
 		 */
 		std::optional<std::string> getNameFromObject(Bdf::BdfObject *needle);
 		
 		/**
+		 * Finds the name equivalent of the given key.
+		 * If no such name exists, return nullptr.
+		 * @since 1.5.0
+		 */
+		std::optional<std::string> getNameFromKey(int key);
+		
+		/**
 		 * Finds the key of the object that one can then retrieve the BdfObject from BdfNamedList::get() by.
-		 * If none exists (either because the object does not exist in the BdfNamedList, or the needle is nulltpr,
+		 * If no such key exists (either because the object does not exist in the BdfNamedList, or the needle is nullptr),
 		 * return std::nullopt.
 		 * @since 1.5.0
 		 */

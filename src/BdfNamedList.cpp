@@ -426,52 +426,49 @@ int BdfNamedList::serialize(char* data, int* locations) const
 
 void BdfNamedList::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it) const
 {
-	if(this->startItem == NULL)
+	bool shouldPrintComma = false;
+	// Get an iterator (only need const)
+	BdfNamedList::ItemIterator iterator = this->ibegin();
+	
+	// Bail immediately if the iterator is invalid (i.e. the list is empty)
+	if(!iterator)
 	{
 		out << "{}";
 		
 		return;
-	}
+	} else {
+		// Print start of list tag.
+		out << "{";
 
-	out << "{";
-
-	Item* cur = this->startItem;
-
-	if(cur != NULL)
-	{
-		for(;;)
-		{
-			out << indent.breaker;
-	
-			for(int n=0;n<=it;n++) {
-				out << indent.indent;
-			}
-			
-			std::string name = lookupTable->getName(cur->key);
-	
-			out << serializeString(name) << ": ";
-			cur->object->serializeHumanReadable(out, indent, it + 1);
-			cur = cur->next;
-	
-			if(cur != NULL)
-			{
+		do {
+			// For the second and onward iterations, print a comma separator. 
+			if (shouldPrintComma == true) {
 				out << ", ";
 			}
-	
-			else
-			{
-				break;
+
+			// Print a breaker and indenter.
+			out << indent.breaker << indent.calcIndent(it);
+			
+			if (iterator->object->getType() == BdfTypes::COMMENT_CPP_STYLE || iterator->object->getType() == BdfTypes::COMMENT_C_STYLE) {
+				shouldPrintComma = false;
+				// Do comment stuff
+			} else {
+				shouldPrintComma = true;
+				
+				// Serialise the name of the current item
+				out << serializeString(this->lookupTable->getName(iterator->key)) << ": ";
+				
+				// Serialise the object
+				iterator->object->serializeHumanReadable(out, indent, it + 1);
 			}
-		}
+
+			// Iterate. We'll only proceed back to the comma if this doesn't equal the end.
+			++iterator;
+		} while (iterator != this->iend());					
+	
+		// Print end of list tag.
+		out << indent.breaker << indent.calcIndent(it) << "}";
 	}
-
- 	out << indent.breaker;
-
-	for(int n=0;n<it;n++) {
-		out << indent.indent;
-	}
-
-	out << "}";
 }
 
 void BdfNamedList::getLocationUses(int* locations) const noexcept
@@ -486,7 +483,7 @@ void BdfNamedList::getLocationUses(int* locations) const noexcept
 	}
 }
 
-std::string BdfNamedList::getNameOfKey(int key) {
+std::optional<std::string> BdfNamedList::getNameFromKey(int key) {
 	return this->lookupTable->getName(key);
 }
 
