@@ -122,6 +122,18 @@ namespace Bdf
 		 * Float array type objects contain an array of floats.
 		 */
 		const static char ARRAY_FLOAT = 17;
+		
+		/**
+		 * Represents a C++ style comment BdfObject.
+		 * @since 1.5.0
+		 */
+		const static char COMMENT_CPP_STYLE = 18;
+		
+		/**
+		 * Represents a C style comment BdfObject.
+		 * @since 1.5.0
+		 */
+		const static char COMMENT_C_STYLE = 19;
 	};
 }
 
