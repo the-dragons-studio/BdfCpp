@@ -23,10 +23,11 @@ namespace Bdf
 	 */
 	class BdfList
 	{		
-	private:
+	public:
 		class Item;
+	private:
 		class ItemIterator;
-	
+	public:
 		/** 
 		 * Subclass that represents an entry on a BdfList's linked list.
 		 * @internal
@@ -46,6 +47,7 @@ namespace Bdf
 		 */
 		Item* getAtIndex(uint64_t index) const;
 		
+	private:
 		/**
 		 * Iterator for BdfList Items.
 		 * @since 2.0.0
