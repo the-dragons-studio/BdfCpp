@@ -37,19 +37,21 @@ namespace Bdf {
 		this->flatMode = flatMode;
 	}
 	
-	void BdfCommentCStyle::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it) const {
-		std::size_t commentLinesSize = this->commentLines.size();
-		if (flatMode && commentLinesSize <= 1) {
-			if (commentLinesSize == 0) {
-				
-			}
-		}
-		auto iterator = this->commentLines.cbegin();
+	void BdfCommentCStyle::serializeHumanReadable(std::ostream &stream, const BdfIndent &foreignIndent, int it) const {
+		stream << std::string("/*");
 		
-		// Only proceed if there are actually comments to serialise
-		if (iterator != this->commentLines.cend()) {
-			
+		// If not flatMode, add dummy line at the start of the vector.
+		if (!this->flatMode) {
+			stream << this->indenter.indent;
 		}
+		
+		// Iterate through each stored comment line
+		for (std::string c : this->commentLines) {
+			stream << this->indenter.indent << c;
+			stream << foreignIndent.breaker << this->indenter.breaker << this->indenter.calcIndent(it);
+		}
+		
+		stream << std::string("*/") << foreignIndent.breaker;
 	}
 	
 	BdfCommentCStyle::~BdfCommentCStyle() noexcept = default;
