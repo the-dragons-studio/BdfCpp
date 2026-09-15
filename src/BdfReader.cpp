@@ -1,6 +1,8 @@
 
 #include "../include/Bdf.hpp"
 #include "../include/BdfHelpers.hpp"
+
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -143,6 +145,11 @@ BdfObject* BdfReader::getObject() {
 	return bdf;
 }
 
+BdfObject* BdfReader::getObject() const {
+	return this->bdf;
+}
+
+
 BdfObject* BdfReader::resetObject()
 {
 	delete bdf;
@@ -150,7 +157,7 @@ BdfObject* BdfReader::resetObject()
 	return bdf;
 }
 
-std::string BdfReader::serializeHumanReadable(const BdfIndent &indent)
+std::string BdfReader::serializeHumanReadable(const BdfIndent &indent) const
 {
 	std::stringstream stream;
 
@@ -159,16 +166,32 @@ std::string BdfReader::serializeHumanReadable(const BdfIndent &indent)
 	return stream.str();
 }
 
-std::string BdfReader::serializeHumanReadable() {
+std::string BdfReader::serializeHumanReadable() const {
 	return serializeHumanReadable(BdfIndent("", ""));
 }
 
-void BdfReader::serializeHumanReadable(std::ostream &stream) {
+void BdfReader::serializeHumanReadable(std::ostream &stream) const {
 	bdf->serializeHumanReadable(stream, BdfIndent("", ""), 0);
 	stream << "\n";
 }
 
-void BdfReader::serializeHumanReadable(std::ostream &stream, const BdfIndent &indent) {
+void BdfReader::serializeHumanReadable(std::ostream &stream, const BdfIndent &indent) const {
 	bdf->serializeHumanReadable(stream, indent, 0);
 	stream << "\n";
+}
+
+void BdfReader::serializeHumanReadable(const std::filesystem::path &outputFile, const BdfIndent &indent, bool truncate) const {
+	// Create a sink that will represent our outputFile.
+	std::ofstream ofstr(outputFile);
+	
+	// Use the streaming serialiser.
+	this->serializeHumanReadable(ofstr, indent);
+}
+
+void BdfReader::serializeHumanReadable(const std::filesystem::path &outputFile, bool truncate) const {
+	this->serializeHumanReadable(outputFile, {"", ""}, truncate);
+}
+
+void BdfReader::serializeHumanReadable(const std::filesystem::path &outputFile, const BdfIndent &indent) const {
+	this->serializeHumanReadable(outputFile, indent, true);
 }
