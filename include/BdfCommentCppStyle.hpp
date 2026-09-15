@@ -19,33 +19,44 @@ namespace Bdf {
 		/**
 		 * Creates a BdfCommentCppStyle comment which is empty.
 		 * The comment line delimiter will still be created.
+		 * @since 1.5.0
 		 */
-		BdfCommentCppStyle();
+		BdfCommentCppStyle(Bdf::BdfIndent indenter = {"", "\n"});
 		
 		/**
 		 * Creates a BdfCommentCppStyle comment that consists of the specified single line comment.
+		 * @since 1.5.0
 		 */
-		BdfCommentCppStyle(std::string commentText, Bdf::BdfIndent indenter = {"", ""}, bool flattenSingleLineComments = false);
+		BdfCommentCppStyle(std::string commentText, Bdf::BdfIndent indenter = {"", "\n"}, bool flatMode = false);
 		
 		/**
 		 * Creates a BdfCommentCppStyle comment that consists of all the lines given in the vector.
+		 * @since 1.5.0
 		 */
-		BdfCommentCppStyle(std::vector<std::string> commentLines, Bdf::BdfIndent indenter = {"", ""}, bool flattenSingleLineComments = false);
+		BdfCommentCppStyle(std::vector<std::string> commentLines, Bdf::BdfIndent indenter = {"", "\n"}, bool flatMode = false);
 		
 		/**
-		 * Deleted (no copy constructor).
+		 * Copies a BdfCommentCppStyle.
 		 */
-		BdfCommentCppStyle(const BdfCommentCppStyle& that) = delete;
+		BdfCommentCppStyle(const BdfCommentCppStyle&);
 		
 		/**
 		 * Destroys a BdfCommentCppStyle.
+		 * @since 1.5.0
 		 */
 		virtual ~BdfCommentCppStyle() noexcept;
 		
 		/**
-		 * Sets the comment text.
+		 * Copies the comment lines given at commentLines into this object.
+		 * @since 1.5.0
 		 */
-		void set(std::string commentText);
+		void setCommentLines(const std::vector<std::string> &commentLines);
+		
+		/**
+		 * Moves the comment lines given at commentLines into this object.
+		 * @since 1.5.0
+		 */
+		void setCommentLines(std::vector<std::string> &&commentLines);
 		
 		std::string get(std::string commentText) const noexcept;
 				
