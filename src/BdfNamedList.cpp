@@ -13,8 +13,9 @@ using namespace BdfHelpers;
 BdfNamedList::Item::~Item() {
 }
 
-BdfNamedList::Item::Item(int pKey, BdfObject* pObject, Item* pNext)
+BdfNamedList::Item::Item(int pKey, BdfObject* pObject, Item *pLast, Item* pNext)
 {
+	last = pLast;
 	next = pNext;
 	object = pObject;
 	key = pKey;
@@ -23,8 +24,8 @@ BdfNamedList::Item::Item(int pKey, BdfObject* pObject, Item* pNext)
 BdfNamedList::BdfNamedList(BdfLookupTable* pLookupTable, const char* data, int size)
 {
 	lookupTable = pLookupTable;
-	start = NULL;
-	end = &start;
+	startItem = NULL;
+	endItem = startItem;
 
 	int i = 0;
 
@@ -85,8 +86,8 @@ BdfNamedList::BdfNamedList(BdfLookupTable* lookupTable) : BdfNamedList(lookupTab
 
 BdfNamedList::BdfNamedList(BdfLookupTable* pLookupTable, BdfStringReader* sr)
 {
-	start = NULL;
-	end = &start;
+	startItem = NULL;
+	endItem = startItem;
 
 	lookupTable = pLookupTable;
 	sr->upto += 1;
@@ -156,7 +157,7 @@ BdfNamedList::~BdfNamedList()
 
 BdfNamedList* BdfNamedList::clear() noexcept
 {
-	Item* cur = this->start;
+	Item* cur = this->startItem;
 	Item* next;
 
 	while(cur != NULL)
@@ -175,7 +176,7 @@ BdfNamedList* BdfNamedList::clear() noexcept
 std::vector<int> BdfNamedList::keys() const noexcept
 {
 	std::vector<int> keys;
-	Item* cur = this->start;
+	Item* cur = this->startItem;
 	int size = 0;
 
 	while(cur != NULL)
@@ -185,7 +186,7 @@ std::vector<int> BdfNamedList::keys() const noexcept
 	}
 
 	keys.resize(size);
-	cur = this->start;
+	cur = this->startItem;
 
 	while(cur != NULL)
 	{
@@ -197,24 +198,54 @@ std::vector<int> BdfNamedList::keys() const noexcept
 }
 
 bool BdfNamedList::exists(std::string key) const noexcept {
-	return exists(lookupTable->getLocation(key));
+	return this->exists(this->lookupTable->getLocation(key));
 }
 
 bool BdfNamedList::exists(int key) const noexcept
 {
-	Item* cur = this->start;
+	// Return the operator bool() outcome of the resulting ItemIterator.
+	return bool(this->findItemIteratorFromKey(key));
+}
 
-	while(cur != NULL)
-	{
-		if(cur->key == key)
-		{
-			return true;
-		}
-
-		cur = cur->next;
+std::optional<std::string> BdfNamedList::getNameFromObject(Bdf::BdfObject *needle) {
+	std::optional<int> key(this->getKeyFromObject(needle));
+	
+	// If we manage to get a key, use it to look up the name.
+	if (key) {
+		return this->lookupTable->getName(*key);
 	}
+	
+	return std::nullopt;
+}
 
-	return false;
+std::optional<int> BdfNamedList::getKeyFromObject(Bdf::BdfObject *needle) {
+	// Bail immediately if we're given nullptr needle
+	if (needle) {
+		Bdf::BdfNamedList::ItemIterator iterator;
+		// Using our own for loop here
+		for (iterator = this->ibegin(); iterator != this->iend(); ++iterator) {
+			if (iterator->object == needle) {
+				return iterator->key;
+			}
+		}
+	}
+	
+	return std::nullopt;
+}
+
+Bdf::BdfNamedList::ItemIterator Bdf::BdfNamedList::findItemIteratorFromKey(int key) const noexcept {
+	// Get an ItemIterator
+	BdfNamedList::ItemIterator iterator;
+	
+	for (iterator = this->ibegin(); iterator != this->iend(); ++iterator) {
+		// See if the Item pointed at by iterator matches the given key.
+		if (iterator->key == key) {
+			// Return the matching ItemIterator straight away.
+			return iterator;
+		}
+	}
+	
+	return this->iend();
 }
 
 BdfNamedList* BdfNamedList::set(std::string key, BdfObject* v) noexcept {
@@ -223,33 +254,41 @@ BdfNamedList* BdfNamedList::set(std::string key, BdfObject* v) noexcept {
 
 BdfNamedList* BdfNamedList::set(int key, BdfObject* v) noexcept
 {
-	Item* cur = this->start;
-
-	while(cur != NULL)
-	{
-		if(cur->key == key)
-		{
-			delete cur->object;
-			cur->object = v;
-
-			return this;
-		}
-
-		cur = cur->next;
-	}
+	BdfNamedList::ItemIterator toSet = this->findItemIteratorFromKey(key);
 	
+	if (toSet) {
+		delete toSet->object;
+		toSet->object = v;
+		return this;
+	}
+
 	// If the requested key does not exist:
 	// Append our new item to the end.
-	Item* item = new Item(key, v, this->end, NULL);
+	Item* item = new Item(key, v, this->endItem, NULL);
 
-	*this->end = item;
-	this->end = &item->next;
-
+	// If no Item is the start item yet, point the start of the linked list to it.
+	if (!this->startItem) {
+		this->startItem = item;
+	}
+	
+	// If no Item is the start item yet, point the end of the linked list to it.
+	if (!this->endItem) {
+		this->endItem = item;
+	// Otherwise, we need to do linked list stuff.
+	} else {
+		Item *oldEndItem = this->endItem;
+		oldEndItem->next = item;
+		
+		// The new item already contains a pointer to oldEndItem as part of the constructor step
+		// We are now good to put our new pointer down.
+		this->endItem = item;
+	}
+	
 	return this;
 }
 
 BdfObject* BdfNamedList::remove(int key) noexcept {
-        return this->pop(key);
+    return this->pop(key);
 }
 
 BdfObject* BdfNamedList::remove(std::string key) noexcept {
@@ -258,26 +297,43 @@ BdfObject* BdfNamedList::remove(std::string key) noexcept {
 
 BdfObject* BdfNamedList::pop(int key) noexcept
 {
-	Item** cur = &this->start;
-
-	while(*cur != NULL)
-	{
-		if((*cur)->key == key)
-		{
-			BdfObject* object = (*cur)->object;
-			Item* next = (*cur)->next;
-
-			delete (*cur)->object;
-			delete *cur;
-
-			*cur = next;
-
-			return object;
+	BdfNamedList::ItemIterator toPop = this->findItemIteratorFromKey(key);
+	
+	if (toPop) {
+		// Store the pointer of the currently pointed at object.
+		BdfObject *toPopObject(toPop->object);
+		
+		// Store the iterator of the next object.
+		ItemIterator toPopNext(toPop++);
+		
+		// Store the pointer of the last object.
+		ItemIterator toPopLast(toPop--);
+		
+		// Delete toPop (not its object)
+		delete *toPop;
+		
+		// If there is a last object, set its next to toPopNext's
+		if (toPopLast) {
+			if (toPopNext) {
+				toPopLast->next = *toPopNext;
+			} else {
+				toPopLast->next = nullptr;
+			}
 		}
-
-		cur = &(*cur)->next;
+		
+		// If there is a next object, set its next to toPopLast's
+		if (toPopNext) {
+			if (toPopLast) {
+				toPopNext->last = *toPopLast;
+			} else {
+				toPopNext->last = nullptr;
+			}
+		}
+		
+		// In any case, return the now-orphaned object.
+		return toPopObject;
 	}
-
+	
 	return NULL;
 }
 
@@ -287,28 +343,22 @@ BdfObject* BdfNamedList::get(std::string key) {
 
 BdfObject* BdfNamedList::get(int key)
 {
-	Item* cur = this->start;
+	BdfNamedList::ItemIterator toGet = this->findItemIteratorFromKey(key);
 
-	while(cur != NULL)
-	{
-		if(cur->key == key)
-		{
-			return cur->object;
-		}
+	if (toGet) {
+		return toGet->object;
+	} else {
+		BdfObject* v = new BdfObject(lookupTable);
+		set(key, v);
 
-		cur = cur->next;
+		return v;
 	}
-
-	BdfObject* v = new BdfObject(lookupTable);
-	set(key, v);
-
-	return v;
 }
 
 int BdfNamedList::serializeSeeker(int* locations) const
 {
 	int size = 0;
-	Item* cur = this->start;
+	Item* cur = this->startItem;
 
 	while(cur != NULL)
 	{
@@ -332,7 +382,7 @@ int BdfNamedList::serializeSeeker(int* locations) const
 int BdfNamedList::serialize(char* data, int* locations) const
 {
 	int pos = 0;
-	Item* cur = this->start;
+	Item* cur = this->startItem;
 
 	while(cur != NULL)
 	{
@@ -376,7 +426,7 @@ int BdfNamedList::serialize(char* data, int* locations) const
 
 void BdfNamedList::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it) const
 {
-	if(this->start == NULL)
+	if(this->startItem == NULL)
 	{
 		out << "{}";
 		
@@ -385,7 +435,7 @@ void BdfNamedList::serializeHumanReadable(std::ostream &out, const BdfIndent &in
 
 	out << "{";
 
-	Item* cur = this->start;
+	Item* cur = this->startItem;
 
 	if(cur != NULL)
 	{
@@ -426,7 +476,7 @@ void BdfNamedList::serializeHumanReadable(std::ostream &out, const BdfIndent &in
 
 void BdfNamedList::getLocationUses(int* locations) const noexcept
 {
-	Item* cur = this->start;
+	Item* cur = this->startItem;
 
 	while(cur != NULL)
 	{
@@ -436,6 +486,180 @@ void BdfNamedList::getLocationUses(int* locations) const noexcept
 	}
 }
 
-std::string getNameOfKey(int key) {
+std::string BdfNamedList::getNameOfKey(int key) {
 	return this->lookupTable->getName(key);
+}
+
+BdfNamedList::Iterator BdfNamedList::begin() noexcept {
+	return Iterator(this->ibegin());
+}
+
+BdfNamedList::Iterator BdfNamedList::end() noexcept {
+	return Iterator(this->iend());
+}
+
+BdfNamedList::ConstIterator BdfNamedList::cbegin() const noexcept {
+	return ConstIterator(this->ibegin());
+}
+
+BdfNamedList::ConstIterator BdfNamedList::cend() const noexcept {
+	return ConstIterator(this->iend());
+}
+
+BdfNamedList::ItemIterator BdfNamedList::ibegin() const noexcept {
+	return ItemIterator(this->startItem);
+}
+
+BdfNamedList::ItemIterator BdfNamedList::iend() const noexcept {
+	return ItemIterator(nullptr);
+}
+
+BdfNamedList::ItemIterator::ItemIterator(): p(nullptr) {}
+
+BdfNamedList::ItemIterator::ItemIterator(Item *p): p(p) {}
+
+BdfNamedList::Item* BdfNamedList::ItemIterator::operator*() const noexcept {
+	return p;
+}
+
+BdfNamedList::Item* BdfNamedList::ItemIterator::operator->() const noexcept {
+	return p;
+}
+
+BdfNamedList::ItemIterator& BdfNamedList::ItemIterator::operator++() {
+	if (this->isValid()) {
+		this->p = this->p->next;
+	}
+	return *this;
+}
+
+BdfNamedList::ItemIterator BdfNamedList::ItemIterator::operator++(int) {
+	ItemIterator tmp = *this;
+	++tmp;
+	return tmp;
+}
+
+BdfNamedList::ItemIterator& BdfNamedList::ItemIterator::operator--() {
+	if (this->isValid()) {
+		this->p = this->p->last;
+	}
+	return *this;
+}
+
+BdfNamedList::ItemIterator BdfNamedList::ItemIterator::operator--(int) {
+	ItemIterator tmp = *this;
+	--tmp;
+	return tmp;
+}
+
+bool BdfNamedList::ItemIterator::isValid() const noexcept {
+	return (this->p != nullptr);
+}
+
+BdfNamedList::ItemIterator::operator bool() const noexcept {
+	return this->isValid();
+}
+
+BdfNamedList::ConstIterator::ConstIterator() {}
+
+BdfNamedList::ConstIterator::ConstIterator(const BdfNamedList::ItemIterator &p): p(p) {}
+
+const BdfObject* BdfNamedList::ConstIterator::operator*() const noexcept {
+	if (this->isValid()) {
+		return this->p->object;
+	} else {
+		return nullptr;
+	}
+}
+
+const BdfObject* BdfNamedList::ConstIterator::operator->() const noexcept {
+	if (this->isValid()) {
+		return this->p->object;
+	} else {
+		return nullptr;
+	}
+}
+
+BdfNamedList::ConstIterator& BdfNamedList::ConstIterator::operator++() {
+	++(this->p);
+	return *this;
+}
+
+BdfNamedList::ConstIterator BdfNamedList::ConstIterator::operator++(int) {
+	ConstIterator tmp = *this;
+	++tmp;
+	return tmp;
+}
+
+BdfNamedList::ConstIterator& BdfNamedList::ConstIterator::operator--() {
+	--(this->p);
+	return *this;
+}
+
+BdfNamedList::ConstIterator BdfNamedList::ConstIterator::operator--(int) {
+	ConstIterator tmp = *this;
+	++tmp;
+	return tmp;
+}
+
+bool BdfNamedList::ConstIterator::isValid() const noexcept {
+	return (this->p.isValid() && this->p->object != nullptr);
+}
+
+BdfNamedList::BdfNamedList::ConstIterator::operator bool() const noexcept {
+	return this->isValid();
+}
+
+BdfNamedList::Iterator::Iterator() {}
+
+BdfNamedList::Iterator::Iterator(const ItemIterator& p): p(p) {}
+
+BdfObject* BdfNamedList::Iterator::operator*() const noexcept {
+	if (this->isValid()) {
+		return this->p->object;
+	} else {
+		return nullptr;
+	}
+}
+
+BdfObject* BdfNamedList::Iterator::operator->() const noexcept {
+	if (this->isValid()) {
+		return this->p->object;
+	} else {
+		return nullptr;
+	}
+}
+
+BdfNamedList::Iterator& BdfNamedList::Iterator::operator++() {
+	++(this->p);
+	return *this;
+}
+
+BdfNamedList::Iterator BdfNamedList::Iterator::operator++(int) {
+	Iterator tmp(std::move(*this));
+	++tmp;
+	return tmp;
+}
+
+BdfNamedList::Iterator& BdfNamedList::Iterator::operator--() {
+	--(this->p);
+	return *this;
+}
+
+BdfNamedList::Iterator BdfNamedList::Iterator::operator--(int) {
+	Iterator tmp(std::move(*this));
+	--tmp;
+	return tmp;
+}
+
+bool BdfNamedList::Iterator::isValid() const noexcept {
+	return (this->p.isValid() && this->p->object != nullptr);
+}
+
+BdfNamedList::Iterator::operator bool() const noexcept {
+	return this->isValid();
+}
+
+BdfNamedList::Iterator::operator ConstIterator() const noexcept {
+	return BdfNamedList::ConstIterator(this->p);
 }

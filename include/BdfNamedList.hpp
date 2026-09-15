@@ -3,10 +3,11 @@
 #define BDFNAMEDLIST_HPP_
 
 #include "Bdf.hpp"
-#include <iostream>
-#include <vector>
-#include <string>
 #include <algorithm>
+#include <iostream>
+#include <optional>
+#include <string>
+#include <vector>
 
 namespace Bdf
 {
@@ -33,16 +34,104 @@ namespace Bdf
 		class Item
 		{
 		public:
+			Item* last;
 			Item* next;
 			BdfObject* object;
 			int key;
+			std::string name;
 		
-			Item(int key, BdfObject* object, Item* next);
+			Item(int key, BdfObject* object, Item* prev, Item* next);
 			virtual ~Item();
 		};
 		
-		Item* start;
-		Item** end;
+		/**
+		 * Iterator for BdfList Items.
+		 * @since 1.5.0
+		 * @internal
+		 */
+		struct ItemIterator {
+			friend class BdfNamedList;
+			
+			using value_type = Item*;
+			using iterator_category = std::bidirectional_iterator_tag;
+			using difference_type = std::ptrdiff_t;
+			
+			/**
+			 * Creates a blank ItemIterator.
+			 */
+			ItemIterator();			
+			
+			/**
+			 * Creates a new iterator from a pointer.
+			 */
+			explicit ItemIterator(Item *p);
+			
+			/**
+			 * Gets a pointer to the item.
+			 */
+			Item* operator*() const noexcept;
+			
+			/**
+			 * Gets a pointer to the item.
+			 */
+			Item* operator->() const noexcept;
+			
+			/**
+			 * Prefix increments the Iterator.
+			 */
+			ItemIterator& operator++();
+			
+			/**
+			 * Postfix increments the Iterator.
+			 */
+			ItemIterator operator++(int);
+			
+			/**
+			 * Prefix decrements the Iterator.
+			 */
+			ItemIterator& operator--();
+			
+			/**
+			 * Postfix decrements the Iterator.
+			 */
+			ItemIterator operator--(int);
+			
+			/**
+			 * Checks if the iterator points at valid data.
+			 */
+			bool isValid() const noexcept;
+			
+			/**
+			 * Checks if the iterator points at valid data.
+			 * Effectively calls this->isValid().
+			 */
+			explicit operator bool() const noexcept;
+				
+			friend auto operator<=>(const ItemIterator&, const ItemIterator&) = default;
+			
+			private:
+			Item* p;
+		};
+		
+		/**
+		 * Returns an ItemIterator to the starting item.
+		 */
+		ItemIterator ibegin() const noexcept;
+		
+		/**
+		 * Returns an ItemIterator to nullptr.
+		 */
+		ItemIterator iend() const noexcept;
+		
+		/**
+		 * Finds the ItemIterator corresponding to the given key.
+		 * @since 1.5.0
+		 * @internal
+		 */
+		ItemIterator findItemIteratorFromKey(int key) const noexcept;
+		
+		Item* startItem;
+		Item* endItem;
 
 		BdfLookupTable* lookupTable;
 
@@ -53,6 +142,7 @@ namespace Bdf
 		 * @unstable
 		 */
 		std::string getNameOfKey(int key);
+		
 		/**
 		 * Constructs an empty BdfList which will use the lookup table at lookupTable for further operations.
 		 * @internal
@@ -219,6 +309,220 @@ namespace Bdf
 		 * @since 1.0
 		 */
 		bool exists(int key) const noexcept;
+		
+		/**
+		 * Finds the name of the object that one can then retrieve the BdfObject from BdfNamedList::get() by.
+		 * If none exists (either because the object does not exist in the BdfNamedList, or the needle is nulltpr,
+		 * return std::nullopt.
+		 * @since 1.5.0
+		 */
+		std::optional<std::string> getNameFromObject(Bdf::BdfObject *needle);
+		
+		/**
+		 * Finds the key of the object that one can then retrieve the BdfObject from BdfNamedList::get() by.
+		 * If none exists (either because the object does not exist in the BdfNamedList, or the needle is nulltpr,
+		 * return std::nullopt.
+		 * @since 1.5.0
+		 */
+		std::optional<int> getKeyFromObject(Bdf::BdfObject *needle);
+		
+		/**
+		 * A const iterator for BdfNamedList.
+		 *
+		 * BdfNamedList objects can be traversed using iterators as an alternative to key finding.
+		 * All iterators in BdfNamedList satisfy std::bidirectional_iterator.
+		 *
+		 * Unlike modifiabale Iterator objects, ConstIterator objects can always be obtained
+		 * regardless of the const-ness of the BdfList. ConstIterators cannot be implicitly
+		 * converted to modifiable Iterators, but the opposite is true; modifiable Iterators
+		 * can be converted to ConstIterators.
+		 *
+		 * @since 1.5.0
+		 */
+		struct ConstIterator {
+			friend class BdfNamedList;
+			using value_type = const BdfObject*;
+			using iterator_category = std::bidirectional_iterator_tag;
+			using difference_type = std::ptrdiff_t;
+			
+			/**
+			 * Creates a blank ConstIterator.
+			 */
+			ConstIterator();
+			
+			/**
+			 * Creates a new iterator from a pointer.
+			 */
+			explicit ConstIterator(const ItemIterator &p);
+			
+			/**
+			 * Dereferences the BdfObject.
+			 * @return a pointer to a BdfObject that cannot be modified.
+			 */
+			const BdfObject* operator*() const noexcept;
+			
+			/**
+			 * Dereferences the BdfObject.
+			 * @return a pointer to a BdfObject that cannot be modified.
+			 */
+			const BdfObject* operator->() const noexcept;
+			
+			/**
+			 * Prefix increments the ConstIterator.
+			 * Using this operator on a nullptr iterator is well-defined; it simply becomes a no-op.
+			 */
+			ConstIterator& operator++();
+			
+			/**
+			 * Postfix increments the ConstIterator, and returns a new ConstIterator.
+			 * Using this operator on a nullptr iterator is well-defined; it simply becomes a no-op.
+			 */
+			ConstIterator operator++(int);
+			
+			/**
+			 * Prefix decrements the ConstIterator.
+			 * Using this operator on a nullptr iterator is well-defined; it simply becomes a no-op.
+			 */
+			ConstIterator& operator--();
+			
+			/**
+			 * Postfix decrements the ConstIterator.
+			 * Using this operator on a nullptr iterator is well-defined; it simply becomes a no-op.
+			 */
+			ConstIterator operator--(int);
+			
+			/**
+			 * Checks if the iterator points at valid data.
+			 * Equivalent to isValid().
+			 * @return true if both the stored iterator are valid and its object is not nullptr, false if one or both conditions are not met.
+			 */
+			explicit operator bool() const noexcept;
+			
+			/**
+			 * Checks if the iterator points at valid data.
+			 * @return true if both the stored ItemIterator are valid and its object is not nullptr, false if one or both conditions are not met.
+			 */
+			bool isValid() const noexcept;
+			
+			friend auto operator<=>(const ConstIterator&, const ConstIterator&) = default;
+			
+			private:
+			ItemIterator p;
+		};
+		
+		/**
+		 * Returns an iterator to the starting object.
+		 */
+		ConstIterator cbegin() const noexcept;
+		
+		/**
+		 * Returns an iterator to nullptr.
+		 */
+		ConstIterator cend() const noexcept;
+		
+		static_assert(std::bidirectional_iterator<ConstIterator>);
+		
+		/**
+		 * A modifiable iterator for BdfList.
+		 *
+		 * BdfList objects can be traversed using iterators as an alternative to key finding.
+		 * All iterators in BdfList satisfy std::bidirectional_iterator.
+		 *
+		 * Modifiable Iterator objects cannot be obtained with const BdfList objects. Instead,
+		 * you can use ConstIterator. Modifiable Iterator is also implicitly convertible to
+		 * ConstIterator. If you don't need to modify the data using an iterator, prefer
+		 * ConstIterator.
+		 *
+		 * @since 1.5.0
+		 */
+		struct Iterator {
+			friend class BdfNamedList;
+			using value_type = BdfObject*;
+			using iterator_category = std::bidirectional_iterator_tag;
+			using difference_type = std::ptrdiff_t;
+			
+			/**
+			 * Creates a blank Iterator.
+			 */
+			Iterator();
+			
+			/**
+			 * Creates a new iterator from a pointer.
+			 */
+			explicit Iterator(const ItemIterator &p);
+			
+			/**
+			 * Dereferences the BdfObject contained in the iterator.
+			 */
+			BdfObject* operator*() const noexcept;
+			
+			/**
+			 * Dereferences the BdfObject contained in the iterator.
+			 */
+			BdfObject* operator->() const noexcept;
+			
+			/**
+			 * Prefix increments the Iterator.
+			 */
+			Iterator& operator++();
+			
+			/**
+			 * Postfix increments the Iterator.
+			 */
+			Iterator operator++(int);
+			
+			/**
+			 * Prefix decrements the Iterator.
+			 */
+			Iterator& operator--();
+			
+			/**
+			 * Postfix decrements the Iterator.
+			 */
+			Iterator operator--(int);
+			
+			/**
+			 * Checks if the iterator points at valid data.
+			 * Equivalent to isValid().
+			 * @return true if both the stored ItemIterator are valid and its object is not nullptr, false if one or both conditions are not met.
+			 */
+			explicit operator bool() const noexcept;
+			
+			/**
+			 * Checks if the iterator points at valid data.
+			 * @return true if both the stored ItemIterator are valid and its object is not nullptr, false if one or both conditions are not met.
+			 */
+			bool isValid() const noexcept;
+			
+			/**
+			 * Implicitly converts a modifiable Iterator to a ConstIterator.
+			 */
+			operator ConstIterator() const noexcept;
+			
+			/**
+			 * Provides three-way comparison for Iterator objects.
+			 * @since 1.5.0
+			 */
+			friend auto operator<=>(const Iterator&, const Iterator&) = default;
+			
+			private:
+			/** 
+			 * The interal ItemIterator held by the iterator.
+			 * @since 1.5.0
+			 * @internal
+			 */
+			ItemIterator p;
+		};
+				
+		/**
+		 * Returns an iterator to the starting object.
+		 */
+		Iterator begin() noexcept;
+		
+		/**
+		 * Returns an iterator to nullptr.
+		 */
+		Iterator end() noexcept;
 	};
 }
 
