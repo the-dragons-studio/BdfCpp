@@ -54,6 +54,12 @@ namespace Bdf
 		template<typename T> static std::partial_ordering comparePrimitiveArrays(T** lhs, T** rhs, size_t lhsSize, size_t rhsSize) noexcept; 
 		#endif
 		
+		/**
+		 * @since 1.5.0
+		 * @unstable, will take the place of getString() in 2.0.0 onwards
+		 */
+		std::optional<std::string> getStringConst() const noexcept;
+		
 	public:
 	
 		/**
@@ -127,7 +133,7 @@ namespace Bdf
 		/**
   		 * @internal
          */
-		void serializeHumanReadable(std::ostream &stream, const BdfIndent &indent, int upto);
+		void serializeHumanReadable(std::ostream &stream, const BdfIndent &indent, int upto) const;
 
 		/**
   		 * @internal
@@ -164,14 +170,14 @@ namespace Bdf
 		
 		/**
 		 * Creates a new BdfNamedList based on this object's BdfLookupTable.
-		 * Unlike getOrNewNamedList(), this method does not modify the original object's type or data.
+		 * Unlike coerceNamedList(), this method does not modify the original object's type or data.
 		 * @since 1.0
 		 */
 		BdfNamedList* newNamedList() const;
 		
 		/**
 		 * Creates a new BdfList based on this object's BdfLookupTable.
-		 * Unlike getOrNewList(), this method does not modify the original object's type or data.
+		 * Unlike coerceList(), this method does not modify the original object's type or data.
 		 * @since 1.0
 		 */
 		BdfList* newList() const;
@@ -342,6 +348,14 @@ namespace Bdf
 		BdfList* getList();
 		
 		/**
+		 * Attempts to cast the object to a BdfList. If the object is not already a list, it is converted to one, and all data in the
+   		 * original will be lost.
+		 * @return a pointer to a BdfList; the current one associated with this object if already a list, or a brand new one if converted.
+		 * @since 1.5.0
+		 */
+		BdfList* coerceList();
+		
+		/**
 		 * Attempts to cast the object to a BdfNamedList. If the object is not already a named list, it is converted to one, and all data in the
    		 * original will be lost.
 		 * @return a pointer to a BdfNamedList; the current one associated with this object if already a named list, or a brand new one if converted.
@@ -349,6 +363,40 @@ namespace Bdf
          *          nullptr if the object is not already a list.
 		 */
 		BdfNamedList* getNamedList();
+		
+		/**
+		 * Attempts to cast the object to a BdfNamedList. If the object is not already a named list, it is converted to one, and all data in the
+   		 * original will be lost.
+		 * @return a pointer to a BdfNamedList; the current one associated with this object if already a named list, or a brand new one if converted.
+		 * @since 1.5.0
+		 */
+		BdfNamedList* coerceNamedList();
+		
+		/**
+		 * Attempts to cast the object to a BdfCommentCppStyle. If the object is not already one, return nullptr.
+		 * @since 1.5.0
+		 */
+		BdfCommentCppStyle* getCommentCppStyle() const;
+		
+		/**
+		 * Attempts to cast the object to a BdfCommentCppStyle. If the object is not already one, it is converted to one, and all data in the
+		 * original will be lost.
+		 * @since 1.5.0
+		 */
+		BdfCommentCppStyle* coerceCommentCppStyle() noexcept;
+		
+		/**
+		 * Attempts to cast the object to a BdfCommentCStyle. If the object is not already one, return nullptr.
+		 * @since 1.5.0
+		 */
+		BdfCommentCStyle* getCommentCStyle() const;
+		
+		/**
+		 * Attempts to cast the object to a BdfCommentCStyle. If the object is not already one, it is converted to one, and all data in the
+		 * original will be lost.
+		 * @since 1.5.0
+		 */
+		BdfCommentCStyle* coerceCommentCStyle() noexcept;
 	
 		// Set
 	
@@ -524,26 +572,22 @@ namespace Bdf
    		 * @since 1.4.0
 		 */
 		BdfNamedList* newSetAndGetNamedList();
-
-		/**
-		 * If this is a BdfList, returns it. Otherwise, the object is automatically converted to a list.
-		 * All data in the original will be lost.
-   		 * @return a pointer to a BdfList; the current one associated with this object if already a named list, or a brand new one if converted.
-		 * @note In this version, this method does the same thing as getList(); however, it is recommended that callers switch to calling
-		 *       this method over getList(), as its behaviour will change in 2.0.0.
-   		 * @since 1.4.0
-		 */
-		BdfList* getOrNewList();
 		
 		/**
-		 * If this is a BdfNamedList, returns it. Otherwise, the object is automatically converted to a named list.
-		 * All data in the original will be lost.
-   		 * @return a pointer to a BdfNamedList; the current one associated with this object if already a named list, or a brand new one if converted.
-		 * @note In this version, this method does the same thing as getNamedList(); however, it is recommended that callers switch to calling
-		 *       this method over getNamedList(), as its behaviour will change in 2.0.0.
-   		 * @since 1.4.0
+		 * Sets this BdfObject to a blank BdfCommentCStyle, and returns that BdfCommentCStyle.
+		 * All data in the original object will be lost.
+		 * @return a pointer to the new BdfCommentCStyle that was written to this BdfObject.
+   		 * @since 1.5.0
 		 */
-		BdfNamedList* getOrNewNamedList();
+		BdfCommentCStyle* startCommentCStyle();
+		
+		/**
+		 * Sets this BdfObject to a new BdfCommentCStyle with the given parameters, and returns that BdfCommentCStyle.
+		 * All data in the original object will be lost.
+		 * @return a pointer to the new BdfCommentCStyle that was written to this BdfObject.
+   		 * @since 1.5.0
+		 */
+		BdfCommentCStyle* startCommentCStyle(std::vector<std::string> commentLines, Bdf::BdfIndent indenter, bool flattenSingleLineComments);
 		
 		#if __cplusplus >= 202002L
 		/**
