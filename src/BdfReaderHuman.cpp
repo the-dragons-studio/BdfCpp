@@ -1,6 +1,8 @@
 
 #include "../include/Bdf.hpp"
 #include "../include/BdfHelpers.hpp"
+
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -10,6 +12,7 @@
 using namespace Bdf;
 using namespace BdfHelpers;
 
+// template<class T_BASIC_STRING>
 BdfReaderHuman::BdfReaderHuman(const std::wstring &data)
 {
 	// Make a BdfStringReader from the given data.
@@ -39,4 +42,16 @@ BdfReaderHuman::BdfReaderHuman(const std::wstring &data)
 
 BdfReaderHuman::BdfReaderHuman(const std::string &data) : BdfReaderHuman(
 	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(data)) {
+}
+
+BdfReaderHuman::BdfReaderHuman(const std::filesystem::path &location):
+	BdfReaderHuman(this->prepareBufferFromFilesystemPath(location)) {
+}
+	
+std::wstring BdfReaderHuman::prepareBufferFromFilesystemPath(const std::filesystem::path &location) const {
+	std::ifstream fileStream(location);
+	std::wstringstream buffer;
+	buffer << fileStream.rdbuf();
+	
+	return buffer.str();
 }

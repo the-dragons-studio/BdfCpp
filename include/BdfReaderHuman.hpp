@@ -2,6 +2,7 @@
 #ifndef BDFREADERHUMAN_HPP_
 #define BDFREADERHUMAN_HPP_
 
+#include <filesystem>
 #include <string>
 
 namespace Bdf
@@ -38,6 +39,21 @@ namespace Bdf
 		 * @since 1.0
 		 */
 		BdfReaderHuman(const std::wstring &data);
+		
+		/**
+		 * Initialises a BdfReaderHuman object by parsing the file located at data as human-readable BDF data.
+		 * @param data wide-encoded text representing human-readable BDF data.
+		 * @throw BdfError if data could not be parsed.
+		 * @since 1.5.0
+		 */
+		explicit BdfReaderHuman(const std::filesystem::path &location);
+
+	protected:
+		/**
+		 * Helper method for preparing a buffer in a way that can be delegated to the BdfReaderHuman(const std::wstring&)
+		 * constructor.
+		 */
+		std::wstring prepareBufferFromFilesystemPath(const std::filesystem::path &location) const;
 	};
 }
 
