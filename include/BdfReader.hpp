@@ -3,6 +3,8 @@
 #define BDFREADER_HPP_
 
 #include "Bdf.hpp"
+
+#include <filesystem>
 #include <iostream>
 #include <string>
 
@@ -114,6 +116,8 @@ namespace Bdf
 		 */
 		BdfObject* getObject();
 		
+		BdfObject* getObject() const;
+		
 		/**
 		 * Resets the BdfObject currently associated with this reader and returns a new, undefined
 		 * object.
@@ -132,7 +136,7 @@ namespace Bdf
 		 * to human-readable string data using the indenter provided at indent.
    		 * @since 1.0
 		 */
-		std::string serializeHumanReadable(const BdfIndent &indent);
+		std::string serializeHumanReadable(const BdfIndent &indent) const;
 		
 		/**
 		 * Serialises human-readable BDF data and returns it as a string.
@@ -140,7 +144,7 @@ namespace Bdf
 		 * to human-readable string data.
    		 * @since 1.0
 		 */
-		std::string serializeHumanReadable();
+		std::string serializeHumanReadable() const;
 		
 		/**
 		 * Streams human-readable BDF data representing the BdfObject contained in the reader
@@ -148,7 +152,7 @@ namespace Bdf
    		 * @param stream an output stream to which human-readable BDF data will be sent.
    		 * @since 1.0
 		 */
-		void serializeHumanReadable(std::ostream &stream);
+		void serializeHumanReadable(std::ostream &stream) const;
 		
 		/**
 		 * Streams human-readable BDF data representing the BdfObject contained in the reader
@@ -157,7 +161,36 @@ namespace Bdf
 	         * @param indent settings used for indenting the human-readable BDF data.
    		 * @since 1.0
 		 */
-		void serializeHumanReadable(std::ostream &stream, const BdfIndent &indent);  
+		void serializeHumanReadable(std::ostream &stream, const BdfIndent &indent) const;  
+		
+		/**
+		 * Streams human-readable BDF data representing the BdfObject contained in the reader
+		 * to the file located at location, indented using the BdfIndent provided at indent.
+		 * @param outputFile The location of the file which BDF data is to be written to.
+		 * @param indent Settings used for indenting the human-readable BDF data.
+		 * @param truncate Whether any existing file located at outputFile should be truncated.
+		 * @since 1.5.0
+		 */
+		void serializeHumanReadable(const std::filesystem::path &outputFile, const BdfIndent &indent, bool truncate) const;
+		
+		/**
+		 * Streams human-readable  BDF data representing the BdfObject contained in the reader
+		 * to the file located at location.
+		 * Assumes a minified indenter.
+		 * @param outputFile The location of the file which BDF data is to be written to.
+		 * @param truncate Whether any existing file located at outputFile should be truncated.
+		 * @since 1.5.0
+		 */
+		void serializeHumanReadable(const std::filesystem::path &outputFile, bool truncate = true) const;
+		
+		/**
+		 * Streams human-readable BDF data representing the BdfObject contained in the reader
+		 * to the file located at location, indented using the BdfIndent provided at indent.
+		 * @param outputFile The location of the file which BDF data is to be written to.
+		 * @param indent Settings used for indenting the human-readable BDF data.
+		 * @since 1.5.0
+		 */
+		void serializeHumanReadable(const std::filesystem::path &outputFile, const BdfIndent &indent) const;
 	};
 }
 

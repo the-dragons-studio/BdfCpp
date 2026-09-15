@@ -302,9 +302,7 @@ int main(int argc, char** argv)
 				reader->serializeHumanReadable(std::cout, getIndenter());
 			} else {
 				// checkOutputFileDirectory(outputFile);
-				
-				std::ofstream ofstr(outputFile);
-				reader->serializeHumanReadable(ofstr, getIndenter());
+				reader->serializeHumanReadable(outputFile, getIndenter());
 			}
 		}		
 	} catch (std::exception &e) {

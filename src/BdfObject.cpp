@@ -955,7 +955,7 @@ void decimalToStream(std::ostream &out, float v)
 	}
 }
 
-void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it)
+void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it) const
 {
 	switch (type)
 	{
@@ -972,7 +972,7 @@ void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &inden
 		}
 
 		case BdfTypes::STRING: {
-			out << serializeString(getString());
+			out << serializeString(*this->getStringConst());
 			return;
 		}
 
@@ -1164,6 +1164,17 @@ void BdfObject::serializeHumanReadable(std::ostream &out, const BdfIndent &inden
 			out << indent.breaker << indent.calcIndent(it - 1) << ")";
 
 			delete[] v;
+			return;
+		}
+		
+		// Comments
+		case BdfTypes::COMMENT_CPP_STYLE: {
+			((BdfCommentCppStyle*)object)->serializeHumanReadable(out, indent, it);
+			return;
+		}
+		
+		case BdfTypes::COMMENT_C_STYLE: {
+			((BdfCommentCStyle*)object)->serializeHumanReadable(out, indent, it);
 			return;
 		}
 
@@ -1436,7 +1447,23 @@ std::string BdfObject::getString()
 	return *v;
 }
 
-BdfList* BdfObject::getList()
+std::optional<std::string> BdfObject::getStringConst() const noexcept {
+	std::string* v;
+
+	if(type == BdfTypes::STRING) {
+		v = (std::string*)object;
+	} else {
+		return std::nullopt;
+	}
+	
+	return *v;
+}
+
+BdfList* BdfObject::getList() {
+	return this->coerceList();
+}
+
+BdfList* BdfObject::coerceList()
 {
 	BdfList* v;
 
@@ -1455,7 +1482,11 @@ BdfList* BdfObject::getList()
 	return v;
 }
 
-BdfNamedList* BdfObject::getNamedList()
+BdfNamedList* BdfObject::getNamedList() {
+	return this->coerceNamedList();
+}
+
+BdfNamedList* BdfObject::coerceNamedList()
 {
 	BdfNamedList* v;
 
@@ -1471,6 +1502,27 @@ BdfNamedList* BdfObject::getNamedList()
 
 	type = BdfTypes::NAMED_LIST;
 	object = v;
+	return v;
+}
+
+BdfCommentCppStyle* BdfObject::getCommentCppStyle() const {
+	if (type == BdfTypes::COMMENT_CPP_STYLE) {
+		return (BdfCommentCppStyle*)this->object;
+	} else {
+		return nullptr;
+	}
+}
+
+BdfCommentCppStyle* BdfObject::coerceCommentCppStyle() noexcept {
+	BdfCommentCppStyle* v = this->getCommentCppStyle();
+	
+	if (!v) {
+		this->freeAll();
+		v = new BdfCommentCppStyle();
+		type = BdfTypes::COMMENT_CPP_STYLE;
+		this->object = v;
+	}
+	
 	return v;
 }
 
@@ -1699,22 +1751,6 @@ BdfNamedList* BdfObject::newSetAndGetNamedList() {
 BdfList* BdfObject::newSetAndGetList() {
 	this->setList(this->newList());
 	return this->getList();
-}
-
-BdfNamedList* BdfObject::getOrNewNamedList() {
-	if (this->type == BdfTypes::NAMED_LIST) {
-		return this->getNamedList();
-	}
-	
-	return this->newSetAndGetNamedList();
-}
-
-BdfList* BdfObject::getOrNewList() {
-	if (this->type == BdfTypes::LIST) {
-		return this->getList();
-	}
-	
-	return this->newSetAndGetList();
 }
 
 std::partial_ordering BdfObject::operator<=>(BdfObject& rhs) noexcept {
