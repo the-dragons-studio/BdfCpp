@@ -88,6 +88,10 @@ if(BUILD_EXAMPLES)
 	add_dependencies(tests bdf)
 	target_link_libraries(tests bdf stdc++exp)
 	
+	# test_serialisation
+	add_executable(tests_serialisation examples/tests_serialisation.cpp)
+	add_dependencies(tests_serialisation bdf)
+	target_link_libraries(tests_serialisation bdf stdc++exp)
 endif(BUILD_EXAMPLES)
 
 if(BUILD_TOOLS)
