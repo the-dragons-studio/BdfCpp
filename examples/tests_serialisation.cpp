@@ -58,8 +58,20 @@ int main() {
 	Bdf::BdfReader reader;
 	Bdf::BdfObject *bdf(reader.getObject());
 	
+	// Test serialising booleans
+	bdf->setBoolean(true);
+	test(reader, false);
+	
+	bdf->setBoolean(false);
+	test(reader, false);
+	
 	// Test that C++ style comments work
 	bdf->coerceCommentCppStyle()->setCommentLines({"Hello", "World!"});
 	test(reader, false);
 	
+	// Test a BdfList containing a string, plus a comments
+	bdf->coerceList()->reserve(2);
+	bdf->getList()->get(0)->setString("This list has a comment!");
+	bdf->getList()->get(1)->coerceCommentCppStyle()->setCommentLines({"Hello", "World!"});
+	test(reader, false);
 }
