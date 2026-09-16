@@ -388,8 +388,9 @@ int BdfList::serialize(char *data, int* locations) const
 
 void BdfList::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it)
 {
+	bool lastLoopWasNonComment;
 	// Get an iterator (only need const)
-	BdfList::Iterator iterator = this->begin();
+	BdfList::ItemIterator iterator = this->ibegin();
 	
 	// Bail immediately if the iterator is invalid (i.e. the list is empty)
 	if(!iterator)
@@ -397,31 +398,37 @@ void BdfList::serializeHumanReadable(std::ostream &out, const BdfIndent &indent,
 		out << "[]";
 		
 		return;
-	}
+	} else {
+		// Print start of list tag.
+		out << "[";
 
-	// Print start of list tag.
-	out << "[";
-
-	if(iterator) {
 		do {
 			// For the second and onward iterations, print a comma separator. 
-			if (iterator != this->begin()) {
+			if (lastLoopWasNonComment && this->serializeHumanReadableShouldPrintComma(iterator)) {
 				out << ", ";
 			}
 
 			// Print a breaker and indenter.
 			out << indent.breaker << indent.calcIndent(it);
-
-			// Get the iterator's BdfObject's serialisation.
-			iterator->serializeHumanReadable(out, indent, it + 1);
 			
+			if (iterator->object->getType() == BdfTypes::COMMENT_CPP_STYLE || iterator->object->getType() == BdfTypes::COMMENT_C_STYLE) {
+				lastLoopWasNonComment = false;
+				out << indent.breaker;
+				iterator->object->serializeHumanReadable(out, indent, it + 1);
+			} else {
+				lastLoopWasNonComment = true;
+
+				// Serialise the object
+				iterator->object->serializeHumanReadable(out, indent, it + 1);
+			}
+
 			// Iterate. We'll only proceed back to the comma if this doesn't equal the end.
 			++iterator;
-		} while (iterator != this->end());					
-	}
+		} while (iterator != this->iend());					
 	
-	// Print end of list tag.
- 	out << indent.breaker << indent.calcIndent(it) << "]";
+		// Print end of list tag.
+		out << indent.breaker << indent.calcIndent(it) << "]";
+	}
 }
 
 uint64_t BdfList::size() const noexcept {
@@ -538,6 +545,21 @@ BdfList::ItemIterator BdfList::ibegin() const noexcept {
 
 BdfList::ItemIterator BdfList::iend() const noexcept {
 	return ItemIterator(nullptr);
+}
+
+bool Bdf::BdfList::serializeHumanReadableShouldPrintComma(ItemIterator iterator) const noexcept {
+	// We determine if a comma is required by checking to see if any non-comment items
+	// including the current iterator are found.
+	
+	while (iterator) {
+		if (iterator->object->getType() != BdfTypes::COMMENT_CPP_STYLE && iterator->object->getType() != BdfTypes::COMMENT_C_STYLE) {
+			return true;
+		}
+		
+		++iterator;
+	}
+	
+	return false;
 }
 
 BdfList::ItemIterator::ItemIterator(): p(nullptr) {}

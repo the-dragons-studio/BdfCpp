@@ -130,6 +130,11 @@ namespace Bdf
 		 */
 		ItemIterator findItemIteratorFromKey(int key) const noexcept;
 		
+		/**
+		 * Returns true if a comma is required after the current element.
+		 */
+		bool serializeHumanReadableShouldPrintComma(ItemIterator iterator) const noexcept;
+		
 		Item* startItem;
 		Item* endItem;
 

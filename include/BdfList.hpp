@@ -127,7 +127,14 @@ namespace Bdf
 		/**
 		 * Returns an ItemIterator to nullptr.
 		 */
-		ItemIterator iend() const noexcept;
+		ItemIterator iend() const noexcept;	
+				
+		/**
+		 * Returns true if a comma is required after the current element.
+		 * @since 1.5.0
+		 * @internal
+		 */
+		bool serializeHumanReadableShouldPrintComma(ItemIterator iterator) const noexcept;
 
 		Item* startItem;
 		Item* endItem;

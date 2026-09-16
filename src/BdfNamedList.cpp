@@ -248,6 +248,21 @@ Bdf::BdfNamedList::ItemIterator Bdf::BdfNamedList::findItemIteratorFromKey(int k
 	return this->iend();
 }
 
+bool Bdf::BdfNamedList::serializeHumanReadableShouldPrintComma(ItemIterator iterator) const noexcept {
+	// We determine if a comma is required by checking to see if any non-comment items
+	// including the current iterator are found.
+	
+	while (iterator) {
+		if (iterator->object->getType() != BdfTypes::COMMENT_CPP_STYLE && iterator->object->getType() != BdfTypes::COMMENT_C_STYLE) {
+			return true;
+		}
+		
+		++iterator;
+	}
+	
+	return false;
+}
+
 BdfNamedList* BdfNamedList::set(std::string key, BdfObject* v) noexcept {
 	return set(lookupTable->getLocation(key), v);
 }
@@ -426,7 +441,7 @@ int BdfNamedList::serialize(char* data, int* locations) const
 
 void BdfNamedList::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it) const
 {
-	bool shouldPrintComma = false;
+	bool lastLoopWasNonComment;
 	// Get an iterator (only need const)
 	BdfNamedList::ItemIterator iterator = this->ibegin();
 	
@@ -442,7 +457,7 @@ void BdfNamedList::serializeHumanReadable(std::ostream &out, const BdfIndent &in
 
 		do {
 			// For the second and onward iterations, print a comma separator. 
-			if (shouldPrintComma == true) {
+			if (lastLoopWasNonComment && this->serializeHumanReadableShouldPrintComma(iterator)) {
 				out << ", ";
 			}
 
@@ -450,11 +465,11 @@ void BdfNamedList::serializeHumanReadable(std::ostream &out, const BdfIndent &in
 			out << indent.breaker << indent.calcIndent(it);
 			
 			if (iterator->object->getType() == BdfTypes::COMMENT_CPP_STYLE || iterator->object->getType() == BdfTypes::COMMENT_C_STYLE) {
-				shouldPrintComma = false;
-				// Do comment stuff
+				lastLoopWasNonComment = false;
+				out << indent.breaker;
+				iterator->object->serializeHumanReadable(out, indent, it + 1);
 			} else {
-				shouldPrintComma = true;
-				
+				lastLoopWasNonComment = true;
 				// Serialise the name of the current item
 				out << serializeString(this->lookupTable->getName(iterator->key)) << ": ";
 				
