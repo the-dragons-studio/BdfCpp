@@ -92,7 +92,7 @@ bool BdfStringReader::ignoreBlanks()
 std::string BdfStringReader::getQuotedString()
 {
 	if(upto[0] != '"') {
-		throw BdfError(BdfError::ERROR_SYNTAX, *this);
+		throw BdfError(BdfError::ErrorType::SYNTAX, *this);
 	}
 
 	upto += 1;
