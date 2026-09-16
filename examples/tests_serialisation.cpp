@@ -69,9 +69,15 @@ int main() {
 	bdf->coerceCommentCppStyle()->setCommentLines({"Hello", "World!"});
 	test(reader, false);
 	
-	// Test a BdfList containing a string, plus a comments
+	// Test a BdfList containing a string, plus C-style comments
 	bdf->coerceList()->reserve(2);
-	bdf->getList()->get(0)->setString("This list has a comment!");
+	bdf->getList()->get(0)->setString("This list has a C style comment!");
+	bdf->getList()->get(1)->coerceCommentCStyle()->setCommentLines({"Hello", "World!"});
+	test(reader, false);
+	
+	// Test a BdfList containing a string, plus C++ style comment
+	bdf->coerceList()->reserve(2);
+	bdf->getList()->get(0)->setString("This list has a C++ style comment!");
 	bdf->getList()->get(1)->coerceCommentCppStyle()->setCommentLines({"Hello", "World!"});
 	test(reader, false);
 }
