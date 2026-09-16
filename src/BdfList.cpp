@@ -339,22 +339,6 @@ BdfList* BdfList::clear() noexcept {
 	return this;
 }
 
-BdfList* BdfList::cleanupCommentObjects() noexcept {
-	std::vector<BdfObject*> allComments;
-	
-	for (Iterator it = this->begin(); it != this->end(); ++it) {
-		if (it->getType() == BdfTypes::COMMENT_CPP_STYLE || it->getType() == BdfTypes::COMMENT_C_STYLE) {
-			allComments.push_back(*it);
-		}
-	}
-	
-	for (BdfObject* itComments : allComments) {
-		this->remove(itComments);
-	}
-	
-	return this;
-}
-
 void BdfList::getLocationUses(int* locations) const
 {
 	Item* upto = this->startItem;

@@ -410,15 +410,6 @@ namespace Bdf
 		BdfList* cleanupUndefinedObjects();
 		
 		/**
-		 * Clean up all comment objects from the list.
-		 * Used by BdfList::serialize() to ensure that the BdfList is free of comments in binary mode,
-		 * but can also be called manually.
-		 * After calling, all indicies and iterators may change. It is recommended to discard all indicies
-         * and iterators obtained prior to calling this method.
-		 */
-		BdfList* cleanupCommentObjects() noexcept;
-		
-		/**
 		 * Find the specified BdfObject in the list.
 		 * @param needle the object to search for.
 		 * @return an iterator to the first object which compares (**it == *needle), or equivalent to end() if no such iterator was found.
