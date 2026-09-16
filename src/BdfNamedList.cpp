@@ -397,44 +397,50 @@ int BdfNamedList::serializeSeeker(int* locations) const
 
 int BdfNamedList::serialize(char* data, int* locations) const
 {
-	int pos = 0;
-	Item* cur = this->startItem;
+	// Get an iterator
+	ItemIterator cur = this->ibegin();
+	size_t pos = 0;
 
-	while(cur != NULL)
-	{
-		int location = locations[cur->key];
+	// While that iterator returns results
+	while(cur) {
+		// Proceed only if the object is not a comment
+		if (!cur->object->isComment()) {
+			int location = locations[cur->key];
 
-		char size_bytes_tag;
-		char size_bytes;
+			char size_bytes_tag;
+			char size_bytes;
 
-		if(location > 65535) {
-			size_bytes_tag = 0;
-			size_bytes = 4;
-		} else if(location > 255) {
-			size_bytes_tag = 1;
-			size_bytes = 2;
-		} else {
-			size_bytes_tag = 2;
-			size_bytes = 1;
+			if(location > 65535) {
+				size_bytes_tag = 0;
+				size_bytes = 4;
+			} else if(location > 255) {
+				size_bytes_tag = 1;
+				size_bytes = 2;
+			} else {
+				size_bytes_tag = 2;
+				size_bytes = 1;
+			}
+
+			int size = cur->object->serialize(data + pos, locations, size_bytes_tag);
+			int offset = pos + size;
+
+			switch(size_bytes_tag)
+			{
+				case 0:
+					put_netsi(data + offset, location);
+					break;
+				case 1:
+					put_netus(data + offset, location);
+					break;
+				default:
+					data[offset] = location & 255;
+			}
+
+			pos += size + size_bytes;
 		}
-
-		int size = cur->object->serialize(data + pos, locations, size_bytes_tag);
-		int offset = pos + size;
-
-		switch(size_bytes_tag)
-		{
-			case 0:
-				put_netsi(data + offset, location);
-				break;
-			case 1:
-				put_netus(data + offset, location);
-				break;
-			default:
-				data[offset] = location & 255;
-		}
-
-		pos += size + size_bytes;
-		cur = cur->next;
+			
+		// Iterate to the next item.
+		++cur;
 	}
 
 	return pos;
