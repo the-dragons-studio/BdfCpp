@@ -1525,6 +1525,26 @@ BdfCommentCppStyle* BdfObject::coerceCommentCppStyle() noexcept {
 	
 	return v;
 }
+BdfCommentCStyle* BdfObject::getCommentCStyle() const {
+	if (type == BdfTypes::COMMENT_CPP_STYLE) {
+		return (BdfCommentCStyle*)this->object;
+	} else {
+		return nullptr;
+	}
+}
+
+BdfCommentCStyle* BdfObject::coerceCommentCStyle() noexcept {
+	BdfCommentCStyle* v = this->getCommentCStyle();
+	
+	if (!v) {
+		this->freeAll();
+		v = new BdfCommentCStyle();
+		type = BdfTypes::COMMENT_C_STYLE;
+		this->object = v;
+	}
+	
+	return v;
+}
 
 // Set
 
