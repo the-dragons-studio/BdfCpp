@@ -1892,3 +1892,7 @@ template<typename T> std::partial_ordering BdfObject::comparePrimitiveArrays(T**
 BdfObject::operator bool() const noexcept {
 	return (this->getType() != BdfTypes::UNDEFINED);
 }
+
+bool BdfObject::isComment() const noexcept {
+	return (this->getType() != BdfTypes::COMMENT_CPP_STYLE && this->getType() != BdfTypes::COMMENT_C_STYLE);
+}

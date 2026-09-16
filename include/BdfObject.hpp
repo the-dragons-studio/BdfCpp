@@ -114,6 +114,13 @@ namespace Bdf
 		 * getType() == BdfTypes::UNDEFINED.
 		 */
 		explicit operator bool() const noexcept;
+		
+		/**
+		 * Returns true if the BdfObject is a comment.
+		 * @return bool True if the BdfObject is a comment, false otherwise (including if it is undefined).
+		 * @since 1.5.0
+		 */
+		bool isComment() const noexcept;
 
 		/**
   		 * @internal
