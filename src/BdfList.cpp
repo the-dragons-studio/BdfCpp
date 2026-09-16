@@ -374,13 +374,17 @@ int BdfList::serializeSeeker(int* locations) const
 
 int BdfList::serialize(char *data, int* locations) const
 {
-	Item* upto = this->startItem;
-	int pos = 0;
+	// Get an iterator
+	ItemIterator upto = this->ibegin();
+	size_t pos = 0;
 
-	while(upto != nullptr)
-	{
-		pos += upto->object->serialize(data + pos, locations, 0);
-		upto = upto->next;
+	// While that iterator returns results
+	while(upto) {
+		if (!upto->object->isComment()) {
+			// Perform the serialisation with the stored object, then increment pos as we need.
+			pos += upto->object->serialize(data + pos, locations, 0);
+			++upto;
+		}
 	}
 
 	return pos;
