@@ -253,7 +253,8 @@ bool Bdf::BdfNamedList::serializeHumanReadableShouldPrintComma(ItemIterator iter
 	// including the current iterator are found.
 	
 	while (iterator) {
-		if (iterator->object->getType() != BdfTypes::COMMENT_CPP_STYLE && iterator->object->getType() != BdfTypes::COMMENT_C_STYLE) {
+		// Return true immediately if we encounter a non-comment item.
+		if (!iterator->object->isComment()) {
 			return true;
 		}
 		
@@ -464,7 +465,7 @@ void BdfNamedList::serializeHumanReadable(std::ostream &out, const BdfIndent &in
 			// Print a breaker and indenter.
 			out << indent.breaker << indent.calcIndent(it);
 			
-			if (iterator->object->getType() == BdfTypes::COMMENT_CPP_STYLE || iterator->object->getType() == BdfTypes::COMMENT_C_STYLE) {
+			if (iterator->object->isComment()) {
 				lastLoopWasNonComment = false;
 				out << indent.breaker;
 				iterator->object->serializeHumanReadable(out, indent, it + 1);

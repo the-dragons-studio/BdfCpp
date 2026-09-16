@@ -552,7 +552,8 @@ bool Bdf::BdfList::serializeHumanReadableShouldPrintComma(ItemIterator iterator)
 	// including the current iterator are found.
 	
 	while (iterator) {
-		if (iterator->object->getType() != BdfTypes::COMMENT_CPP_STYLE && iterator->object->getType() != BdfTypes::COMMENT_C_STYLE) {
+		// Return true immediately if we encounter a non-comment item.
+		if (!iterator->object->isComment()) {
 			return true;
 		}
 		
