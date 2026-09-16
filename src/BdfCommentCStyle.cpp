@@ -1,6 +1,9 @@
 #include "../include/BdfCommentCStyle.hpp"
 
 namespace Bdf {
+	BdfCommentCStyle::BdfCommentCStyle(Bdf::BdfIndent indenter, bool flatMode): indenter(std::move(indenter)), flatMode(flatMode) {
+	}
+	
 	// Delegate to vector constructor
 	BdfCommentCStyle::BdfCommentCStyle(std::string commentText, Bdf::BdfIndent indenter, bool flatMode): 
 		BdfCommentCStyle(std::vector<std::string>({commentText}), std::move(indenter), flatMode) {
