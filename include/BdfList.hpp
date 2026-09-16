@@ -316,6 +316,16 @@ namespace Bdf
 		BdfObject* get(int id) const;
 		
 		/**
+		 * Gets a pointer to the BdfObject located at id.
+		 * If one exists already, return it. Otherwise, the list is expanded to include it,
+		 * then it is returned.
+		 * @param int the integer ID of the BdfObject you want to find.
+		 * @return a pointer to the BdfObject located at id.
+		 * @throw std::out_of_range if id is larger than this->size().
+		 */
+		BdfObject* use(size_t id);
+		
+		/**
 		 * Remove the item located at id.
 		 * @param id the ID that this function will attempt to find.
 		 * @return the BdfList, now with the BdfObject located at id removed.

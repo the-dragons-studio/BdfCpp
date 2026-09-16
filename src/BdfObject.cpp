@@ -1460,10 +1460,10 @@ std::optional<std::string> BdfObject::getStringConst() const noexcept {
 }
 
 BdfList* BdfObject::getList() {
-	return this->coerceList();
+	return this->useList();
 }
 
-BdfList* BdfObject::coerceList()
+BdfList* BdfObject::useList()
 {
 	BdfList* v;
 
@@ -1483,10 +1483,10 @@ BdfList* BdfObject::coerceList()
 }
 
 BdfNamedList* BdfObject::getNamedList() {
-	return this->coerceNamedList();
+	return this->useNamedList();
 }
 
-BdfNamedList* BdfObject::coerceNamedList()
+BdfNamedList* BdfObject::useNamedList()
 {
 	BdfNamedList* v;
 
@@ -1513,7 +1513,7 @@ BdfCommentCppStyle* BdfObject::getCommentCppStyle() const {
 	}
 }
 
-BdfCommentCppStyle* BdfObject::coerceCommentCppStyle() noexcept {
+BdfCommentCppStyle* BdfObject::useCommentCppStyle() noexcept {
 	BdfCommentCppStyle* v = this->getCommentCppStyle();
 	
 	if (!v) {
@@ -1533,7 +1533,7 @@ BdfCommentCStyle* BdfObject::getCommentCStyle() const {
 	}
 }
 
-BdfCommentCStyle* BdfObject::coerceCommentCStyle() noexcept {
+BdfCommentCStyle* BdfObject::useCommentCStyle() noexcept {
 	BdfCommentCStyle* v = this->getCommentCStyle();
 	
 	if (!v) {
@@ -1764,11 +1764,19 @@ BdfObject* BdfObject::setNamedList(BdfNamedList* v)
 
 // Hybrid getters and setters
 BdfNamedList* BdfObject::newSetAndGetNamedList() {
+	return this->makeNamedList();
+}
+
+BdfNamedList* BdfObject::makeNamedList() {
 	this->setNamedList(this->newNamedList());
 	return this->getNamedList();
 }
 
 BdfList* BdfObject::newSetAndGetList() {
+	return this->makeList();
+}
+
+BdfList* BdfObject::makeList() {
 	this->setList(this->newList());
 	return this->getList();
 }

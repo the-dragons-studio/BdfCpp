@@ -218,11 +218,28 @@ namespace Bdf
 		 * Gets the item located at key. If it does not exist, creates it.
 		 * @param key the key to search for in the list.
 		 * @return a pointer to the object located at key.
+		 * @since 1.5.0
+		 */
+		BdfObject* use(size_t key);
+		
+		/**
+		 * Gets the item located at key. If it does not exist, creates it.
+		 * @param key the key to search for in the list.
+		 * @return a pointer to the object located at key.
 		 * @warning Relying on this method's ability to create keys that don't exist is deprecated. From 2.0.0 onwards, this method
 		 *          will throw an std::out_of_range exception in that case instead.
+		 *          Use BdfNamedList::use() instead.
 		 * @since 1.0
 		 */
 		BdfObject* get(std::string key);
+		
+		/**
+		 * Gets the item located at key. If it does not exist, creates it.
+		 * @param key the key to search for in the list.
+		 * @return a pointer to the object located at key.
+		 * @since 1.5.0
+		 */
+		BdfObject* use(std::string key);
 		
 		/**
 		 * Replaces the object located at key with the object located at value.

@@ -107,6 +107,14 @@ BdfObject* BdfList::get(int index) const
 	return getAtIndex(index)->object;
 }
 
+BdfObject* BdfList::use(size_t index) {
+	if (this->size() < index + 1) {
+		this->reserve(index + 1);
+	}
+	
+	return getAtIndex(index)->object;
+}
+
 BdfList* BdfList::set(int index, BdfObject* o)
 {
 	Item* item = getAtIndex(index);

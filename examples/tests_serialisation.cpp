@@ -16,6 +16,7 @@ std::size_t testNumber = 0;
 void test(
 	const Bdf::BdfReader &toSerialise,
 	bool performRoundTripSerialisationTest = true,
+	const Bdf::BdfIndent &indenter = Bdf::BdfIndent({"\t", "\n"}),
 	std::stacktrace trace = std::stacktrace::current(),
 	size_t traceIncrToMain = 0
 ) {
@@ -32,8 +33,9 @@ void test(
 	// Determine the filename we will use.
 	std::filesystem::path serialisationFilename(std::filesystem::current_path() / (std::string("test_serialisation_") + std::to_string(testNumber) + ".hbdf"));
 	
-	toSerialise.serializeHumanReadable(serialisationFilename);
+	toSerialise.serializeHumanReadable(serialisationFilename, indenter);
 	
+	// Should we perform the round trip serialisation test?
 	if (performRoundTripSerialisationTest) {
 		Bdf::BdfReaderHuman reserialise(serialisationFilename);
 		
@@ -66,30 +68,42 @@ int main() {
 	test(reader, false);
 	
 	// Test that C++ style comments work
-	bdf->coerceCommentCppStyle()->setCommentLines({"Hello", "World!"});
+	bdf->useCommentCppStyle()->setCommentLines({"Hello", "World!"});
 	test(reader, false);
 	
 	// Test a BdfList containing a string, plus C-style comments
-	bdf->coerceList()->reserve(2);
+	bdf->useList()->reserve(2);
 	bdf->getList()->get(0)->setString("This list has a C style comment!");
-	bdf->getList()->get(1)->coerceCommentCStyle()->setCommentLines({"Hello", "World!"});
+	bdf->getList()->get(1)->useCommentCStyle()->setCommentLines({"Hello", "World!"});
 	test(reader, false);
 	
-	// Test a BdfList containing a string, plus C++ style comment
-	bdf->coerceList()->reserve(2);
+	// Test a BdfList containing a string, plus C++ style comments
+	bdf->useList()->reserve(2);
 	bdf->getList()->get(0)->setString("This list has a C++ style comment!");
-	bdf->getList()->get(1)->coerceCommentCppStyle()->setCommentLines({"Hello", "World!"});
+	bdf->getList()->get(1)->useCommentCppStyle()->setCommentLines({"Hello", "World!"});
 	test(reader, false);
 	
-	// Test a BdfList containing a string, plus C-style comments
-	bdf->coerceNamedList();
+	// Test a BdfNamedList containing a string, plus C-style comments
+	bdf->useNamedList();
 	bdf->getNamedList()->get("my_named_element")->setString("This list has a C style comment! The name I have should also appear as usual.");
-	bdf->getNamedList()->get("this_name_should_not_appear")->coerceCommentCStyle()->setCommentLines({"Hello", "World!", "This comment has a name that the BdfNamedList owns it by, but that name will not appear."});
+	bdf->getNamedList()->get("this_name_should_not_appear")->useCommentCStyle()->setCommentLines({
+			"Hello",
+			"World!",
+			"This comment has a name that the BdfNamedList owns it by, but that name will not appear."
+		}
+	);
+	bdf->getNamedList()->get("the_missing_key")->setShort(4813);
 	test(reader, false);
 	
-	// Test a BdfNamedList containing a string, plus C++ style comment
-	bdf->coerceNamedList();
+	// Test a BdfNamedList containing a string, plus C++ style comments
+	bdf->useNamedList();
 	bdf->getNamedList()->get("my_named_element")->setString("This list has a C++ style comment! The name I have should also appear as usual.");
-	bdf->getNamedList()->get("this_name_should_not_appear")->coerceCommentCppStyle()->setCommentLines({"Hello", "World!", "This comment has a name that the BdfNamedList owns it by, but that name will not appear."});
+	bdf->getNamedList()->get("this_name_should_not_appear")->useCommentCppStyle()->setCommentLines({
+			"Hello",
+			"World!",
+			"This comment has a name that the BdfNamedList owns it by, but that name will not appear."
+		}
+	);
+	bdf->getNamedList()->get("the_missing_key")->setShort(4813);
 	test(reader, false);
 }
