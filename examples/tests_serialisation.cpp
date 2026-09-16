@@ -80,4 +80,16 @@ int main() {
 	bdf->getList()->get(0)->setString("This list has a C++ style comment!");
 	bdf->getList()->get(1)->coerceCommentCppStyle()->setCommentLines({"Hello", "World!"});
 	test(reader, false);
+	
+	// Test a BdfList containing a string, plus C-style comments
+	bdf->coerceNamedList();
+	bdf->getNamedList()->get("my_named_element")->setString("This list has a C style comment! The name I have should also appear as usual.");
+	bdf->getNamedList()->get("this_name_should_not_appear")->coerceCommentCStyle()->setCommentLines({"Hello", "World!", "This comment has a name that the BdfNamedList owns it by, but that name will not appear."});
+	test(reader, false);
+	
+	// Test a BdfNamedList containing a string, plus C++ style comment
+	bdf->coerceNamedList();
+	bdf->getNamedList()->get("my_named_element")->setString("This list has a C++ style comment! The name I have should also appear as usual.");
+	bdf->getNamedList()->get("this_name_should_not_appear")->coerceCommentCppStyle()->setCommentLines({"Hello", "World!", "This comment has a name that the BdfNamedList owns it by, but that name will not appear."});
+	test(reader, false);
 }
