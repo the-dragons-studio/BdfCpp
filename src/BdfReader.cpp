@@ -180,18 +180,26 @@ void BdfReader::serializeHumanReadable(std::ostream &stream, const BdfIndent &in
 	stream << "\n";
 }
 
-void BdfReader::serializeHumanReadable(const std::filesystem::path &outputFile, const BdfIndent &indent, bool truncate) const {
+void BdfReader::serializeHumanReadable(const std::filesystem::path &outputFile, const BdfIndent &indent, std::ios_base::openmode openMode) const {
 	// Create a sink that will represent our outputFile.
-	std::ofstream ofstr(outputFile);
+	std::ofstream ofstr(outputFile, openMode);
 	
 	// Use the streaming serialiser.
 	this->serializeHumanReadable(ofstr, indent);
 }
 
+void BdfReader::serializeHumanReadable(const std::filesystem::path &outputFile, std::ios_base::openmode openMode) const {
+	this->serializeHumanReadable(outputFile, {"", ""}, openMode);
+}
+
+void BdfReader::serializeHumanReadable(const std::filesystem::path &outputFile, const BdfIndent &indent, bool truncate) const {
+	this->serializeHumanReadable(outputFile, indent, this->openModeShouldTruncate(truncate));
+}
+
 void BdfReader::serializeHumanReadable(const std::filesystem::path &outputFile, bool truncate) const {
-	this->serializeHumanReadable(outputFile, {"", ""}, truncate);
+	this->serializeHumanReadable(outputFile, {"", ""}, this->openModeShouldTruncate(truncate));
 }
 
 void BdfReader::serializeHumanReadable(const std::filesystem::path &outputFile, const BdfIndent &indent) const {
-	this->serializeHumanReadable(outputFile, indent, true);
+	this->serializeHumanReadable(outputFile, indent, this->openModeShouldTruncate(true));
 }

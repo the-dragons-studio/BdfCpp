@@ -37,6 +37,19 @@ namespace Bdf
 		 * @since 1.0
    		 */
 		void initEmpty();
+		
+		/**
+         * Translates the truncate boolean into an std::ios_base::openmode.
+		 * @internal
+		 * @since 1.5.0
+   		 */
+		constexpr std::ios_base::openmode openModeShouldTruncate(bool truncate) const noexcept {
+			if (truncate) {
+				return std::ios::out | std::ios::trunc;
+			} else {
+				return std::ios::out;
+			}	
+		}
 	
 	public:
 		/**
@@ -168,13 +181,33 @@ namespace Bdf
 		 * to the file located at location, indented using the BdfIndent provided at indent.
 		 * @param outputFile The location of the file which BDF data is to be written to.
 		 * @param indent Settings used for indenting the human-readable BDF data.
+		 * @param openMode The underlying open mode to use for the file's stream.
+		 * @since 1.5.0
+		 */
+		void serializeHumanReadable(const std::filesystem::path &outputFile, const BdfIndent &indent, std::ios_base::openmode openMode) const;
+		
+		/**
+		 * Streams human-readable BDF data representing the BdfObject contained in the reader
+		 * to the file located at location.
+		 * Assumes a minified indenter.
+		 * @param outputFile The location of the file which BDF data is to be written to.
+		 * @param openMode The underlying open mode to use for the file's stream.
+		 * @since 1.5.0
+		 */
+		void serializeHumanReadable(const std::filesystem::path &outputFile, std::ios_base::openmode openMode) const;
+		
+		/**
+		 * Streams human-readable BDF data representing the BdfObject contained in the reader
+		 * to the file located at location, indented using the BdfIndent provided at indent.
+		 * @param outputFile The location of the file which BDF data is to be written to.
+		 * @param indent Settings used for indenting the human-readable BDF data.
 		 * @param truncate Whether any existing file located at outputFile should be truncated.
 		 * @since 1.5.0
 		 */
 		void serializeHumanReadable(const std::filesystem::path &outputFile, const BdfIndent &indent, bool truncate) const;
 		
 		/**
-		 * Streams human-readable  BDF data representing the BdfObject contained in the reader
+		 * Streams human-readable BDF data representing the BdfObject contained in the reader
 		 * to the file located at location.
 		 * Assumes a minified indenter.
 		 * @param outputFile The location of the file which BDF data is to be written to.
