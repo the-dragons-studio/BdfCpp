@@ -13,7 +13,7 @@ namespace Bdf {
 	class BdfCommentCppStyle {
 		std::vector<std::string> commentLines;
 		Bdf::BdfIndent indenter;
-		bool flattenSingleLineComments;
+		bool flatMode;
 		
 		public:
 		/**
@@ -47,18 +47,44 @@ namespace Bdf {
 		virtual ~BdfCommentCppStyle() noexcept;
 		
 		/**
-		 * Copies the comment lines given at commentLines into this object.
+		 * Gets the comment lines of this object.
 		 * @since 1.5.0
 		 */
-		void setCommentLines(const std::vector<std::string> &commentLines);
+		std::vector<std::string> getCommentLines() const;
 		
 		/**
-		 * Moves the comment lines given at commentLines into this object.
+		 * Gets the indenter of this object.
 		 * @since 1.5.0
 		 */
-		void setCommentLines(std::vector<std::string> &&commentLines);
+		Bdf::BdfIndent getIndenter() const;
 		
-		std::string get(std::string commentText) const noexcept;
+		/**
+		 * Gets whether flat mode is enabled.
+		 * @since 1.5.0
+		 */
+		bool getFlatMode() const noexcept;
+		
+		/**
+		 * Sets the comment lines of this object to the lines given at commentLines.
+		 * @param commentLines The new set of comment lines.
+		 * @since 1.5.0
+		 */
+		void setCommentLines(std::vector<std::string> commentLines);
+		
+		/**
+		 * Sets the indenter of this object to the indenter given at indenter.
+		 * @param indenter The new indenter.
+		 * @since 1.5.0
+		 */
+		void setIndenter(Bdf::BdfIndent indenter);
+		
+		/**
+		 * Sets whether to use flat mode to the bool given at flatMode.
+		 * @param flatMode The new state of flatMode.
+		 * @since 1.5.0
+		 */
+		void setFlatMode(bool flatMode) noexcept;
+		
 				
 		/**
 		 * No-op, since BdfCommentCppStyle cannot be serialised to binary format.
