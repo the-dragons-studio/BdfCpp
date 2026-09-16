@@ -85,8 +85,8 @@ int main() {
 	
 	// Test a BdfNamedList containing a string, plus C-style comments
 	bdf->useNamedList();
-	bdf->getNamedList()->get("my_named_element")->setString("This list has a C style comment! The name I have should also appear as usual.");
-	bdf->getNamedList()->get("this_name_should_not_appear")->useCommentCStyle()->setCommentLines({
+	bdf->getNamedList()->use("my_named_element")->setString("This list has a C style comment! The name I have should also appear as usual.");
+	bdf->getNamedList()->use("this_name_should_not_appear")->useCommentCStyle()->setCommentLines({
 			"Hello",
 			"World!",
 			"This comment has a name that the BdfNamedList owns it by, but that name will not appear."
@@ -97,8 +97,8 @@ int main() {
 	
 	// Test a BdfNamedList containing a string, plus C++ style comments
 	bdf->useNamedList();
-	bdf->getNamedList()->get("my_named_element")->setString("This list has a C++ style comment! The name I have should also appear as usual.");
-	bdf->getNamedList()->get("this_name_should_not_appear")->useCommentCppStyle()->setCommentLines({
+	bdf->getNamedList()->use("my_named_element")->setString("This list has a C++ style comment! The name I have should also appear as usual.");
+	bdf->getNamedList()->use("this_name_should_not_appear")->useCommentCppStyle()->setCommentLines({
 			"Hello",
 			"World!",
 			"This comment has a name that the BdfNamedList owns it by, but that name will not appear."
