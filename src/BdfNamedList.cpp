@@ -354,11 +354,18 @@ BdfObject* BdfNamedList::pop(int key) noexcept
 }
 
 BdfObject* BdfNamedList::get(std::string key) {
-	return get(lookupTable->getLocation(key));
+	return this->use(lookupTable->getLocation(key));
 }
 
-BdfObject* BdfNamedList::get(int key)
-{
+BdfObject* BdfNamedList::use(std::string key) {
+	return this->use(lookupTable->getLocation(key));
+}
+
+BdfObject* BdfNamedList::get(int key) {
+	return this->use(key);
+}
+
+BdfObject* BdfNamedList::use(size_t key) {
 	BdfNamedList::ItemIterator toGet = this->findItemIteratorFromKey(key);
 
 	if (toGet) {
@@ -369,7 +376,7 @@ BdfObject* BdfNamedList::get(int key)
 
 		return v;
 	}
-}
+}		
 
 int BdfNamedList::serializeSeeker(int* locations) const
 {
