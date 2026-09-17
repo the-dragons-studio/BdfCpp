@@ -455,7 +455,9 @@ int BdfNamedList::serialize(char* data, int* locations) const
 
 void BdfNamedList::serializeHumanReadable(std::ostream &out, const BdfIndent &indent, int it) const
 {
-	bool lastLoopWasNonComment;
+	// Whether the last loop serialised a non-comment.
+	// The first loop did not serialise anything, so we set this false to start.
+	bool lastLoopWasNonComment = false;
 	// Get an iterator (only need const)
 	BdfNamedList::ItemIterator iterator = this->ibegin();
 	
@@ -466,7 +468,7 @@ void BdfNamedList::serializeHumanReadable(std::ostream &out, const BdfIndent &in
 		
 		return;
 	} else {
-		// Print start of list tag.
+		// Print start of named list tag.
 		out << "{";
 
 		do {
@@ -476,8 +478,9 @@ void BdfNamedList::serializeHumanReadable(std::ostream &out, const BdfIndent &in
 			}
 
 			// Print a breaker and indenter.
-			out << indent.breaker << indent.calcIndent(it);
+			out << indent.breaker << indent.calcIndent(it + 1);
 			
+			// Are we serialising a comment?
 			if (iterator->object->isComment()) {
 				lastLoopWasNonComment = false;
 				out << indent.breaker;
