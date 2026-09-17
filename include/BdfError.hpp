@@ -112,6 +112,15 @@ namespace Bdf
 		 * @since 1.5.0
 		 */
 		BdfError::ErrorType getErrorTypeFromClassicCode(int code);
+		
+		/**
+		 * Returns a "classic" error code given an ErrorType enum.
+		 * @note Do not mark this function as C++ deprecated. Instead mark the wrapper overloads that call this method.
+		 * @internal
+		 * @deprecated since 1.5.0, this method is only here as a transitional method to the new 2.0.0 enum system.
+		 * @since 1.5.0
+		 */
+		int getClassicCodeFromErrorType(BdfError::ErrorType type) const noexcept;
 	
 	public:
 		/**

@@ -149,6 +149,32 @@ BdfError::ErrorType BdfError::getErrorTypeFromClassicCode(int code) {
 	}
 }
 
+int BdfError::getClassicCodeFromErrorType(BdfError::ErrorType type) const noexcept {
+	// Define an array with the enums in the exact order that the classic error codes went in.
+	static std::array<BdfError::ErrorType, 6> classicCodeOrderedEnums({
+			BdfError::ErrorType::SYNTAX,
+			BdfError::ErrorType::UNEXPECTED_END_OF_FILE,
+			BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF,
+			BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF,
+			BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE,
+			BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH
+	});
+	
+	size_t i = 0;
+	
+	for (auto iterator = classicCodeOrderedEnums.cbegin(); iterator != classicCodeOrderedEnums.cend(); ++i, ++iterator) {
+		if (*iterator == type) {
+			return i;
+		}
+	}
+
+	return 0;
+}
+
+int BdfError::getType() const noexcept {
+	return this->getClassicCodeFromErrorType(this->getErrorType());
+}
+
 std::string BdfError::getErrorShort() const noexcept {
 	return error_short;
 }
