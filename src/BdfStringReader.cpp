@@ -25,11 +25,45 @@ BdfStringReader BdfStringReader::getPointer(int offset) {
 	return other;
 }
 
+bool BdfStringReader::ignoreCommentCppStyle() noexcept {
+	while(this->inRange()) {
+		this->upto += 1;
+		this->c = this->upto[0];
+
+		if(this->c == '\n') {
+			break;
+		}
+	}
+	
+	return !this->inRange();
+}
+
+void BdfStringReader::ignoreCommentCStyle() {
+	do {
+		// Check that we haven't hit end of file yet
+		if(!this->inRange()) {
+			throw BdfError(BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF, *this);
+		}
+
+		this->upto += 1;
+		this->c = this->upto[0];
+				
+	// Loop back if we haven't found the end of the comment
+	} while (this->c != '*' || this->upto[1] != '/');
+	
+	// Increase upto by another 1 to accomodate the escaping /
+	upto += 1;
+}
+
+bool BdfStringReader::shouldIgnoreCurrentChar() const noexcept {
+	return (c == '\n' || c == '\t' || c == ' ');
+}
+
 bool BdfStringReader::ignoreBlanks()
 {
 	while(this->inRange())
 	{	
-		wchar_t c = upto[0];
+		this->c = upto[0];
 
 		// Comments
 		if(c == '/' && upto < end)
@@ -37,40 +71,15 @@ bool BdfStringReader::ignoreBlanks()
 			wchar_t c2 = upto[1];
 
 			// Line comment
-			if(c2 == '/')
-			{
-				for(;;)
-				{
-					if(!inRange()) {
-						return true;
-					}
-
-					upto += 1;
-					c = upto[0];
-
-					if(c == '\n') {
-						break;
-					}
+			if(c2 == '/') {
+				if (this->ignoreCommentCppStyle()) {
+					return true;
 				}
 			}
 	
 			// Multi-line comment
-			else if(c2 == '*')
-			{
-				do {
-					// Check that we haven't hit end of file yet
-					if(!this->inRange()) {
-						throw BdfError(BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF, *this);
-					}
-
-					upto += 1;
-					c = upto[0];
-				
-				// Continue only if we've found the other end of the escaped comment
-				} while (c == '*' && this->inRange() && upto[1] == '/');
-				
-				// Increase upto by another 1 to accomodate the escaping /
-				upto += 1;
+			else if(c2 == '*') {
+				this->ignoreCommentCStyle();
 			}
 
 			else {
@@ -78,7 +87,7 @@ bool BdfStringReader::ignoreBlanks()
 			}
 		}
 
-		else if(!(c == '\n' || c == '\t' || c == ' ')) {
+		else if(!this->shouldIgnoreCurrentChar()) {
 			return false;
 		}
 
