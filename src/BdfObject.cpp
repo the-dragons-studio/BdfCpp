@@ -1902,5 +1902,5 @@ BdfObject::operator bool() const noexcept {
 }
 
 bool BdfObject::isComment() const noexcept {
-	return (this->getType() != BdfTypes::COMMENT_CPP_STYLE && this->getType() != BdfTypes::COMMENT_C_STYLE);
+	return (this->getType() == BdfTypes::COMMENT_CPP_STYLE || this->getType() == BdfTypes::COMMENT_C_STYLE);
 }
