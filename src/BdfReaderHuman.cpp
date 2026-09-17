@@ -49,9 +49,15 @@ BdfReaderHuman::BdfReaderHuman(const std::filesystem::path &location):
 }
 	
 std::wstring BdfReaderHuman::prepareBufferFromFilesystemPath(const std::filesystem::path &location) const {
-	std::ifstream fileStream(location);
-	std::wstringstream buffer;
-	buffer << fileStream.rdbuf();
+	std::wifstream ifstr(location);
+	std::wstringstream dataStream;
 	
-	return buffer.str();
+    while(!ifstr.eof()) {
+        std::wstring line;
+        std::getline(ifstr, line);
+		dataStream << line << "\n";
+    }
+	
+	// Return our complete stream's string
+	return dataStream.str();
 }
