@@ -5,6 +5,7 @@
 #include "BdfStringReader.hpp"
 
 #include <cstdint>
+#include <optional>
 #include <string>
 
 #if __cplusplus >= 202302L
