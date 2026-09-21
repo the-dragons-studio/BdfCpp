@@ -344,6 +344,14 @@ namespace Bdf
          *          std::nullopt if the object is not already a string.
 		 */
 		std::string getString();
+				
+		/**
+		 * Attempts to cast the object to a std::string. If the object is not already a string, it is converted to one, and all data in the
+   		 * original will be lost.
+		 * @return a string that represents the one in the object if already a string, blank if a new one had to be created.
+		 * @since 1.5.0
+		 */
+		std::string useString();
 		
 		/**
 		 * Attempts to cast the object to a BdfList. If the object is not already a list, it is converted to one, and all data in the
