@@ -12,32 +12,32 @@
 using namespace Bdf;
 using namespace BdfHelpers;
 
-// template<class T_BASIC_STRING>
 BdfReaderHuman::BdfReaderHuman(const std::wstring &data)
 {
 	// Make a BdfStringReader from the given data.
 	BdfStringReader sr(data.c_str(), data.size());
-	BdfObject* bdfNew = nullptr;
-	// Skip ahead to the first non-comment character.
+
 	try {
-		while(!sr.ignoreBlanks()) {
-			// If this is our first time in the loop, bdfNew will be null. Create it using a new BdfObject.
-			if (!bdfNew) {
-				bdfNew = new BdfObject(lookupTable, &sr);
+		// Skip ahead to the first non-comment character.
+		// If there isn't EOF at that point, create our BdfObject from there.
+		if (!sr.ignoreBlanks()) {
+			this->bdf = new BdfObject(lookupTable, &sr);
+		} else {
+			// Just init an empty object
+			this->initEmpty();
+		}
+		
+		// Run sr.ignoreBlanks() and hope EOF was actually reached.
+		if (!sr.ignoreBlanks()) {
 			// Otherwise that means we already attempted to create the file yet haven't hit end of file yet, which
 			// probably means something has gone wrong. Throw a BdfError and delete the attempted object.
-			} else {
-				throw BdfError(BdfError::ERROR_SYNTAX, sr);
-			}
+			throw BdfError(BdfError::ErrorType::SYNTAX, sr);
 		}
-	// In case we run into an exception, make sure bdfNew is deallocated.
+	// In case we run into an exception, make sure our BDF object is left in a valid but empty state.
 	} catch (...) {
-		delete bdfNew;
+		this->initEmpty();
 		throw;
 	}
-
-	// Make our BdfObject the new one.
-	this->bdf = bdfNew;
 }
 
 BdfReaderHuman::BdfReaderHuman(const std::string &data) : BdfReaderHuman(
