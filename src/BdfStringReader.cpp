@@ -41,6 +41,8 @@ bool BdfStringReader::ignoreCommentCppStyle() noexcept {
 void BdfStringReader::ignoreCommentCStyle() {
 	do {
 		// Check that we haven't hit end of file yet
+		// @note: Do not use BdfStringReader::ignoreBlanksDisallowEof() here, since that would result in a circular
+		// dependency. BdfStringReader::ignoreBlanks() depends on ignoreCommentCStyle().
 		if(!this->inRange()) {
 			throw BdfError(BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF, *this);
 		}
@@ -96,6 +98,15 @@ bool BdfStringReader::ignoreBlanks()
 	
 	// If we got here, we ran out of file to check; return true to indicate this
 	return true;
+}
+
+void BdfStringReader::ignoreBlanksDisallowEof(BdfError::ErrorType onEof) {
+	// Has this->ignoreBlanks() returned true, i.e. EOF is reached?
+	if (this->ignoreBlanks()) {
+		// Then throw the required BdfError.
+		throw BdfError(onEof, *this);
+	}
+		
 }
 
 std::string BdfStringReader::getQuotedString()

@@ -2,6 +2,8 @@
 #ifndef BDFSTRINGREADER_HPP_
 #define BDFSTRINGREADER_HPP_
 
+#include "./BdfError.hpp"
+
 #include <string>
 
 namespace Bdf
@@ -30,6 +32,16 @@ namespace Bdf
 		 * @return true if the end of the file was reached, false otherwise
 		 */
 		bool ignoreBlanks();
+		
+		/**
+		 * Stops at the first character that isn't a comment.
+		 * Disallows encountering EOF; if it is, a BdfError will be thrown.
+		 * @param onEof The ErrorType of BdfError that should be thrown if EOF is encountered.
+		 * @throw BdfError of type given in ErrorType (default UNEXPECTED_END_OF_FILE) if EOF is encountered,
+		 *                 even though callers of this method *do not* expect EOF.
+		 * @since 1.5.0
+		 */
+		void ignoreBlanksDisallowEof(BdfError::ErrorType onEof = BdfError::ErrorType::UNEXPECTED_END_OF_FILE);
 		
 		/**
 		 * Ignores the current C++ style comment.
