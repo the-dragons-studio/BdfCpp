@@ -21,19 +21,19 @@ namespace Bdf {
 		 * The comment line delimiter will still be created.
 		 * @since 1.5.0
 		 */
-		BdfCommentCppStyle(Bdf::BdfIndent indenter = {"", "\n"});
+		BdfCommentCppStyle(Bdf::BdfIndent indenter = {" ", ""});
 		
 		/**
 		 * Creates a BdfCommentCppStyle comment that consists of the specified single line comment.
 		 * @since 1.5.0
 		 */
-		BdfCommentCppStyle(std::string commentText, Bdf::BdfIndent indenter = {"", "\n"}, bool flatMode = false);
+		BdfCommentCppStyle(std::string commentText, Bdf::BdfIndent indenter = {" ", ""}, bool flatMode = false);
 		
 		/**
 		 * Creates a BdfCommentCppStyle comment that consists of all the lines given in the vector.
 		 * @since 1.5.0
 		 */
-		BdfCommentCppStyle(std::vector<std::string> commentLines, Bdf::BdfIndent indenter = {"", "\n"}, bool flatMode = false);
+		BdfCommentCppStyle(std::vector<std::string> commentLines, Bdf::BdfIndent indenter = {"", ""}, bool flatMode = false);
 		
 		/**
 		 * Copies a BdfCommentCppStyle.
