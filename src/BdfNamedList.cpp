@@ -319,32 +319,46 @@ BdfObject* BdfNamedList::pop(int key) noexcept
 		// Store the pointer of the currently pointed at object.
 		BdfObject *toPopObject(toPop->object);
 		
-		// Store the iterator of the next object.
-		ItemIterator toPopNext(toPop++);
-		
-		// Store the pointer of the last object.
-		ItemIterator toPopLast(toPop--);
-		
-		// Delete toPop (not its object)
-		delete *toPop;
-		
 		// If there is a last object, set its next to toPopNext's
-		if (toPopLast) {
-			if (toPopNext) {
-				toPopLast->next = *toPopNext;
+		if (toPop->last) {
+			// Does toPop have a next item?
+			if (toPop->next) {
+				// Then the previous item's next item becomes toPop->next.
+				toPop->last->next = toPop->next;
 			} else {
-				toPopLast->next = nullptr;
+				toPop->last->next = nullptr;
+			}
+		} else {
+			// That means our iterator corresponds to the startItem.
+			// Set this->startItem to toPopNext, if it exists.
+			if (toPop->next) {
+				this->startItem = toPop->next;
+			} else {
+				this->startItem = nullptr;
 			}
 		}
 		
 		// If there is a next object, set its next to toPopLast's
-		if (toPopNext) {
-			if (toPopLast) {
-				toPopNext->last = *toPopLast;
+		if (toPop->next) {
+			// Does toPop have a prev item?
+			if (toPop->last) {
+				// Then the next item's previous item becomes toPop->last.
+				toPop->next->last = toPop->last;
 			} else {
-				toPopNext->last = nullptr;
+				toPop->next->last = nullptr;
+			}
+		} else {
+			// That means our iterator corresponds to the endItem.
+			// Set this->endItem to toPopLast, if it exists.
+			if (toPop->last) {
+				this->endItem = toPop->last;
+			} else {
+				this->endItem = nullptr;
 			}
 		}
+		
+		// Delete toPop (not its object)
+		delete *toPop;
 		
 		// In any case, return the now-orphaned object.
 		return toPopObject;
@@ -536,16 +550,34 @@ BdfNamedList::ConstIterator BdfNamedList::cend() const noexcept {
 }
 
 BdfNamedList::ItemIterator BdfNamedList::ibegin() const noexcept {
-	return ItemIterator(this->startItem);
+	// Make sure startItem is actually valid
+	if (this->startItem) {
+		return ItemIterator(this->startItem);
+	// Otherwise just return BdfNamedList::iend()
+	} else {
+		return this->iend();
+	}
 }
 
 BdfNamedList::ItemIterator BdfNamedList::iend() const noexcept {
-	return ItemIterator(nullptr);
+	// Make sure the returned ItemIterator can be subtracted to get to the actual end item.
+	return ItemIterator(this->endItem, nullptr, nullptr);
 }
 
 BdfNamedList::ItemIterator::ItemIterator(): p(nullptr) {}
 
-BdfNamedList::ItemIterator::ItemIterator(Item *p): p(p) {}
+BdfNamedList::ItemIterator::ItemIterator(Item *p):
+	last(p->last),
+	p(p),
+	next(p->next) {	
+}
+
+BdfNamedList::ItemIterator::ItemIterator(Item *last, Item *p, Item *next): 
+	last(last),
+	p(p),
+	next(next) {	
+}
+	
 
 BdfNamedList::Item* BdfNamedList::ItemIterator::operator*() const noexcept {
 	return p;
@@ -556,9 +588,17 @@ BdfNamedList::Item* BdfNamedList::ItemIterator::operator->() const noexcept {
 }
 
 BdfNamedList::ItemIterator& BdfNamedList::ItemIterator::operator++() {
+	this->last = this->p;
+	this->p = this->next;
+		
+	// Is the newly decremented iterator still valid?
 	if (this->isValid()) {
-		this->p = this->p->next;
+		// Then source our new next pointer from it.
+		this->next = this->p->next;
+	} else {
+		this->next = nullptr;
 	}
+	
 	return *this;
 }
 
@@ -569,9 +609,17 @@ BdfNamedList::ItemIterator BdfNamedList::ItemIterator::operator++(int) {
 }
 
 BdfNamedList::ItemIterator& BdfNamedList::ItemIterator::operator--() {
+	this->next = this->p;
+	this->p = this->last;
+		
+	// Is the newly decremented iterator still valid?
 	if (this->isValid()) {
-		this->p = this->p->last;
+		// Then source our new last pointer from it.
+		this->last = this->p->last;
+	} else {
+		this->p = nullptr;
 	}
+	
 	return *this;
 }
 
@@ -691,4 +739,132 @@ BdfNamedList::Iterator::operator bool() const noexcept {
 
 BdfNamedList::Iterator::operator ConstIterator() const noexcept {
 	return BdfNamedList::ConstIterator(this->p);
+}
+
+BdfNamedList::ConstReverseIterator::ConstReverseIterator() {}
+
+BdfNamedList::ConstReverseIterator::ConstReverseIterator(const BdfNamedList::ItemIterator &p): p(p) {}
+
+const BdfObject* BdfNamedList::ConstReverseIterator::operator*() const noexcept {
+	if (this->isValid()) {
+		return this->p->object;
+	} else {
+		return nullptr;
+	}
+}
+
+const BdfObject* BdfNamedList::ConstReverseIterator::operator->() const noexcept {
+	if (this->isValid()) {
+		return this->p->object;
+	} else {
+		return nullptr;
+	}
+}
+
+BdfNamedList::ConstReverseIterator& BdfNamedList::ConstReverseIterator::operator++() {
+	++(this->p);
+	return *this;
+}
+
+BdfNamedList::ConstReverseIterator BdfNamedList::ConstReverseIterator::operator++(int) {
+	ConstReverseIterator tmp = *this;
+	++tmp;
+	return tmp;
+}
+
+BdfNamedList::ConstReverseIterator& BdfNamedList::ConstReverseIterator::operator--() {
+	--(this->p);
+	return *this;
+}
+
+BdfNamedList::ConstReverseIterator BdfNamedList::ConstReverseIterator::operator--(int) {
+	ConstReverseIterator tmp = *this;
+	++tmp;
+	return tmp;
+}
+
+bool BdfNamedList::ConstReverseIterator::isValid() const noexcept {
+	return (this->p.isValid() && this->p->object != nullptr);
+}
+
+BdfNamedList::ConstReverseIterator::operator bool() const noexcept {
+	return this->isValid();
+}
+
+BdfNamedList::ConstReverseIterator::operator ConstIterator() const noexcept {
+	return BdfNamedList::ConstIterator(this->p);
+}
+
+BdfNamedList::ConstReverseIterator BdfNamedList::crbegin() const noexcept {
+	return ConstReverseIterator(this->ibegin());
+}
+
+BdfNamedList::ConstReverseIterator BdfNamedList::crend() const noexcept {
+	return ConstReverseIterator(this->iend());
+}
+
+BdfNamedList::ReverseIterator::ReverseIterator() {}
+
+BdfNamedList::ReverseIterator::ReverseIterator(const ItemIterator& p): p(p) {}
+
+BdfObject* BdfNamedList::ReverseIterator::operator*() const noexcept {
+	if (this->isValid()) {
+		return this->p->object;
+	} else {
+		return nullptr;
+	}
+}
+
+BdfObject* BdfNamedList::ReverseIterator::operator->() const noexcept {
+	if (this->isValid()) {
+		return this->p->object;
+	} else {
+		return nullptr;
+	}
+}
+
+BdfNamedList::ReverseIterator& BdfNamedList::ReverseIterator::operator++() {
+	++(this->p);
+	return *this;
+}
+
+BdfNamedList::ReverseIterator BdfNamedList::ReverseIterator::operator++(int) {
+	ReverseIterator tmp(std::move(*this));
+	++tmp;
+	return tmp;
+}
+
+BdfNamedList::ReverseIterator& BdfNamedList::ReverseIterator::operator--() {
+	--(this->p);
+	return *this;
+}
+
+BdfNamedList::ReverseIterator BdfNamedList::ReverseIterator::operator--(int) {
+	ReverseIterator tmp(std::move(*this));
+	--tmp;
+	return tmp;
+}
+
+bool BdfNamedList::ReverseIterator::isValid() const noexcept {
+	return (this->p.isValid() && this->p->object != nullptr);
+}
+
+BdfNamedList::ReverseIterator::operator bool() const noexcept {
+	return this->isValid();
+}
+
+BdfNamedList::ReverseIterator::operator ConstReverseIterator() const noexcept {
+	return BdfNamedList::ConstReverseIterator(this->p);
+}
+
+BdfNamedList::ReverseIterator::operator Iterator() const noexcept {
+	return BdfNamedList::Iterator(this->p);
+}
+
+BdfNamedList::ReverseIterator BdfNamedList::rbegin() noexcept {
+	return ReverseIterator(this->ibegin());
+}
+
+BdfNamedList::ReverseIterator BdfNamedList::rend() noexcept {
+	return ReverseIterator(this->iend());
 }

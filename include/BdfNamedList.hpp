@@ -57,14 +57,25 @@ namespace Bdf
 			using difference_type = std::ptrdiff_t;
 			
 			/**
-			 * Creates a blank ItemIterator.
+			 * Default constructor. Creates a blank ItemIterator.
+			 * @since 1.5.0
 			 */
 			ItemIterator();			
 			
 			/**
-			 * Creates a new iterator from a pointer.
+			 * Creates a new iterator from a pointer to an Item.
+			 * That Item's last and next pointers will determine the iterator's
+			 * last and next items too.
+			 * @since 1.5.0
 			 */
 			explicit ItemIterator(Item *p);
+			
+			/**
+			 * Creates a new iterator from three pointers to Items: a last Item, current Item
+			 * and next Item.
+			 * @since 1.5.0
+			 */
+			ItemIterator(Item *last, Item *p, Item *next);
 			
 			/**
 			 * Gets a pointer to the item.
@@ -73,53 +84,78 @@ namespace Bdf
 			
 			/**
 			 * Gets a pointer to the item.
+			 * @since 1.5.0
 			 */
 			Item* operator->() const noexcept;
 			
 			/**
 			 * Prefix increments the Iterator.
+			 * @since 1.5.0
 			 */
 			ItemIterator& operator++();
 			
 			/**
 			 * Postfix increments the Iterator.
+			 * @since 1.5.0
 			 */
 			ItemIterator operator++(int);
 			
 			/**
 			 * Prefix decrements the Iterator.
+			 * @since 1.5.0
 			 */
 			ItemIterator& operator--();
 			
 			/**
 			 * Postfix decrements the Iterator.
+			 * @since 1.5.0
 			 */
 			ItemIterator operator--(int);
 			
 			/**
 			 * Checks if the iterator points at valid data.
+			 * @since 1.5.0
 			 */
 			bool isValid() const noexcept;
 			
 			/**
 			 * Checks if the iterator points at valid data.
 			 * Effectively calls this->isValid().
+			 * @since 1.5.0
 			 */
 			explicit operator bool() const noexcept;
 				
+			/**
 			friend auto operator<=>(const ItemIterator&, const ItemIterator&) = default;
 			
 			private:
+			/**
+			 * Pointer to the last Item.
+			 * @since 1.5.0
+			 */
+			Item* last;
+			
+			/**
+			 * Pointer to the current Item.
+			 * @since 1.5.0
+			 */
 			Item* p;
+			 * Pointer to the next Item.
 		};
 		
 		/**
 		 * Returns an ItemIterator to the starting item.
+		 * @since 1.5.0
+		 * @internal
 		 */
 		ItemIterator ibegin() const noexcept;
 		
 		/**
-		 * Returns an ItemIterator to nullptr.
+		 * Returns the end marker ItemIterator in accordance with C++11 iteration practice. 
+		 * Decrement this iterator to access the actual last item.
+		 * Suitable for use in statements such as 'while (iterator != myNamedList->iend()).
+		 * @since 1.5.0
+		 * @internal
 		 */
 		ItemIterator iend() const noexcept;
 		
@@ -132,15 +168,28 @@ namespace Bdf
 		
 		/**
 		 * Returns true if a comma is required after the current element.
+		 * @internal
 		 */
 		bool serializeHumanReadableShouldPrintComma(ItemIterator iterator) const noexcept;
 		
+		/**
+		 * Pointer to the start Item in the linked list.
+		 * @internal
+		 */
 		Item* startItem;
+		
+		/**
+		 * Pointer to the end Item (not beyond it) in the linked list.
+		 * @internal
+		 */
 		Item* endItem;
 
 		BdfLookupTable* lookupTable;
 
 	public:
+		class ConstIterator;
+		class Iterator;
+		
 		/**
 		 * Constructs an empty BdfList which will use the lookup table at lookupTable for further operations.
 		 * @internal
@@ -369,7 +418,7 @@ namespace Bdf
 			using difference_type = std::ptrdiff_t;
 			
 			/**
-			 * Creates a blank ConstIterator.
+			 * Default constructor. Creates a blank ConstIterator.
 			 */
 			ConstIterator();
 			
@@ -392,25 +441,35 @@ namespace Bdf
 			
 			/**
 			 * Prefix increments the ConstIterator.
-			 * Using this operator on a nullptr iterator is well-defined; it simply becomes a no-op.
+			 * Using this operator on a nullptr iterator is well-defined. Note that once an iterator is advanced
+			 * beyond one after the end marker iterator, rewinding the iterator back to a valid state will
+			 * become impossible.
 			 */
 			ConstIterator& operator++();
 			
 			/**
 			 * Postfix increments the ConstIterator, and returns a new ConstIterator.
-			 * Using this operator on a nullptr iterator is well-defined; it simply becomes a no-op.
+			 * Using this operator on a nullptr iterator is well-defined. Note that once an iterator is advanced
+			 * beyond one after the end marker iterator, rewinding the iterator back to a valid state will
+			 * become impossible.
 			 */
 			ConstIterator operator++(int);
 			
 			/**
 			 * Prefix decrements the ConstIterator.
-			 * Using this operator on a nullptr iterator is well-defined; it simply becomes a no-op.
+			 * Using this operator on a nullptr iterator is well-defined. Note that once an iterator is decremented
+			 * beyond one before the start marker iterator, rewinding the iterator back to a valid state will
+			 * become impossible.
+			 * @since 1.5.0
 			 */
 			ConstIterator& operator--();
 			
 			/**
-			 * Postfix decrements the ConstIterator.
-			 * Using this operator on a nullptr iterator is well-defined; it simply becomes a no-op.
+			 * Prefix decrements the ConstIterator.
+			 * Using this operator on a nullptr iterator is well-defined. Note that once an iterator is decremented
+			 * beyond one before the start marker iterator, rewinding the iterator back to a valid state will
+			 * become impossible.
+			 * @since 1.5.0
 			 */
 			ConstIterator operator--(int);
 			
@@ -418,18 +477,29 @@ namespace Bdf
 			 * Checks if the iterator points at valid data.
 			 * Equivalent to isValid().
 			 * @return true if both the stored iterator are valid and its object is not nullptr, false if one or both conditions are not met.
+			 * @since 1.5.0
 			 */
 			explicit operator bool() const noexcept;
 			
 			/**
 			 * Checks if the iterator points at valid data.
 			 * @return true if both the stored ItemIterator are valid and its object is not nullptr, false if one or both conditions are not met.
+			 * @since 1.5.0
 			 */
 			bool isValid() const noexcept;
 			
+			/**
+			 * Provides three-way comparison for Iterator objects.
+			 * @since 1.5.0
+			 */
 			friend auto operator<=>(const ConstIterator&, const ConstIterator&) = default;
 			
 			private:
+			/**
+			 * The interal ItemIterator held by the iterator.
+			 * @since 1.5.0
+			 * @internal
+			 */
 			ItemIterator p;
 		};
 		
@@ -439,7 +509,9 @@ namespace Bdf
 		ConstIterator cbegin() const noexcept;
 		
 		/**
-		 * Returns an iterator to nullptr.
+		 * Returns the end marker ConstIterator in accordance with C++11 iteration practice. 
+		 * Decrement this iterator to access the actual last item.
+		 * Suitable for use in statements such as 'while (iterator != myNamedList->cend()).
 		 */
 		ConstIterator cend() const noexcept;
 		
@@ -465,42 +537,50 @@ namespace Bdf
 			using difference_type = std::ptrdiff_t;
 			
 			/**
-			 * Creates a blank Iterator.
+			 * Default constructor. Creates a blank Iterator.
+			 * @since 1.5.0
 			 */
 			Iterator();
 			
 			/**
-			 * Creates a new iterator from a pointer.
+			 * Creates a new iterator from an ItemIterator.
+			 * @internal
 			 */
 			explicit Iterator(const ItemIterator &p);
 			
 			/**
 			 * Dereferences the BdfObject contained in the iterator.
+			 * @since 1.5.0
 			 */
 			BdfObject* operator*() const noexcept;
 			
 			/**
 			 * Dereferences the BdfObject contained in the iterator.
+			 * @since 1.5.0
 			 */
 			BdfObject* operator->() const noexcept;
 			
 			/**
 			 * Prefix increments the Iterator.
+			 * @since 1.5.0
 			 */
 			Iterator& operator++();
 			
 			/**
 			 * Postfix increments the Iterator.
+			 * @since 1.5.0
 			 */
 			Iterator operator++(int);
 			
 			/**
 			 * Prefix decrements the Iterator.
+			 * @since 1.5.0
 			 */
 			Iterator& operator--();
 			
 			/**
 			 * Postfix decrements the Iterator.
+			 * @since 1.5.0
 			 */
 			Iterator operator--(int);
 			
@@ -508,17 +588,20 @@ namespace Bdf
 			 * Checks if the iterator points at valid data.
 			 * Equivalent to isValid().
 			 * @return true if both the stored ItemIterator are valid and its object is not nullptr, false if one or both conditions are not met.
+			 * @since 1.5.0
 			 */
 			explicit operator bool() const noexcept;
 			
 			/**
 			 * Checks if the iterator points at valid data.
 			 * @return true if both the stored ItemIterator are valid and its object is not nullptr, false if one or both conditions are not met.
+			 * @since 1.5.0
 			 */
 			bool isValid() const noexcept;
 			
 			/**
 			 * Implicitly converts a modifiable Iterator to a ConstIterator.
+			 * @since 1.5.0
 			 */
 			operator ConstIterator() const noexcept;
 			
@@ -543,9 +626,289 @@ namespace Bdf
 		Iterator begin() noexcept;
 		
 		/**
-		 * Returns an iterator to nullptr.
+		 * Returns the end marker Iterator in accordance with C++11 iteration practice. 
+		 * Decrement this iterator to access the actual last item.
+		 * Suitable for use in statements such as 'while (iterator != myNamedList->end()).
 		 */
 		Iterator end() noexcept;
+		
+		/**
+		 * A const reverse iterator for BdfList.
+		 *
+		 * BdfList objects can be traversed using iterators as an alternative to key finding.
+		 * All iterators in BdfList satisfy std::bidirectional_iterator.
+		 *
+		 * Unlike modifiabale Iterator objects, ConstIterator objects can always be obtained
+		 * regardless of the const-ness of the BdfList. ConstReverseIterators cannot be implicitly
+		 * converted to modifiable ReverseIterators, but the opposite is true; modifiable Iterators
+		 * can be converted to ConstReverseIterators.
+		 *
+		 * Callers may explicitly convert ConstIterators to ConstReverseIterators and vice versa.
+		 * The direction of iteration is based on the object type at the time of an iteration operator being called.
+		 *
+		 * @since 1.5.0
+		 */
+		struct ConstReverseIterator {
+			friend class BdfNamedList;
+			using value_type = const BdfObject*;
+			using iterator_category = std::bidirectional_iterator_tag;
+			using difference_type = std::ptrdiff_t;
+			
+			/**
+			 * Default constructor. Creates a blank ConstReverseIterator.
+			 */
+			ConstReverseIterator();
+			
+			/**
+			 * Creates a new iterator from a pointer.
+			 */
+			explicit ConstReverseIterator(const ItemIterator &p);
+			
+			/**
+			 * Creates a new iterator from the given ConstIterator.
+			 * The constructed ConstReverseIterator will point to the same item as the used
+			 * ConstIterator, but will reverse the direction of iteration.
+			 * That is, *(++ConstReverseIterator(oldConstIterator)) == *(--oldConstIterator).
+			 * @param fromConstIterator A ConstIterator which will be used to construct this ReverseConstIterator.
+			 * @since 1.5.0
+			 */
+			explicit ConstReverseIterator(const ConstIterator &fromConstIterator);
+			
+			/**
+			 * Dereferences the BdfObject.
+			 * @return a pointer to a BdfObject that cannot be modified.
+			 */
+			const BdfObject* operator*() const noexcept;
+			
+			/**
+			 * Dereferences the BdfObject.
+			 * @return a pointer to a BdfObject that cannot be modified.
+			 */
+			const BdfObject* operator->() const noexcept;
+			
+			/**
+			 * Prefix increments the ConstReverseIterator.
+			 * Using this operator on a nullptr iterator is well-defined. Note that once an iterator is advanced
+			 * beyond one after the end marker iterator, rewinding the iterator back to a valid state will
+			 * become impossible.
+			 */
+			ConstReverseIterator& operator++();
+			
+			/**
+			 * Postfix increments the ConstReverseIterator, and returns a new ConstReverseIterator.
+			 * Using this operator on a nullptr iterator is well-defined. Note that once an iterator is advanced
+			 * beyond one after the end marker iterator, rewinding the iterator back to a valid state will
+			 * become impossible.
+			 */
+			ConstReverseIterator operator++(int);
+			
+			/**
+			 * Prefix decrements the ConstReverseIterator.
+			 * Using this operator on a nullptr iterator is well-defined. Note that once an iterator is decremented
+			 * beyond one before the start marker iterator, rewinding the iterator back to a valid state will
+			 * become impossible.
+			 * @since 1.5.0
+			 */
+			ConstReverseIterator& operator--();
+			
+			/**
+			 * Prefix decrements the ConstReverseIterator.
+			 * Using this operator on a nullptr iterator is well-defined. Note that once an iterator is decremented
+			 * beyond one before the start marker iterator, rewinding the iterator back to a valid state will
+			 * become impossible.
+			 * @since 1.5.0
+			 */
+			ConstReverseIterator operator--(int);
+			
+			/**
+			 * Checks if the iterator points at valid data.
+			 * Equivalent to isValid().
+			 * @return true if both the stored iterator are valid and its object is not nullptr, false if one or both conditions are not met.
+			 * @since 1.5.0
+			 */
+			explicit operator bool() const noexcept;
+			
+			/**
+			 * Converts this ConstReverseIterator to a ConstIterator representing the same point.
+			 * The constructed ConstIterator will point to the same item as the used
+			 * ConstIterator, but will reverse the direction of iteration.
+			 * That is, *(++ConstIterator(fromConstReverseIterator)) == --fromConstReverseIterator.
+			 * @since 1.5.0
+			 */
+			explicit operator ConstIterator() const noexcept;
+			
+			/**
+			 * Checks if the iterator points at valid data.
+			 * @return true if both the stored ItemIterator are valid and its object is not nullptr, false if one or both conditions are not met.
+			 * @since 1.5.0
+			 */
+			bool isValid() const noexcept;
+			
+			/**
+			 * Provides three-way comparison for Iterator objects.
+			 * @since 1.5.0
+			 */
+			friend auto operator<=>(const ConstReverseIterator&, const ConstReverseIterator&) = default;
+			
+			private:
+			/**
+			 * The interal ItemIterator held by the iterator.
+			 * @since 1.5.0
+			 * @internal
+			 */
+			ItemIterator p;
+		};
+		
+		/**
+		 * Returns an ConstReverseIterator to the starting object.
+		 */
+		ConstReverseIterator crbegin() const noexcept;
+		
+		/**
+		 * Returns the end marker ConstReverseIterator in accordance with C++11 iteration practice. 
+		 * Decrement this iterator to access the actual last item.
+		 * Suitable for use in statements such as 'while (iterator != myNamedList->crend()).
+		 */
+		ConstReverseIterator crend() const noexcept;
+		
+		static_assert(std::bidirectional_iterator<ConstIterator>);
+		
+		/**
+		 * A modifiable reverse iterator for BdfList.
+		 *
+		 * BdfList objects can be traversed using iterators as an alternative to key finding.
+		 * All iterators in BdfList satisfy std::bidirectional_iterator.
+		 *
+		 * Modifiable Iterator objects cannot be obtained with const BdfList objects. Instead,
+		 * you can use ConstIterator. Modifiable Iterator is also implicitly convertible to
+		 * ConstIterator. If you don't need to modify the data using an iterator, prefer
+		 * ConstIterator.
+		 *
+		 * Callers may explicitly convert Iterators to ReverseIterators and vice versa.
+		 * The direction of iteration is based on the object type at the time of an iteration operator being called.
+		 *
+		 * @since 1.5.0
+		 */
+		struct ReverseIterator {
+			friend class BdfNamedList;
+			using value_type = BdfObject*;
+			using iterator_category = std::bidirectional_iterator_tag;
+			using difference_type = std::ptrdiff_t;
+			
+			/**
+			 * Default constructor. Creates a blank Iterator.
+			 * @since 1.5.0
+			 */
+			ReverseIterator();
+			
+			/**
+			 * Creates a new iterator from an ItemIterator.
+			 * @internal
+			 */
+			explicit ReverseIterator(const ItemIterator &p);
+			
+			/**
+			 * Creates a new ReverseIterator from the given Iterator.
+			 * The constructed ReverseIterator will point to the same item as the used
+			 * Iterator, but will reverse the direction of iteration.
+			 * That is, *(++ReverseIterator(fromIterator)) == *(--Iterator).
+			 * @param fromIterator An Iterator which will be used to construct this ReverseIterator.
+			 * @since 1.5.0
+			 */
+			explicit ReverseIterator(const Iterator &fromIterator);
+			
+			/**
+			 * Dereferences the BdfObject contained in the iterator.
+			 * @since 1.5.0
+			 */
+			BdfObject* operator*() const noexcept;
+			
+			/**
+			 * Dereferences the BdfObject contained in the iterator.
+			 * @since 1.5.0
+			 */
+			BdfObject* operator->() const noexcept;
+			
+			/**
+			 * Prefix increments the Iterator.
+			 * @since 1.5.0
+			 */
+			ReverseIterator& operator++();
+			
+			/**
+			 * Postfix increments the Iterator.
+			 * @since 1.5.0
+			 */
+			ReverseIterator operator++(int);
+			
+			/**
+			 * Prefix decrements the Iterator.
+			 * @since 1.5.0
+			 */
+			ReverseIterator& operator--();
+			
+			/**
+			 * Postfix decrements the Iterator.
+			 * @since 1.5.0
+			 */
+			ReverseIterator operator--(int);
+				
+			/**
+			 * Checks if the iterator points at valid data.
+			 * @return true if both the stored ItemIterator are valid and its object is not nullptr, false if one or both conditions are not met.
+			 * @since 1.5.0
+			 */
+			bool isValid() const noexcept;
+			
+			/**
+			 * Checks if the iterator points at valid data.
+			 * Equivalent to isValid().
+			 * @return true if both the stored ItemIterator are valid and its object is not nullptr, false if one or both conditions are not met.
+			 * @since 1.5.0
+			 */
+			explicit operator bool() const noexcept;
+			
+			/**
+			 * Converts this ReverseIterator to an Iterator representing the same point.
+			 * The constructed ConstIterator will point to the same item as the used
+			 * ConstIterator, but will reverse the direction of iteration.
+			 * That is, *(++Iterator(fromReverseIterator)) == --fromReverseIterator.
+			 * @since 1.5.0
+			 */
+			explicit operator Iterator() const noexcept;
+			
+			/**
+			 * Implicitly converts a modifiable ReverseIterator to a ConstReverseIterator.
+			 * @since 1.5.0
+			 */
+			operator ConstReverseIterator() const noexcept;
+			
+			/**
+			 * Provides three-way comparison for Iterator objects.
+			 * @since 1.5.0
+			 */
+			friend auto operator<=>(const ReverseIterator&, const ReverseIterator&) = default;
+			
+			private:
+			/** 
+			 * The interal ItemIterator held by the iterator.
+			 * @since 1.5.0
+			 * @internal
+			 */
+			ItemIterator p;
+		};
+				
+		/**
+		 * Returns a ReverseIterator to the end object.
+		 */
+		ReverseIterator rbegin() noexcept;
+		
+		/**
+		 * Returns the end marker ReverseIterator in accordance with C++11 iteration practice. 
+		 * Decrement this iterator to access the actual start item.
+		 * Suitable for use in statements such as 'while (iterator != myNamedList->end()).
+		 */
+		ReverseIterator rend() noexcept;
 	};
 }
 

@@ -138,6 +138,11 @@ int main()
 	// Test that a round trip lookup of the name->object->name works.
 	test(nl->getNameFromObject(nl->get("Hello")) == "Hello");
 	
+	// Test that calling --(nl->end()) results in a valid Iterator.
+	// We won't test the contents of it since sorting order is not guaranteed for BdfNamedLists.
+	Bdf::BdfNamedList::Iterator endIterator(nl->end());
+	test((--endIterator).isValid());
+	
 	// The following tests for BdfIndent also come in static_assert form.
 	// A failure here will most likely stop compilation as well as the runtime test.
 	// It also diagnoses whether constexpr methods are working correctly, as they will
