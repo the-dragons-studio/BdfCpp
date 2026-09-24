@@ -1427,7 +1427,7 @@ void BdfObject::getFloatArray(float** v, int* pSize) const
 }
 
 // Objects
-std::string getString() {
+std::string BdfObject::getString() {
 	return this->useString();
 }
 
