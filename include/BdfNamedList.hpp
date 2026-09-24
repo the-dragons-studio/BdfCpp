@@ -288,7 +288,7 @@ namespace Bdf
 		 *          If this functionality is desired, call BdfNamedList::use() instead.
 		 * @since 1.0
 		 */
-		BdfObject* get(std::string key);
+		BdfObject* get(const std::string &key);
 		
 		/**
 		 * Gets the item located at key. If it does not exist, creates it.
@@ -296,7 +296,7 @@ namespace Bdf
 		 * @return a pointer to the object located at key.
 		 * @since 1.5.0
 		 */
-		BdfObject* use(std::string key);
+		BdfObject* use(const std::string &key);
 		
 		/**
 		 * Returns a ConstIterator that points at the BdfObject given at
@@ -305,7 +305,7 @@ namespace Bdf
 		 * @return A ConstIterator that points at the BdfObject given at
 		 *         key, or equal to BdfNamedList::cend() if none was found.
 		 */
-		ConstIterator find(std::string key) const;
+		ConstIterator find(const std::string &key) const noexcept;
 		
 		/**
 		 * Returns a ConstIterator that points at the BdfObject given at
@@ -314,7 +314,7 @@ namespace Bdf
 		 * @return A ConstIterator that points at the BdfObject given at
 		 *         key, or equal to BdfNamedList::cend() if none was found.
 		 */
-		ConstIterator find(size_t key) const;
+		ConstIterator find(size_t key) const noexcept;
 		
 		/**
 		 * Returns an Iterator that points at the BdfObject given at
@@ -323,7 +323,7 @@ namespace Bdf
 		 * @return An Iterator that points at the BdfObject given at
 		 *         key, or equal to BdfNamedList::cend() if none was found.
 		 */
-		Iterator find(std::string key);
+		Iterator find(const std::string &key) noexcept;
 		
 		/**
 		 * Returns a ConstIterator that points at the BdfObject given at
@@ -332,7 +332,7 @@ namespace Bdf
 		 * @return An Iterator that points at the BdfObject given at
 		 *         key, or equal to BdfNamedList::cend() if none was found.
 		 */
-		Iterator find(size_t key);
+		Iterator find(size_t key) noexcept;
 		
 		/**
 		 * Replaces the object located at key with the object located at value.
@@ -342,7 +342,7 @@ namespace Bdf
 		 * @return the BdfNamedList, now with the object set performed.
 		 * @since 1.0
 		 */
-		BdfNamedList* set(std::string key, BdfObject* value) noexcept;
+		BdfNamedList* set(const std::string &key, BdfObject* value) noexcept;
 		
 		/**
 		 * Replaces the object located at key with the object located at value.
@@ -362,9 +362,9 @@ namespace Bdf
 		 * @deprecated since 1.4.0, will be replaced by pop() in 2.0.0 with no behaviour change.
 		 */
 		#if __cplusplus >= 201402L
-		[[deprecated("Use Bdf::BdfNamedList::pop(std::string key) instead.")]]
+		[[deprecated("Use Bdf::BdfNamedList::pop(const std::string &key) instead.")]]
 		#endif
-		BdfObject* remove(std::string key) noexcept;
+		BdfObject* remove(const std::string &key) noexcept;
 		
 		/**
 		 * Removes the object located at key and returns that object.
@@ -385,7 +385,7 @@ namespace Bdf
 		 * @return the BdfObject that lived at key, or null if no object was found at key.
 		 * @since 1.4.0
 		 */
-		BdfObject* pop(std::string key) noexcept;
+		BdfObject* pop(const std::string &key) noexcept;
 		
 		/**
 		 * Pops the BdfObject located at the specified key from the list, then removes it.
@@ -409,7 +409,7 @@ namespace Bdf
 		 * @return true if the key exists, false otherwise.
 		 * @since 1.0
 		 */
-		bool exists(std::string key) const noexcept;
+		bool exists(const std::string &key) const noexcept;
 		
 		/**
 		 * Checks if key exists in the BdfNamedList.

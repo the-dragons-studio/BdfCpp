@@ -197,23 +197,23 @@ std::vector<int> BdfNamedList::keys() const noexcept
 	return keys;
 }
 
-BdfNamedList::ConstIterator find(const std::string &key) const noexcept {
+BdfNamedList::ConstIterator BdfNamedList::find(const std::string &key) const noexcept {
 	return this->find(this->lookupTable->getLocation(key));
 }
 
-BdfNamedList::ConstIterator find(int key) const noexcept {
+BdfNamedList::ConstIterator BdfNamedList::find(size_t key) const noexcept {
 	return BdfNamedList::ConstIterator(this->findItemIteratorFromKey(key));
 }
 
-BdfNamedList::Iterator find(const std::string &key) noexcept {
+BdfNamedList::Iterator BdfNamedList::find(const std::string &key) noexcept {
 	return this->find(this->lookupTable->getLocation(key));
 }
 
-BdfNamedList::Iterator find(int key) noexcept {
+BdfNamedList::Iterator BdfNamedList::find(size_t key) noexcept {
 	return BdfNamedList::Iterator(this->findItemIteratorFromKey(key));
 }
 
-bool BdfNamedList::exists(std::string key) const noexcept {
+bool BdfNamedList::exists(const std::string &key) const noexcept {
 	return this->exists(this->lookupTable->getLocation(key));
 }
 
@@ -280,7 +280,7 @@ bool Bdf::BdfNamedList::serializeHumanReadableShouldPrintComma(ItemIterator iter
 	return false;
 }
 
-BdfNamedList* BdfNamedList::set(std::string key, BdfObject* v) noexcept {
+BdfNamedList* BdfNamedList::set(const std::string &key, BdfObject* v) noexcept {
 	return set(lookupTable->getLocation(key), v);
 }
 
@@ -323,7 +323,7 @@ BdfObject* BdfNamedList::remove(int key) noexcept {
     return this->pop(key);
 }
 
-BdfObject* BdfNamedList::remove(std::string key) noexcept {
+BdfObject* BdfNamedList::remove(const std::string &key) noexcept {
 	return this->pop(lookupTable->getLocation(key));
 }
 
@@ -383,11 +383,11 @@ BdfObject* BdfNamedList::pop(int key) noexcept
 	return NULL;
 }
 
-BdfObject* BdfNamedList::get(std::string key) {
+BdfObject* BdfNamedList::get(const std::string &key) {
 	return this->use(lookupTable->getLocation(key));
 }
 
-BdfObject* BdfNamedList::use(std::string key) {
+BdfObject* BdfNamedList::use(const std::string &key) {
 	return this->use(lookupTable->getLocation(key));
 }
 
