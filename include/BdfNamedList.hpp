@@ -79,6 +79,7 @@ namespace Bdf
 			
 			/**
 			 * Gets a pointer to the item.
+			 * @since 1.5.0
 			 */
 			Item* operator*() const noexcept;
 			
@@ -126,6 +127,8 @@ namespace Bdf
 			explicit operator bool() const noexcept;
 				
 			/**
+			 * Compares two ItemIterators.
+			 */
 			friend auto operator<=>(const ItemIterator&, const ItemIterator&) = default;
 			
 			private:
@@ -140,7 +143,12 @@ namespace Bdf
 			 * @since 1.5.0
 			 */
 			Item* p;
+			
+			/**
 			 * Pointer to the next Item.
+			 * @since 1.5.0
+			 */
+			Item* next;
 		};
 		
 		/**
