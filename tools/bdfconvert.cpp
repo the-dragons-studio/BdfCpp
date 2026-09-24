@@ -34,7 +34,7 @@ void getCliArgsOrShowHelp(int argc, char** argv) {
 		// -o, --output-mode
 		std::vector<std::string> outputModeArgVector{"binary", "human", "inverse", "auto", "null"};
 		TCLAP::ValuesConstraint<std::string> outputModeArgConstraint(outputModeArgVector);
-		TCLAP::ValueArg<std::string> outputModeArg("o", "output-mode", "Select the type of BDF data that you would like to output.\n\nIf set to 'auto', bdfconvert will output human-readable data if sending to standard output, OR if the input was binary. It will output binary data if the input was human-readable, AND you have specified an output file to write to.\n\nIf set to 'inverse', bdfconvert will output binary data if the BDF input was human-readable. It will output human-readable data if the input was binary. Unlike 'auto', the use of standard output will not influence the selected output type.\nIf set to 'null', no output will be generated via either standard output or file writing. However, error messages will still be sent to standard error. This output mode is useful for validating BDF files.", false, "auto", &outputModeArgConstraint, cmd);
+		TCLAP::ValueArg<std::string> outputModeArg("o", "output-mode", "Select the type of BDF data that you would like to output.\n\nIf set to 'auto', bdfconvert will output human-readable data if sending to standard output, OR if the input was binary. It will output binary data if the input was human-readable, AND you have specified an output file to write to.\n\nIf set to 'inverse', bdfconvert will output binary data if the BDF input was human-readable. It will output human-readable data if the input was binary. Unlike 'auto', the use of standard output will not influence the selected output type.\n\nIf set to 'null', no output will be generated via either standard output or file writing. However, error messages will still be sent to standard error. This output mode is useful for validating BDF files.", false, "auto", &outputModeArgConstraint, cmd);
 		
 		// -f, --input-file
 		TCLAP::ValueArg<std::string> inputFileArg("f", "input-file", "If you need to read BDF data from a file, specify its path here. Leave this argument unspecified to read from standard input instead.", false, std::string(), "filename", cmd);
@@ -76,7 +76,7 @@ void getCliArgsOrShowHelp(int argc, char** argv) {
 		outputFile = outputFileArg.getValue();
 		debug = debugArg.getValue();
 	} catch (TCLAP::ArgException &e) {
-		std::cerr << "Error: " << e.error() << " for arg " << e.argId() << std::endl;
+		std::cerr << "A fatal error occured while setting up the command line parser: " << e.error() << " for arg " << e.argId() << std::endl;
 	}
 }
 
@@ -193,15 +193,88 @@ std::stringstream getBdfInputData(std::istream &istream) {
     while(!istream.eof()) {
         std::string line;
         std::getline(istream, line);
-		dataStream << line;
+		dataStream << line << "\n";
     }
 	
 	// Return our complete stream
 	return dataStream;
 }
 
-bool checkOutputFileDirectory(const std::filesystem::path &outputFile) {
+std::optional<std::string> terminalPrompt(const std::string &prompt) {
+	std::string toReturn;
+    std::cerr << prompt << std::endl << ">";
+    if (std::getline(std::cin, toReturn)) {
+        return toReturn;
+    }
+    return std::nullopt;
+}
+
+std::optional<std::filesystem::path> checkOutputFile(const std::filesystem::path &outputFile) {
+	// Does outputFile name a directory, not a file?
+	if (std::filesystem::is_directory(outputFile)) {
+		// Ask the user what filename they meant.
+		std::optional<std::string> userFilename(terminalPrompt(
+			"The given output file " +
+			outputFile.string() +
+			" appears to refer to a directory, rather than a file. Please enter a filename to output to in that directory, or press Ctrl-C to cancel."
+		));
+		
+		// Cancel if the user output is empty.
+		if (!userFilename.has_value() || userFilename->empty()) {
+			std::cerr << "Cancelling output." << std::endl;
+			return std::nullopt;
+		} else {
+			// Return outputFile appended to the newly given name.
+			return outputFile / *userFilename;
+		}
+	}
 	
+	// Get the parent of outputFile
+	std::filesystem::path outputPath(outputFile.parent_path());
+	
+	if (std::filesystem::exists(outputPath)) {
+		// Good to return now
+		return outputFile;
+	} else {
+		uint8_t attempts = 0;
+		std::optional<std::string> userPrompt;
+		
+		do {
+			if (userPrompt.has_value()){
+				// Did the user ask us to create it?
+				if (*userPrompt == "y" || *userPrompt == "Y" || *userPrompt == "yes") {
+					// Create it
+					std::filesystem::create_directory(outputPath);
+					
+					// Then return the outputFile to start serialisation.
+					return outputFile;
+				// Did the user specifically not want it created?
+				} else if (*userPrompt == "n" || *userPrompt == "N" || *userPrompt == "no") {
+					std::cerr << "Cancelling output." << std::endl;
+					return std::nullopt;
+				} else {
+					// Try prompting again.
+					std::cerr << "Make sure you answer by typing 'y' or 'n'." << std::endl;
+				}
+							
+				++attempts;
+			}
+					
+			userPrompt = terminalPrompt(
+				"The directory " + 
+				outputPath.string() +
+				" does not exist. Would you like to create it in order to proceed? [y/n]"
+			);
+		} while (userPrompt.has_value() && attempts < 10);
+		
+		// Failsafe if we fail too many times.
+		if (attempts >= 10) {
+			std::cerr << "Too many failed attempts to read your decision. Please try again." << std::endl;
+		}
+		return std::nullopt;
+	}
+	
+	return std::nullopt;
 }
 
 Bdf::BdfIndent getIndenter() {
@@ -247,7 +320,7 @@ int main(int argc, char** argv)
 		if (e.getAtOptional().has_value()) {
 			std::cerr << "At         : " << e.getAtOptional().value() << std::endl;
 		}
-		std::cerr << "Context    : " << e.getContext() << std::endl;
+		std::cerr << "Context    : " << std::endl << e.getContext() << std::endl;
 		if (debug) {
 			std::cerr << "Stack trace: " << std::endl << e.getTrace() << std::endl;
 		}
@@ -262,6 +335,8 @@ int main(int argc, char** argv)
 		if (validate) {
 			exit(0);
 		}
+		
+		std::optional<std::filesystem::path> confirmedOutputFile;
 		
 		// We might end up with a nullptr BdfReader if one of the above steps failed,
 		// especially if --keep-going was set. Create a new one in that case.
@@ -290,7 +365,15 @@ int main(int argc, char** argv)
 					std::cout.write(data + i, std::min(1024, data_size - i));
 				}
 			} else {
-				std::ofstream ofstr(outputFile);
+				// Validate the output file
+				confirmedOutputFile = checkOutputFile(outputFile);
+				
+				// Exit if the optional is empty, meaning validation failed.
+				if (!confirmedOutputFile.has_value()) {
+					exit(0);
+				}
+				
+				std::ofstream ofstr(*confirmedOutputFile);
 				for(int i=0;i<data_size;i+=1024) {
 					ofstr.write(data + i, std::min(1024, data_size - i));
 				}
@@ -301,8 +384,14 @@ int main(int argc, char** argv)
 			if (outputFile.empty()) {
 				reader->serializeHumanReadable(std::cout, getIndenter());
 			} else {
-				// checkOutputFileDirectory(outputFile);
-				reader->serializeHumanReadable(outputFile, getIndenter());
+				// Validate the output file
+				confirmedOutputFile = checkOutputFile(outputFile);
+				
+				// Exit if the optional is empty, meaning validation failed.
+				if (!confirmedOutputFile.has_value()) {
+					exit(0);
+				}
+				reader->serializeHumanReadable(*confirmedOutputFile, getIndenter());
 			}
 		}		
 	} catch (std::exception &e) {
