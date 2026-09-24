@@ -117,15 +117,24 @@ BdfError::BdfError(const int code) noexcept:
 
 std::string BdfError::getErrorEnglishDescription(std::optional<BdfError::ErrorType> type) {
 	switch (type.value_or(this->type)) {
-        case BdfError::ErrorType::SYNTAX: return "Syntax error";
-        case BdfError::ErrorType::UNEXPECTED_END_OF_FILE: return "Unexpected end of file";
-        case BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF: return "Multiline comment was not closed before the end of the file";
-		case BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF: return "String was not closed before the end of the file";
-		case BdfError::ErrorType::ILLEGAL_STRING_BACKSLASH_ESCAPE: return "Illegal string backslash escape code";
-		case BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE: return "Number out of range of the given datatype";
-		case BdfError::ErrorType::DATA_INCOMPATIBLE_WITH_OBJECT: return "This data is not compatible with the requested type of object";
-		case BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH: return "Size tag found in binary data does not match actual data size";
-		case BdfError::ErrorType::BINARY_LOOKUPTABLE_SIZE_ALLOCATION_FAILED: return "Failed to allocate enough size to read binary BDF data, it may be corrupt";
+        case BdfError::ErrorType::SYNTAX: 
+			return "Syntax error";
+        case BdfError::ErrorType::UNEXPECTED_END_OF_FILE:
+			return "Unexpected end of file";
+        case BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF:
+			return "Multiline comment was not closed before the end of the file";
+		case BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF:
+			return "String was not closed before the end of the file";
+		case BdfError::ErrorType::ILLEGAL_STRING_BACKSLASH_ESCAPE:
+			return "Illegal string backslash escape code";
+		case BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE:
+			return "Number out of range of the given datatype";
+		case BdfError::ErrorType::DATA_INCOMPATIBLE_WITH_OBJECT:
+			return "This data is not compatible with the requested type of object";
+		case BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH: return
+			"Size tag found in binary data does not match actual data size";
+		case BdfError::ErrorType::BINARY_LOOKUPTABLE_SIZE_ALLOCATION_FAILED:
+			return "Failed to allocate enough size to read binary BDF data, it may be corrupt";
     }
 	
 	return "Unknown error";
@@ -150,24 +159,31 @@ BdfError::ErrorType BdfError::getErrorTypeFromClassicCode(int code) {
 }
 
 int BdfError::getClassicCodeFromErrorType(BdfError::ErrorType type) const noexcept {
-	// Define an array with the enums in the exact order that the classic error codes went in.
-	static std::array<BdfError::ErrorType, 6> classicCodeOrderedEnums({
-			BdfError::ErrorType::SYNTAX,
-			BdfError::ErrorType::UNEXPECTED_END_OF_FILE,
-			BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF,
-			BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF,
-			BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE,
-			BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH
-	});
-	
-	size_t i = 0;
-	
-	for (auto iterator = classicCodeOrderedEnums.cbegin(); iterator != classicCodeOrderedEnums.cend(); ++i, ++iterator) {
-		if (*iterator == type) {
-			return i;
-		}
+	// Translate ErrorType to a classic error code.
+	// Using underlying values here to prevent further deprecation warnings.
+	switch (type) {
+        case BdfError::ErrorType::SYNTAX: 
+			return 0; // ERROR_SYNTAX
+        case BdfError::ErrorType::UNEXPECTED_END_OF_FILE:
+			return 1; // ERROR_END_OF_FILE
+        case BdfError::ErrorType::UNCLOSED_COMMENT_BEFORE_EOF:
+			return 2; // ERROR_UNESCAPED_COMMENT
+		case BdfError::ErrorType::UNCLOSED_STRING_BEFORE_EOF:
+			return 3; // ERROR_UNESCAPED_STRING
+		case BdfError::ErrorType::ILLEGAL_STRING_BACKSLASH_ESCAPE:
+			return 0; // ERROR_SYNTAX
+		case BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE:
+			return 4; // ERROR_OUT_OF_RANGE
+		case BdfError::ErrorType::DATA_INCOMPATIBLE_WITH_OBJECT:
+			return 4; // ERROR_OUT_OF_RANGE
+		case BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH:
+			return 5; // ERROR_SIZE_TAG_MISMATCH
+		case BdfError::ErrorType::BINARY_LOOKUPTABLE_SIZE_ALLOCATION_FAILED:
+			return 5; // ERROR_SIZE_TAG_MISMATCH
+		default:
+			return 0; // ERROR_SYNTAX
 	}
-
+	
 	return 0;
 }
 

@@ -2,7 +2,7 @@
 #ifndef BDFERROR_HPP_
 #define BDFERROR_HPP_
 
-#include "BdfStringReader.hpp"
+// #include "BdfStringReader.hpp"
 
 #include <cstdint>
 #include <optional>
@@ -14,6 +14,8 @@
 
 namespace Bdf
 {	
+	class BdfStringReader;
+	
 	/**
 	 * Class thrown when BdfCpp encounters fatal parse errors. It contains methods for getting the exact
 	 * type of error, an explanatory string, line and character information, and context to help debug the
