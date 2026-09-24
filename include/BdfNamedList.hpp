@@ -266,7 +266,7 @@ namespace Bdf
 		 * @return a pointer to the object located at key.
 		 * @warning Relying on this method's ability to create keys that don't exist is deprecated. From 2.0.0 onwards, this method
 		 *          will throw an std::out_of_range exception in that case instead.
-		 *          If this functionality is desired, use coerce() instead.
+		 *          If this functionality is desired, call BdfNamedList::use() instead.
 		 * @since 1.0
 		 */	
 		BdfObject* get(int key);
@@ -285,7 +285,7 @@ namespace Bdf
 		 * @return a pointer to the object located at key.
 		 * @warning Relying on this method's ability to create keys that don't exist is deprecated. From 2.0.0 onwards, this method
 		 *          will throw an std::out_of_range exception in that case instead.
-		 *          Use BdfNamedList::use() instead.
+		 *          If this functionality is desired, call BdfNamedList::use() instead.
 		 * @since 1.0
 		 */
 		BdfObject* get(std::string key);
@@ -297,6 +297,42 @@ namespace Bdf
 		 * @since 1.5.0
 		 */
 		BdfObject* use(std::string key);
+		
+		/**
+		 * Returns a ConstIterator that points at the BdfObject given at
+		 * key, or equal to BdfNamedList::cend() if none was found.
+		 * @param key The key to search for in the list.
+		 * @return A ConstIterator that points at the BdfObject given at
+		 *         key, or equal to BdfNamedList::cend() if none was found.
+		 */
+		ConstIterator find(std::string key) const;
+		
+		/**
+		 * Returns a ConstIterator that points at the BdfObject given at
+		 * key, or equal to BdfNamedList::cend() if none was found.
+		 * @param key The key to search for in the list.
+		 * @return A ConstIterator that points at the BdfObject given at
+		 *         key, or equal to BdfNamedList::cend() if none was found.
+		 */
+		ConstIterator find(size_t key) const;
+		
+		/**
+		 * Returns an Iterator that points at the BdfObject given at
+		 * key, or equal to BdfNamedList::end() if none was found.
+		 * @param key The key to search for in the list.
+		 * @return An Iterator that points at the BdfObject given at
+		 *         key, or equal to BdfNamedList::cend() if none was found.
+		 */
+		Iterator find(std::string key);
+		
+		/**
+		 * Returns a ConstIterator that points at the BdfObject given at
+		 * key, or equal to BdfNamedList::end() if none was found.
+		 * @param key The key to search for in the list.
+		 * @return An Iterator that points at the BdfObject given at
+		 *         key, or equal to BdfNamedList::cend() if none was found.
+		 */
+		Iterator find(size_t key);
 		
 		/**
 		 * Replaces the object located at key with the object located at value.

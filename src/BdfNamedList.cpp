@@ -197,6 +197,22 @@ std::vector<int> BdfNamedList::keys() const noexcept
 	return keys;
 }
 
+BdfNamedList::ConstIterator find(const std::string &key) const noexcept {
+	return this->find(this->lookupTable->getLocation(key));
+}
+
+BdfNamedList::ConstIterator find(int key) const noexcept {
+	return BdfNamedList::ConstIterator(this->findItemIteratorFromKey(key));
+}
+
+BdfNamedList::Iterator find(const std::string &key) noexcept {
+	return this->find(this->lookupTable->getLocation(key));
+}
+
+BdfNamedList::Iterator find(int key) noexcept {
+	return BdfNamedList::Iterator(this->findItemIteratorFromKey(key));
+}
+
 bool BdfNamedList::exists(std::string key) const noexcept {
 	return this->exists(this->lookupTable->getLocation(key));
 }
