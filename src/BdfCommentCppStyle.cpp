@@ -2,6 +2,8 @@
 
 #include "../include/BdfHelpers.hpp"
 
+#include <ostream>
+
 namespace Bdf {
 	BdfCommentCppStyle::BdfCommentCppStyle(Bdf::BdfIndent indenter): indenter(std::move(indenter)) {
 	}
@@ -47,8 +49,12 @@ namespace Bdf {
 	void BdfCommentCppStyle::serializeHumanReadable(std::ostream &stream, const BdfIndent &foreignIndent, int upto) const {
 		// Iterate through each stored comment line
 		for (std::string c : this->commentLines) {
-			stream << std::string("// ") << c;
-			stream << foreignIndent.breaker << this->indenter.breaker << this->indenter.calcIndent(upto);
+			// Print the comment text
+			std::print(stream, "//{0}{1}", this->indenter.indent, c);
+			// Use both the foreign indenter and the native indenter to break the line.
+			std::print(stream, "{0}{1}", foreignIndent.breaker, this->indenter.breaker);
+			// Use the foreign indenter to prepare the next comment.
+			std::print(stream, "{0}", foreignIndent.calcIndent(upto));
 		}
 	}
 }
