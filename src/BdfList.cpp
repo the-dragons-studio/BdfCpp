@@ -61,7 +61,7 @@ BdfList::BdfList(BdfLookupTable* lookupTable, BdfStringReader* sr)
 	{	
 		for(;;)
 		{
-			sr->ignoreBlanks();
+			sr->ignoreBlanksDisallowEof();
 
 			if(sr->upto[0] == ']') {
 				sr->upto += 1;
@@ -72,7 +72,7 @@ BdfList::BdfList(BdfLookupTable* lookupTable, BdfStringReader* sr)
 			add(bdf);
 
 			// There should be a comma after this
-			sr->ignoreBlanks();
+			sr->ignoreBlanksDisallowEof();
 			wchar_t c = sr->upto[0];
 	
 			if(c == ']') {

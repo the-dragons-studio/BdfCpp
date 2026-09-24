@@ -113,19 +113,21 @@ BdfNamedList::BdfNamedList(BdfLookupTable* pLookupTable, BdfStringReader* sr)
 			std::string key = sr->getQuotedString();
 	
 			// There should be a colon after this
-			sr->ignoreBlanks();
+			sr->ignoreBlanksDisallowEof();
 			if(sr->upto[0] != ':') {
 				throw BdfError(BdfError::ErrorType::SYNTAX, *sr);
 			}
 	
 			sr->upto += 1;
-			sr->ignoreBlanks();
+			
+			// We are expecting an object, so disallow EOF
+			sr->ignoreBlanksDisallowEof();
 	
 			BdfObject* bdf = new BdfObject(lookupTable, sr);
 			set(key, bdf);
 	
 			// There should be a comma after this
-			sr->ignoreBlanks();
+			sr->ignoreBlanksDisallowEof();
 			c = sr->upto[0];
 	
 			if(c == '}') {
