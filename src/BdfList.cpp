@@ -375,8 +375,10 @@ int BdfList::serialize(char *data, int* locations) const
 		if (!upto->object->isComment()) {
 			// Perform the serialisation with the stored object, then increment pos as we need.
 			pos += upto->object->serialize(data + pos, locations, 0);
-			++upto;
 		}
+
+		// Increment the iterator.
+		++upto;
 	}
 
 	return pos;
