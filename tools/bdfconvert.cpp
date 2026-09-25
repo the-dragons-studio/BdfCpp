@@ -54,11 +54,8 @@ void getCliArgsOrShowHelp(int argc, char** argv) {
 		cmd.add(humanReadableOutputType);
 		
 		// -k, --keep-going
-		// TCLAP::SwitchArg dryRunOnlyArg("k", "keep-going", "Attempt to recover from errors. May result in empty BDF data being used if no sense of valid data could be determined at all. Useful when used with --dry-run-only to validate and report all errors in BDF data.", cmd, false);
-		
-		// -v, --validate
-		TCLAP::SwitchArg validateArg("V", "validate", "Only read the input and check it for errors, but do not attempt to convert it to any output. If no error message is generated, bdfconvert has successfully validated your BDF data is without error.", cmd, false);
-		
+		TCLAP::SwitchArg keepGoingArg("k", "keep-going", "Attempt to recover from errors. May result in empty BDF data being used if no sense of valid data could be determined at all.", cmd, false);
+
 		// -g, --debug
 		TCLAP::SwitchArg debugArg("g", "debug", "Print out advanced debug information if errors occur.", cmd, false);
 		
@@ -68,13 +65,13 @@ void getCliArgsOrShowHelp(int argc, char** argv) {
 		// keepGoing = keepGoingArg.getValue();
 		pretty = prettyArg.getValue();
 		minified = minifiedArg.getValue();
-		validate = validateArg.getValue();
 		
 		inputMode = inputModeArg.getValue();
 		outputMode = outputModeArg.getValue();
 		inputFile = inputFileArg.getValue();
 		outputFile = outputFileArg.getValue();
 		debug = debugArg.getValue();
+		keepGoing = keepGoingArg.getValue();
 	} catch (TCLAP::ArgException &e) {
 		std::cerr << "A fatal error occured while setting up the command line parser: " << e.error() << " for arg " << e.argId() << std::endl;
 	}
@@ -331,8 +328,8 @@ int main(int argc, char** argv)
 	}
 	
 	try {
-		// Exit immediately if in validate mode.
-		if (validate) {
+		// Exit immediately if in null output mode.
+		if (outputMode == "null") {
 			exit(0);
 		}
 		
