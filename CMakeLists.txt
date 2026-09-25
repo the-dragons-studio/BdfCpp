@@ -58,6 +58,16 @@ endif(DOXYGEN_READY)
 # target_link_libraries(bdf )
 install(TARGETS bdf)
 
+# Set a default build type to 'RelWithDebInfo' if none was specified
+if((NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "None") AND NOT CMAKE_CONFIGURATION_TYPES)
+	message(STATUS "Setting build type to 'RelWithDebInfo' as none was specified.")
+	set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build." FORCE)
+	# Set the possible values of build type for cmake-gui
+	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+else()
+	message(STATUS "Using build type: ${CMAKE_BUILD_TYPE} / ${CMAKE_CONFIGURATION_TYPES}")
+endif()
+
 # If the user requests, build other executables
 if(BUILD_EXAMPLES)
 	# fibonacci
