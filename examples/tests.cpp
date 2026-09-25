@@ -164,6 +164,31 @@ int main()
 	
 	static_assert(Bdf::BdfIndent("\t", "\n").calcIndent(2) == "\t\t", "BdfIndent::calcIndent(0) did not indent 3 times as expected");
 	test(Bdf::BdfIndent("\t", "\n").calcIndent(2) == "\t\t");
+	
+	// Test that constructing a BdfReader outside a code block, then move constructing from it inside a code block
+	// gains access to the data written to it.
+	Bdf::BdfReader toMoveFrom;
+	toMoveFrom.getObject()->useNamedList()->use("Hello")->setString("I am being accessed from a BdfReader inside a code block. I will be destroyed, along with my BdfReader, when that code block is exited.");
+	
+	{
+		Bdf::BdfReader toMoveTo(std::move(toMoveFrom));
+		test(toMoveTo.getObject()->getType() == Bdf::BdfTypes::NAMED_LIST);
+		test(toMoveTo.getObject()->getNamedList()->get("Hello")->getString() == 	
+			"I am being accessed from a BdfReader inside a code block. I will be destroyed, along with my BdfReader, when that code block is exited.");
+	}
+	test(toMoveFrom.getObject()->getType() == Bdf::BdfTypes::UNDEFINED);
+	
+	// Test that constructing a BdfReader inside a code block, then move assigning to it, will allow use of its contents
+	// outside the code block.
+	Bdf::BdfReader toAssignTo;
 
+	{
+		Bdf::BdfReader expiringReader;
+		expiringReader.getObject()->setString("Hello! I should be able to be read from outside when expiringReader was destroyed.");
+
+		toAssignTo = std::move(expiringReader);
+	} // expiringReader is freed at this point, but toAssignTo is NOT freed
+
+	test(toAssignTo.getObject()->getString() == "Hello! I should be able to be read from outside when expiringReader was destroyed."); // OK; bdf still refers to movedReader (formerly expiringReader)'s object
 	return 0;
 }
