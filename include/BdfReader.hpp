@@ -62,10 +62,16 @@ namespace Bdf
 		
 		/**
 		 * Switches the pointers of this with that for both the lookupTable and object.
-   		 * @param that the object to switch pointers with.
-                 * @since 1.4.0
+   		 * @param lhs the object to switch pointers with.
+		 * @param rhs the object to switch pointers with.
+         * @since 1.4.0
 		 */
-		void swap(BdfReader &&that) noexcept;
+		friend void swap(BdfReader &&lhs, BdfReader &&rhs) noexcept {
+			using std::swap;
+			
+			swap(lhs.lookupTable, rhs.lookupTable);
+			swap(lhs.bdf, rhs.bdf);
+		}
 		
 		/**
 		 * Deleted (no copy constructor).
