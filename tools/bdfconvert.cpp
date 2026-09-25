@@ -121,11 +121,11 @@ Bdf::BdfReader *tryHumanReader(const std::stringstream &inputData) {
 		// Ignore the error in auto mode if and only if:
 		// 1. it is a syntax error
 		// 2. the line count is defined as 3 or fewer
-		// 3. the at count is defined as 50 or fewer
+		// 3. the at count is defined as 5 or fewer
 		if (inputMode == "auto" &&
 			e.getErrorType() == Bdf::BdfError::ErrorType::SYNTAX &&
 			e.getLineOptional().value_or(999) <= 3 &&
-			e.getAtOptional().value_or(999) <= 50
+			e.getAtOptional().value_or(999) <= 5
 		) {
 			return nullptr;			
 		} else {
@@ -321,6 +321,13 @@ int main(int argc, char** argv)
 		if (debug) {
 			std::cerr << "Stack trace: " << std::endl << e.getTrace() << std::endl;
 		}
+		
+		if (!keepGoing) {
+			exit(2);
+		}
+	} catch (std::exception &e) {
+		std::println(std::cerr, "An error occured while attempting to unserialise the provided BDF data.");
+		std::println(std::cerr, "Description: {0}", e.what());
 		
 		if (!keepGoing) {
 			exit(2);
