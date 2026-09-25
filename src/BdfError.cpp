@@ -129,6 +129,8 @@ std::string BdfError::getErrorEnglishDescription(std::optional<BdfError::ErrorTy
 			return "Illegal string backslash escape code";
 		case BdfError::ErrorType::NUMERICAL_OUT_OF_RANGE:
 			return "Number out of range of the given datatype";
+		case BdfError::ErrorType::NAMED_LIST_DANGLING_KEY:
+			return "Named list contains key without a corresponding object";
 		case BdfError::ErrorType::DATA_INCOMPATIBLE_WITH_OBJECT:
 			return "This data is not compatible with the requested type of object";
 		case BdfError::ErrorType::BINARY_SIZE_TAG_MISMATCH: return

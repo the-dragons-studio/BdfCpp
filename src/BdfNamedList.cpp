@@ -120,8 +120,11 @@ BdfNamedList::BdfNamedList(BdfLookupTable* pLookupTable, BdfStringReader* sr)
 	
 			sr->upto += 1;
 			
-			// We are expecting an object, so disallow EOF
-			sr->ignoreBlanksDisallowEof();
+			// We are expecting an object, so disallow EOF or comma
+			sr->ignoreBlanksDisallowEof(BdfError::ErrorType::NAMED_LIST_DANGLING_KEY);
+			if(c != ',') {
+				throw BdfError(BdfError::ErrorType::NAMED_LIST_DANGLING_KEY, *sr);
+			}
 	
 			BdfObject* bdf = new BdfObject(lookupTable, sr);
 			set(key, bdf);

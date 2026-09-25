@@ -75,6 +75,14 @@ namespace Bdf
 		 	 * @note This error can only occur when parsing a human-readable file.
 	     	 */
 			NUMERICAL_OUT_OF_RANGE,
+			
+			/**
+			 * Indicates a "dangling" BdfNamedList key was found; that is, a key that was not followed by
+			 * a parsable BdfObject. That means either the comma character or the end of file was found
+			 * instead.
+			 * @note: This error can only occur when parsing a human-readable file.
+			 */
+			NAMED_LIST_DANGLING_KEY,
 
 			/**
 			 * Indicates that the size tag found at the start of a binary file does not match the memory actually required to parse it.
