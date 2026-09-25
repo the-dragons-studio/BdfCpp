@@ -86,6 +86,25 @@ BdfReader::BdfReader(const char* data, size_t size)
 	bdf = new BdfObject(lookupTable, data_bdf, bdf_size);
 }
 
+BdfReader::BdfReader(BdfReader &&other) noexcept {
+	// Call BdfReader::initEmpty() to ensure we have a valid reader to give to other.
+	this->initEmpty();
+	
+	// Swaps ourself with the new reader.
+	swap(std::move(*this), std::move(other));
+}
+
+BdfReader& BdfReader::operator=(BdfReader &&other) noexcept {
+	// Construct a temporary reader.
+	BdfReader tempReader(std::move(other));
+	
+	// Swap our current reader with the tempReader.
+    swap(std::move(*this), std::move(tempReader)); 
+	
+	// Return ourself, allowing tempReader to destruct holding our old contents.
+    return *this;
+}
+
 BdfReader::~BdfReader() {
 	delete lookupTable;
 	delete bdf;
